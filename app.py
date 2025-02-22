@@ -5,7 +5,7 @@ import hashlib
 import re
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
 
 # Your existing routes and functions here
