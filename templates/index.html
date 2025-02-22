@@ -3,42 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GreenFeather - Sign In</title>
+    <title>Sign In - JILCF School Uniform</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <div class="feather-bg left"></div>
-        <div class="feather-bg right"></div>
-        
-        <main class="login-container fade-in">
+    <div class="login-container">
+        <!-- Left side - Login Form -->
+        <div class="login-form-section">
             <div class="logo">
-                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="GreenFeather Logo">
+                <span class="logo-text">greenFeather</span>
             </div>
             
-            <h1>Sign In</h1>
-            
-            <form class="login-form slide-up" id="loginForm">
-                <div class="message-box" id="messageBox"></div>
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="john@example.com" required>
-                </div>
+            <div class="login-form-wrapper">
+                <h1>Sign In</h1>
                 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                    <a href="{{ url_for('forgot_password_page') }}" class="forgot-password">Forgot Password?</a>
-                </div>
-                
-                <button type="submit" class="sign-in-btn">Sign In</button>
-                
-                <p class="create-account">
-                    Don't have an account? 
-                    <a href="{{ url_for('signup_page') }}">Create your account</a>
-                </p>
-            </form>
-        </main>
+                <form class="login-form" method="post" action="{{ url_for('login') }}">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <a href="{{ url_for('forgot_password') }}" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="sign-in-btn">Sign In</button>
+                    
+                    <div class="create-account">
+                        <p>Don't have an account? <a href="{{ url_for('signup') }}">Create your account</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Right side - Illustration -->
+        <div class="illustration-section">
+            <div class="illustration-content">
+                <div class="circle-bg"></div>
+                <div class="dots-bg"></div>
+            </div>
+        </div>
     </div>
 
     <script>

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_cors import CORS
 import sqlite3
 import hashlib
@@ -6,13 +6,10 @@ import re
 import os
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 CORS(app)
 
 # Your existing routes and functions here
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
 
 # Database initialization
 def init_db():
@@ -86,16 +83,38 @@ def check_password_strength(password):
 def index():
     return render_template('index.html')
 
+@app.route('/login', methods=['POST'])
+def login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    
+    try:
+        with sqlite3.connect('users.db') as conn:
+            c = conn.cursor()
+            c.execute('SELECT name, password FROM users WHERE email = ?', (email,))
+            user = c.fetchone()
+            
+            if user and user[1] == hash_password(password):
+                return jsonify({
+                    "success": True,
+                    "message": "Login successful",
+                    "name": user[0]
+                })
+            flash('Invalid credentials. Please try again.', 'error')
+            return redirect(url_for('index'))
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/forgot-password')
+def forgot_password():
+    return render_template('forgot-password.html')
+
 @app.route('/signup')
 def signup_page():
     return render_template('signup.html')
 
-@app.route('/forgot-password')
-def forgot_password_page():
-    return render_template('forgot-password.html')
-
 @app.route('/api/signup', methods=['POST'])
-def signup():
+def signup_api():
     data = request.json
     name = data.get('name')
     email = data.get('email')
@@ -119,31 +138,6 @@ def signup():
         return jsonify({"success": True, "message": "User registered successfully"})
     except sqlite3.IntegrityError:
         return jsonify({"success": False, "message": "Email already exists"}), 400
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
-    
-    try:
-        with sqlite3.connect('users.db') as conn:
-            c = conn.cursor()
-            c.execute('SELECT name, password FROM users WHERE email = ?', (email,))
-            user = c.fetchone()
-            
-            if user and user[1] == hash_password(password):
-                return jsonify({
-                    "success": True,
-                    "message": "Login successful",
-                    "name": user[0]
-                })
-            return jsonify({
-                "success": False,
-                "message": "Invalid email or password"
-            }), 401
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
