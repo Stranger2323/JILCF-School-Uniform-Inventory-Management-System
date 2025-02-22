@@ -1,26 +1,33 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Password visibility toggle
+    // Password visibility toggle with smooth animation
     const toggleButtons = document.querySelectorAll('.toggle-password');
     
     toggleButtons.forEach(toggleButton => {
         const input = toggleButton.parentElement.querySelector('input');
         const eyeIcon = toggleButton.querySelector('img');
+        let isAnimating = false;
         
         toggleButton.addEventListener('click', () => {
+            if (isAnimating) return;
+            isAnimating = true;
+            
             // Add blink animation classes
             input.classList.add('password-blink');
             eyeIcon.classList.add('eye-blink');
             
-            // Toggle password visibility
-            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-            input.setAttribute('type', type);
-            eyeIcon.src = type === 'password' ? '/static/img/eye.svg' : '/static/img/eye-off.svg';
+            // Wait for half of the animation duration before changing type
+            setTimeout(() => {
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                eyeIcon.src = type === 'password' ? '/static/img/eye.svg' : '/static/img/eye-off.svg';
+            }, 200); // Half of the 0.4s animation
             
             // Remove animation classes after animation completes
             setTimeout(() => {
                 input.classList.remove('password-blink');
                 eyeIcon.classList.remove('eye-blink');
-            }, 200); // Match the animation duration
+                isAnimating = false;
+            }, 400); // Match the animation duration
         });
     });
 
@@ -140,11 +147,11 @@ style.textContent = `
 }
 
 .password-blink {
-    animation: blink 0.2s ease-out;
+    animation: blink 0.4s ease-out;
 }
 
 .eye-blink {
-    animation: blink 0.2s ease-out;
+    animation: blink 0.4s ease-out;
 }
 
 @keyframes blink {
