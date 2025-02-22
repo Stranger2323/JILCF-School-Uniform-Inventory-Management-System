@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modern Login System</title>
+  <!-- Google Fonts and Material Icons -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #4285F4; /* Blue */
+      --secondary-color: #FBBC05; /* Yellow */
+      --bg-opacity: 0.5;
+      --container-bg: rgba(255, 255, 255, 0.9);
+      --transition-duration: 0.3s;
+      --font-logo: 2.2rem;
+      --font-heading: 22px;
+      --animation-duration: 20s;
+    }
+    /* Global Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      font-family: 'Roboto', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Center page content */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    /********************************************************
+     * BACKGROUND - Fluid Blue & Yellow Gradient
+     ********************************************************/
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      animation: colorTransition var(--animation-duration) ease-in-out infinite;
+      z-index: -1;
+      opacity: var(--bg-opacity);
+    }
+    @keyframes colorTransition {
+      0% {
+        --primary-color: #4285F4;
+        --secondary-color: #FBBC05;
+      }
+      50% {
+        --primary-color: #FBBC05;
+        --secondary-color: #4285F4;
+      }
+      100% {
+        --primary-color: #4285F4;
+        --secondary-color: #FBBC05;
+      }
+    }
+    /* MAIN CONTAINER with subtle pulse */
+    .main-container {
+      display: flex;
+      width: 90%;
+      max-width: 1000px;
+      background: var(--container-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: containerPulse 3s ease-in-out infinite;
+    }
+    @keyframes containerPulse {
+      0% { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+      50% { box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+      100% { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    }
+    /********************************************************
+     * LEFT PANEL - 3D Element & Motivational Text
+     ********************************************************/
+    .left-panel {
+      flex: 1;
+      background: var(--primary-color);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #fff;
+      border-right: 2px solid rgba(255,255,255,0.3);
+      box-shadow: inset -4px 0 8px rgba(0,0,0,0.1);
+    }
+    /* Container for the 3D canvas and text */
+    #threeDContainer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    /* 3D canvas styling */
+    #threeDCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.3;
+    }
+    /* Motivational text styling */
+    #logoText {
+      position: relative;
+      z-index: 1;
+      font-size: var(--font-logo);
+      font-weight: bold;
+      text-align: center;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+      letter-spacing: 1px;
+    }
+    /* Swirl animations for text transitions */
+    .swirl-out {
+      animation: swirlOut 0.8s forwards;
+    }
+    .swirl-in {
+      animation: swirlIn 0.8s forwards;
+    }
+    @keyframes swirlOut {
+      0% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateX(-30px) rotate(-6deg) scale(1.1); }
+    }
+    @keyframes swirlIn {
+      0% { opacity: 0; transform: translateX(30px) rotate(6deg) scale(1.1); }
+      100% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
+    }
+    /********************************************************
+     * RIGHT PANEL - Login System with Modern Effects
+     ********************************************************/
+    .right-panel {
+      flex: 0.7;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      animation: fadeInUp 1s ease-out;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Sections styling */
+    .section {
+      width: 100%;
+      display: none;
+    }
+    .section.active { display: block; }
+    .section h2 {
+      font-size: var(--font-heading);
+      margin-bottom: 15px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .section h2 i.material-icons { margin-right: 8px; }
+    .section input {
+      width: 90%;
+      max-width: 300px;
+      padding: 10px;
+      margin: 8px auto;
+      display: block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: box-shadow 0.3s ease;
+    }
+    .section input:focus {
+      outline: none;
+      box-shadow: 0 0 8px rgba(66,133,244,0.5);
+    }
+    /********************************************************
+     * BUTTONS - Border Glow on Hover (Yellow & Blue Only)
+     ********************************************************/
+    .section button {
+      width: 90%;
+      max-width: 300px;
+      padding: 10px;
+      margin: 10px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--primary-color);
+      border-radius: 4px;
+      background-color: var(--primary-color);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color var(--transition-duration) ease;
+    }
+    .section button:hover {
+      animation: borderGlow 3s linear infinite;
+    }
+    @keyframes borderGlow {
+      0% { border-color: var(--secondary-color); box-shadow: 0 0 8px var(--secondary-color); }
+      50% { border-color: var(--primary-color); box-shadow: 0 0 12px var(--primary-color); }
+      100% { border-color: var(--secondary-color); box-shadow: 0 0 8px var(--secondary-color); }
+    }
+    /********************************************************
+     * LINKS STYLING
+     ********************************************************/
+    .links {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      font-size: 14px;
+    }
+    .links a {
+      color: var(--primary-color);
+      text-decoration: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .links a i.material-icons { font-size: 16px; margin-right: 4px; }
+    .back-link {
+      margin-top: 15px;
+      color: var(--primary-color);
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+      display: block;
+      text-align: center;
+    }
+    /* Message styling */
+    .message {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+      min-height: 20px;
+    }
+    .message.error { color: #d93025; }
+    .message.success { color: #188038; }
+    /********************************************************
+     * RESPONSIVE ADJUSTMENTS
+     ********************************************************/
+    @media (max-width: 768px) {
+      .main-container { flex-direction: column; }
+      .left-panel, .right-panel { width: 100%; text-align: center; }
+      .right-panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- LEFT PANEL: 3D Container + Motivational Text -->
+    <div class="left-panel">
+      <div id="threeDContainer">
+        <canvas id="threeDCanvas"></canvas>
+        <div id="logoText">We've got you updated</div>
+      </div>
+    </div>
+    <!-- RIGHT PANEL: Login System -->
+    <div class="right-panel">
+      <!-- Sign In Section -->
+      <div id="loginSection" class="section active">
+        <h2><i class="material-icons">lock</i> Sign In</h2>
+        <input type="text" id="loginUsername" placeholder="Username" aria-label="Username" required />
+        <input type="password" id="loginPassword" placeholder="Password" aria-label="Password" required />
+        <button id="loginBtn"><i class="material-icons">login</i> Log In</button>
+        <div class="links">
+          <a id="forgotLink"><i class="material-icons">help</i> Forgot password?</a>
+          <a id="signupLink"><i class="material-icons">person_add</i> Create account</a>
+        </div>
+      </div>
+      <!-- Forgot Password Section -->
+      <div id="forgotSection" class="section">
+        <h2><i class="material-icons">help_outline</i> Reset Password</h2>
+        <input type="text" id="forgotUsername" placeholder="Username" aria-label="Username" required />
+        <input type="password" id="newPassword" placeholder="New Password" aria-label="New Password" required />
+        <input type="password" id="confirmNewPassword" placeholder="Confirm New Password" aria-label="Confirm New Password" required />
+        <button id="resetBtn"><i class="material-icons">refresh</i> Reset Password</button>
+        <a id="backToLoginFromForgot" class="back-link">Back to Sign In</a>
+      </div>
+      <!-- Create Account Section -->
+      <div id="signupSection" class="section">
+        <h2><i class="material-icons">person_add</i> Create Account</h2>
+        <input type="text" id="signupUsername" placeholder="Username" aria-label="Username" required />
+        <input type="email" id="signupEmail" placeholder="Email (optional)" aria-label="Email" />
+        <input type="password" id="signupPassword" placeholder="Password" aria-label="Password" required />
+        <input type="password" id="signupConfirm" placeholder="Confirm Password" aria-label="Confirm Password" required />
+        <button id="createBtn"><i class="material-icons">check</i> Create Account</button>
+        <a id="backToLoginFromSignup" class="back-link">Back to Sign In</a>
+      </div>
+      <!-- Message Display -->
+      <div id="message" class="message"></div>
+    </div>
+  </div>
+  
+  <!-- Three.js initialization for 3D element in left panel -->
+  <script>
+    // Get the canvas element from our left panel
+    const canvas = document.getElementById('threeDCanvas');
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const scene = new THREE.Scene();
+
+    // Create a perspective camera
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+    camera.position.z = 30;
+
+    // Add ambient and directional lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 10, 10);
+    scene.add(directionalLight);
+
+    // Create a rotating TorusKnot geometry with a material that uses our theme colors
+    const geometry = new THREE.TorusKnotGeometry(8, 2, 100, 16);
+    const material = new THREE.MeshStandardMaterial({
+      color: 0xFBBC05,    // Yellow
+      emissive: 0x4285F4,  // Blue
+      metalness: 0.5,
+      roughness: 0.4
+    });
+    const torusKnot = new THREE.Mesh(geometry, material);
+    scene.add(torusKnot);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      torusKnot.rotation.x += 0.005;
+      torusKnot.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', onWindowResize);
+    function onWindowResize() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+  </script>
+  
+  <!-- Main JavaScript for the login system -->
+  <script>
+    /*******************
+     * WEB AUDIO: Tap Sound for Navigation Clicks
+     *******************/
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    function playTapSound() {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(320, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.3);
+    }
+    
+    /*******************
+     * SECTION NAVIGATION
+     *******************/
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
+      document.getElementById('message').textContent = '';
+    }
+    document.getElementById('forgotLink').addEventListener('click', () => {
+      showSection('forgotSection');
+      playTapSound();
+    });
+    document.getElementById('signupLink').addEventListener('click', () => {
+      showSection('signupSection');
+      playTapSound();
+    });
+    document.getElementById('backToLoginFromForgot').addEventListener('click', () => {
+      showSection('loginSection');
+      playTapSound();
+    });
+    document.getElementById('backToLoginFromSignup').addEventListener('click', () => {
+      showSection('loginSection');
+      playTapSound();
+    });
+    
+    /*******************
+     * LOCALSTORAGE "DATABASE" FUNCTIONS
+     *******************/
+    function getUserDatabase() {
+      const db = localStorage.getItem('users');
+      return db ? JSON.parse(db) : [];
+    }
+    function saveUserDatabase(users) {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+    
+    /*******************
+     * SIGN IN FUNCTIONALITY
+     *******************/
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = '';
+      messageDiv.className = 'message';
+      
+      const users = getUserDatabase();
+      const user = users.find(u => u.username === username);
+      if (!user) {
+        messageDiv.textContent = 'User does not exist. Please create an account.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      if (user.password !== password) {
+        messageDiv.textContent = 'Incorrect password. Please try again.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      messageDiv.textContent = 'Login Successful!';
+      messageDiv.classList.add('success');
+    });
+    
+    /*******************
+     * CREATE ACCOUNT FUNCTIONALITY
+     *******************/
+    document.getElementById('createBtn').addEventListener('click', () => {
+      const username = document.getElementById('signupUsername').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      const confirm = document.getElementById('signupConfirm').value.trim();
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = '';
+      messageDiv.className = 'message';
+      
+      if (!username || !password) {
+        messageDiv.textContent = 'Username and password are required.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      if (password !== confirm) {
+        messageDiv.textContent = 'Passwords do not match.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      
+      let users = getUserDatabase();
+      if (users.find(u => u.username === username)) {
+        messageDiv.textContent = 'Username already taken.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      
+      users.push({ username, email, password });
+      saveUserDatabase(users);
+      
+      messageDiv.textContent = 'Sign Up Successful! You can now sign in.';
+      messageDiv.classList.add('success');
+      
+      // Clear sign-up fields
+      document.getElementById('signupUsername').value = '';
+      document.getElementById('signupEmail').value = '';
+      document.getElementById('signupPassword').value = '';
+      document.getElementById('signupConfirm').value = '';
+    });
+    
+    /*******************
+     * FORGOT PASSWORD FUNCTIONALITY
+     *******************/
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      const username = document.getElementById('forgotUsername').value.trim();
+      const newPass = document.getElementById('newPassword').value.trim();
+      const confirmNew = document.getElementById('confirmNewPassword').value.trim();
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = '';
+      messageDiv.className = 'message';
+      
+      if (!username || !newPass) {
+        messageDiv.textContent = 'Please provide username and new password.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      if (newPass !== confirmNew) {
+        messageDiv.textContent = 'New passwords do not match.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      
+      let users = getUserDatabase();
+      const userIndex = users.findIndex(u => u.username === username);
+      if (userIndex === -1) {
+        messageDiv.textContent = 'User not found. Please create an account.';
+        messageDiv.classList.add('error');
+        return;
+      }
+      
+      users[userIndex].password = newPass;
+      saveUserDatabase(users);
+      
+      messageDiv.textContent = 'Password has been reset successfully.';
+      messageDiv.classList.add('success');
+      
+      // Clear forgot password fields
+      document.getElementById('forgotUsername').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmNewPassword').value = '';
+    });
+    
+    /*******************
+     * MOTIVATIONAL TEXT SWIRL ANIMATION
+     *******************/
+    const motivationalPhrases = [
+      "We've got you updated",
+      "One step ahead",
+      "Your progress matters",
+      "Stay tuned",
+      "Keep going"
+    ];
+    let currentPhrase = 0;
+    const logoTextElem = document.getElementById('logoText');
+    
+    function cycleText() {
+      // Apply swirl-out animation
+      logoTextElem.classList.remove('swirl-in');
+      logoTextElem.classList.add('swirl-out');
+      setTimeout(() => {
+        // Update text to next phrase
+        currentPhrase = (currentPhrase + 1) % motivationalPhrases.length;
+        logoTextElem.textContent = motivationalPhrases[currentPhrase];
+        // Apply swirl-in animation
+        logoTextElem.classList.remove('swirl-out');
+        logoTextElem.classList.add('swirl-in');
+      }, 800);
+    }
+    
+    // Start with swirl-in and update every 6 seconds
+    logoTextElem.classList.add('swirl-in');
+    setInterval(cycleText, 6000);
+  </script>
+</body>
+</html>
