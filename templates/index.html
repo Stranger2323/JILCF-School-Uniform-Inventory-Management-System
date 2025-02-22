@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenFeather - Sign In</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="feather-bg left"></div>
+        <div class="feather-bg right"></div>
+        
+        <main class="login-container fade-in">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="GreenFeather Logo">
+            </div>
+            
+            <h1>Sign In</h1>
+            
+            <form class="login-form slide-up" id="loginForm">
+                <div class="message-box" id="messageBox"></div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="john@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <a href="{{ url_for('forgot_password_page') }}" class="forgot-password">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="sign-in-btn">Sign In</button>
+                
+                <p class="create-account">
+                    Don't have an account? 
+                    <a href="{{ url_for('signup_page') }}">Create your account</a>
+                </p>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const messageBox = document.getElementById('messageBox');
+
+        function showMessage(message, isError = false) {
+            messageBox.textContent = message;
+            messageBox.className = `message-box ${isError ? 'error' : 'success'}`;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`Welcome back, ${data.name}!`);
+                    // Here you can redirect to a dashboard or home page
+                    // window.location.href = '/dashboard';
+                } else {
+                    showMessage(data.message, true);
+                }
+            } catch (error) {
+                showMessage('Error signing in. Please try again.', true);
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

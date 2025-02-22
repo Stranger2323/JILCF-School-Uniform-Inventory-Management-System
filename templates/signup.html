@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenFeather - Create Account</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="feather-bg left"></div>
+        <div class="feather-bg right"></div>
+        
+        <main class="login-container fade-in">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="GreenFeather Logo">
+            </div>
+            
+            <h1>Create Account</h1>
+            
+            <form class="login-form slide-up" id="signupForm">
+                <div class="message-box" id="messageBox"></div>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="john@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Create a strong password" required>
+                    <div class="password-strength">
+                        <div class="strength-meter">
+                            <div class="strength-meter-fill" id="strengthMeter"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+                    <ul class="password-requirements" id="passwordFeedback"></ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+                    <div class="password-match" id="passwordMatch"></div>
+                </div>
+                
+                <button type="submit" class="sign-in-btn">Create Account</button>
+                
+                <p class="create-account">
+                    Already have an account? 
+                    <a href="{{ url_for('index') }}">Sign In</a>
+                </p>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const strengthMeter = document.getElementById('strengthMeter');
+        const strengthText = document.getElementById('strengthText');
+        const passwordFeedback = document.getElementById('passwordFeedback');
+        const passwordMatch = document.getElementById('passwordMatch');
+        const signupForm = document.getElementById('signupForm');
+        const messageBox = document.getElementById('messageBox');
+
+        // Initialize password requirements list
+        const requirements = [
+            { text: 'Password should be at least 8 characters long', regex: /.{8,}/ },
+            { text: 'Include at least one uppercase letter', regex: /[A-Z]/ },
+            { text: 'Include at least one lowercase letter', regex: /[a-z]/ },
+            { text: 'Include at least one number', regex: /\d/ },
+            { text: 'Include at least one special character', regex: /[!@#$%^&*(),.?":{}|<>]/ }
+        ];
+
+        passwordFeedback.innerHTML = requirements
+            .map(req => `<li>${req.text}</li>`)
+            .join('');
+
+        function showMessage(message, isError = false) {
+            messageBox.textContent = message;
+            messageBox.className = `message-box ${isError ? 'error' : 'success'}`;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        }
+
+        // Check password strength
+        async function checkPasswordStrength(password) {
+            const response = await fetch('/api/check-password-strength', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password }),
+            });
+            return await response.json();
+        }
+
+        // Check password strength and update UI
+        async function updatePasswordStrength() {
+            const password = passwordInput.value;
+            if (!password) {
+                strengthMeter.style.width = '0%';
+                strengthText.textContent = '';
+                passwordFeedback.querySelectorAll('li').forEach(li => li.classList.remove('met'));
+                return;
+            }
+
+            // Update requirements list
+            const reqItems = passwordFeedback.querySelectorAll('li');
+            requirements.forEach((req, index) => {
+                const ismet = req.regex.test(password);
+                reqItems[index].classList.toggle('met', ismet);
+            });
+
+            const result = await checkPasswordStrength(password);
+            const percentage = (result.score / 5) * 100;
+            
+            strengthMeter.style.width = `${percentage}%`;
+            strengthMeter.className = `strength-meter-fill strength-${result.strength.toLowerCase().replace(' ', '-')}`;
+            strengthText.textContent = result.strength;
+        }
+
+        // Check if passwords match
+        function checkPasswordsMatch() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (!confirmPassword) {
+                passwordMatch.textContent = '';
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                passwordMatch.textContent = 'Passwords match';
+                passwordMatch.className = 'password-match match';
+            } else {
+                passwordMatch.textContent = 'Passwords do not match';
+                passwordMatch.className = 'password-match no-match';
+            }
+        }
+
+        // Handle form submission
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match!', true);
+                return;
+            }
+            
+            const strengthCheck = await checkPasswordStrength(password);
+            if (strengthCheck.score < 3) {
+                showMessage('Please choose a stronger password!', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        password: password,
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Account created successfully!');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } else {
+                    showMessage(data.message, true);
+                }
+            } catch (error) {
+                showMessage('Error creating account. Please try again.', true);
+                console.error('Error:', error);
+            }
+        });
+
+        // Add event listeners
+        passwordInput.addEventListener('input', updatePasswordStrength);
+        confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
+    </script>
+</body>
+</html>
