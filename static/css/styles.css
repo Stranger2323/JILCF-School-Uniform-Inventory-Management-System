@@ -209,7 +209,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 0;
     pointer-events: none;
 }
 
@@ -391,7 +391,7 @@ body {
 }
 
 .container {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 40px;
@@ -444,7 +444,7 @@ body {
 }
 
 .logo img {
-    width: 180px;
+    max-width: 120px;
     height: auto;
     transition: transform 0.3s ease;
 }
@@ -639,23 +639,21 @@ label {
 
 .message-box {
     display: none;
-    padding: 10px;
+    padding: 12px;
     margin-bottom: 20px;
-    border-radius: 6px;
-    text-align: center;
+    border-radius: 8px;
     font-size: 14px;
-    animation: fadeIn 0.3s ease-out;
 }
 
 .message-box.error {
     background-color: #ffebee;
-    color: #d32f2f;
+    color: var(--error-color);
     border: 1px solid #ffcdd2;
 }
 
 .message-box.success {
     background-color: #e8f5e9;
-    color: #2e7d32;
+    color: var(--success-color);
     border: 1px solid #c8e6c9;
 }
 
@@ -682,7 +680,7 @@ label {
     height: 100%;
     background: linear-gradient(45deg, #0066cc, #FFD700);
     transform: translateX(-100%);
-    z-index: 1000;
+    z-index: 9999;
     pointer-events: none;
 }
 
@@ -720,59 +718,30 @@ label {
 
 @media screen and (max-width: 480px) {
     .container {
-        padding: 15px;
+        padding: 20px;
+        margin: 10px;
+        width: calc(100% - 20px);
     }
 
-    .login-container {
-        width: 95%;
-        padding: 15px;
+    .input-field {
+        font-size: 16px; /* Prevent zoom on iOS */
     }
 
-    h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        font-size: 14px;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-        padding: 10px;
-        font-size: 14px;
-    }
-
-    .password-requirements {
-        font-size: 12px;
-    }
-
-    .feather-bg {
-        display: none; /* Hide decorative backgrounds on very small screens */
+    .background-shapes {
+        opacity: 0.5; /* Reduce background complexity on mobile */
     }
 }
 
-/* Fix for iPhone notch */
-@supports (padding: max(0px)) {
-    .container {
-        padding-left: max(20px, env(safe-area-inset-left));
-        padding-right: max(20px, env(safe-area-inset-right));
-        padding-top: max(20px, env(safe-area-inset-top));
+/* Fix animation performance */
+@media (prefers-reduced-motion: reduce) {
+    .background-shapes * {
+        animation-duration: 0s !important;
+        transition-duration: 0s !important;
     }
 }
 
-/* Improve touch targets for mobile */
-@media (hover: none) and (pointer: coarse) {
-    .sign-in-btn,
-    .form-group input,
-    .forgot-password,
-    .create-account a {
-        min-height: 44px; /* Minimum touch target size */
-        padding: 12px;
-    }
-    
-    .form-group {
-        margin-bottom: 20px; /* More spacing between elements for touch */
-    }
+/* Fix animation conflicts */
+.btn:active, .sign-in-btn:active {
+    animation: shake 0.2s ease-in-out, redPulse 0.5s ease-in-out;
+    transform: scale(1.1);
 }
