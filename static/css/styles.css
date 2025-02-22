@@ -1,8 +1,8 @@
 :root {
-    --primary-color: #0066FF;
-    --text-color: #1A1A1A;
-    --secondary-text: #666666;
-    --border-color: #E5E5E5;
+    --primary-color: #0052FF;
+    --text-color: #111827;
+    --secondary-text: #6B7280;
+    --border-color: #E5E7EB;
     --background: #FFFFFF;
     --error-color: #dc3545;
     --success-color: #28a745;
@@ -35,16 +35,6 @@ body {
     width: 50%;
 }
 
-.logo {
-    margin-bottom: 2rem;
-}
-
-.logo-text {
-    color: var(--primary-color);
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
 .login-form-wrapper {
     flex: 1;
     display: flex;
@@ -53,71 +43,202 @@ body {
     max-width: 400px;
     margin: 0 auto;
     width: 100%;
-    padding: 0 2rem;
+    padding: 0 1rem;
 }
 
-h1 {
-    font-size: 1.75rem;
-    color: var(--text-color);
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 2rem;
 }
 
-.form-group {
+.logo-text {
+    color: var(--text-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.login-header {
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.welcome-text {
+    color: var(--secondary-text);
+    font-size: 0.875rem;
+}
+
+.social-login {
+    display: flex;
+    gap: 1rem;
     margin-bottom: 1.5rem;
+}
+
+.social-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: white;
+    color: var(--text-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+    background: #F9FAFB;
+}
+
+.social-btn img {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.divider {
     position: relative;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 80px);
+    height: 1px;
+    background: var(--border-color);
+}
+
+.divider::before { left: 0; }
+.divider::after { right: 0; }
+
+.divider span {
+    color: var(--secondary-text);
+    font-size: 0.875rem;
+    padding: 0 0.5rem;
+    background: white;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
 }
 
 .form-group label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
     color: var(--text-color);
     font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.form-group label img {
+    width: 1rem;
+    height: 1rem;
+    opacity: 0.5;
 }
 
 .form-group input {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
 }
 
 .form-group input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.1);
+}
+
+.password-input {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.toggle-password:hover {
+    opacity: 0.8;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+    font-size: 0.875rem;
+}
+
+.remember-me input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
 }
 
 .forgot-link {
-    position: absolute;
-    right: 0;
-    top: 0;
     color: var(--primary-color);
     text-decoration: none;
     font-size: 0.875rem;
-    transition: color 0.3s ease;
+    font-weight: 500;
+    transition: color 0.2s ease;
 }
 
 .forgot-link:hover {
-    color: #0052cc;
+    color: #0043CC;
 }
 
 .sign-in-btn {
     width: 100%;
-    padding: 0.875rem;
+    padding: 0.75rem;
     background: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .sign-in-btn:hover {
-    background: #0052cc;
+    background: #0043CC;
     transform: translateY(-1px);
 }
 
@@ -136,11 +257,12 @@ h1 {
     color: var(--primary-color);
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s ease;
+    margin-left: 0.25rem;
+    transition: color 0.2s ease;
 }
 
 .create-account a:hover {
-    color: #0052cc;
+    color: #0043CC;
 }
 
 /* Right side - Illustration */
@@ -171,51 +293,10 @@ h1 {
     background-size: 30px 30px;
 }
 
-/* Password Strength Meter */
-.password-strength {
-    margin-top: 0.5rem;
-}
-
-.strength-meter {
-    height: 4px;
-    background: var(--border-color);
-    border-radius: 2px;
-    margin-top: 0.5rem;
-    overflow: hidden;
-}
-
-.strength-meter-fill {
-    height: 100%;
-    width: 0;
-    transition: width 0.3s ease, background-color 0.3s ease;
-    border-radius: 2px;
-}
-
-.strength-meter-fill.weak { width: 33.33%; background-color: var(--error-color); }
-.strength-meter-fill.medium { width: 66.66%; background-color: var(--warning-color); }
-.strength-meter-fill.strong { width: 100%; background-color: var(--success-color); }
-
-.password-requirements {
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--secondary-text);
-}
-
-.requirement {
-    margin: 0.25rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.requirement.met {
-    color: var(--success-color);
-}
-
 /* Flash Messages */
 .flash-message {
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     margin-bottom: 1rem;
     font-size: 0.875rem;
 }
@@ -244,11 +325,20 @@ h1 {
     }
 
     .login-form-wrapper {
-        padding: 0 1rem;
+        padding: 0;
     }
 
     .illustration-section {
         display: none;
+    }
+
+    .social-login {
+        flex-direction: column;
+    }
+
+    .divider::before,
+    .divider::after {
+        width: calc(50% - 60px);
     }
 }
 
@@ -258,18 +348,19 @@ h1 {
     }
 
     h1 {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
     }
 
-    .form-group label {
-        font-size: 0.75rem;
+    .welcome-text {
+        font-size: 0.813rem;
     }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-        padding: 0.5rem;
-        font-size: 0.875rem;
+    .form-group label,
+    .form-group input,
+    .social-btn,
+    .forgot-link,
+    .sign-in-btn,
+    .create-account {
+        font-size: 0.813rem;
     }
 }

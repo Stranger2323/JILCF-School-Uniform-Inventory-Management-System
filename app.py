@@ -9,8 +9,6 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 CORS(app)
 
-# Your existing routes and functions here
-
 # Database initialization
 def init_db():
     with sqlite3.connect('users.db') as conn:
@@ -83,50 +81,98 @@ def check_password_strength(password):
 def index():
     return render_template('index.html')
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
-    email = request.form.get('email')
-    password = request.form.get('password')
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    remember = data.get('remember', False)
+    
+    if not email or not password:
+        return jsonify({
+            "message": "Email and password are required"
+        }), 400
     
     try:
         with sqlite3.connect('users.db') as conn:
             c = conn.cursor()
-            c.execute('SELECT name, password FROM users WHERE email = ?', (email,))
+            c.execute('SELECT id, name, password FROM users WHERE email = ?', (email,))
             user = c.fetchone()
             
-            if user and user[1] == hash_password(password):
+            if user and user[2] == hash_password(password):
                 return jsonify({
-                    "success": True,
                     "message": "Login successful",
-                    "name": user[0]
+                    "name": user[1]
                 })
-            flash('Invalid credentials. Please try again.', 'error')
-            return redirect(url_for('index'))
+            else:
+                return jsonify({
+                    "message": "Invalid email or password"
+                }), 401
+                
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        print(f"Login error: {e}")
+        return jsonify({
+            "message": "An error occurred during login"
+        }), 500
 
 @app.route('/forgot-password')
 def forgot_password():
     return render_template('forgot-password.html')
 
+@app.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({
+            "message": "Email is required"
+        }), 400
+    
+    try:
+        with sqlite3.connect('users.db') as conn:
+            c = conn.cursor()
+            c.execute('SELECT id FROM users WHERE email = ?', (email,))
+            user = c.fetchone()
+            
+            if user:
+                # In a real application, send a password reset email
+                return jsonify({
+                    "message": "Password reset instructions have been sent to your email"
+                })
+            else:
+                return jsonify({
+                    "message": "No account found with this email address"
+                }), 404
+                
+    except Exception as e:
+        print(f"Reset password error: {e}")
+        return jsonify({
+            "message": "An error occurred while processing your request"
+        }), 500
+
 @app.route('/signup')
-def signup_page():
+def signup():
     return render_template('signup.html')
 
 @app.route('/api/signup', methods=['POST'])
 def signup_api():
-    data = request.json
+    data = request.get_json()
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
     
+    if not all([name, email, password]):
+        return jsonify({
+            "message": "All fields are required"
+        }), 400
+    
     # Check password strength
     strength_check = check_password_strength(password)
-    if strength_check['score'] < 3:  # Require at least "Good" strength
+    if strength_check['score'] < 3:
         return jsonify({
-            "success": False,
-            "message": "Password not strong enough",
-            "feedback": strength_check
+            "message": "Please choose a stronger password",
+            "feedback": strength_check['feedback']
         }), 400
     
     try:
@@ -135,15 +181,25 @@ def signup_api():
             c.execute('INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
                      (name, email, hash_password(password)))
             conn.commit()
-        return jsonify({"success": True, "message": "User registered successfully"})
+            
+            return jsonify({
+                "message": "Account created successfully"
+            })
+            
     except sqlite3.IntegrityError:
-        return jsonify({"success": False, "message": "Email already exists"}), 400
+        return jsonify({
+            "message": "An account with this email already exists"
+        }), 409
+        
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        print(f"Signup error: {e}")
+        return jsonify({
+            "message": "An error occurred while creating your account"
+        }), 500
 
 @app.route('/api/check-password-strength', methods=['POST'])
 def check_strength():
-    data = request.json
+    data = request.get_json()
     password = data.get('password')
     return jsonify(check_password_strength(password))
 

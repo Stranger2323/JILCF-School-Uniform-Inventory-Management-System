@@ -1,14 +1,14 @@
 import multiprocessing
 
 # Bind to 0.0.0.0:$PORT for Render deployment
-bind = "0.0.0.0:8080"
+bind = "0.0.0.0:10000"
 
 # Worker configuration
-workers = multiprocessing.cpu_count() * 2 + 1
+workers = 4
 threads = 2
-worker_class = 'sync'
+worker_class = "sync"
 worker_connections = 1000
-timeout = 30
+timeout = 120
 keepalive = 2
 
 # Logging
