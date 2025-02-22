@@ -481,7 +481,7 @@ h1 {
     transition: all 0.3s ease;
     pointer-events: none;
     padding: 0 4px;
-    background: transparent;
+    background: #fff;
 }
 
 .input-field {
@@ -496,14 +496,14 @@ h1 {
 }
 
 .input-field:hover {
-    border-color: #0066cc;
-    box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(65, 105, 225, 0.1);
 }
 
 .input-field:focus {
     outline: none;
-    border-color: #0066cc;
-    box-shadow: 0 0 15px rgba(0, 102, 204, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(65, 105, 225, 0.2);
     background: linear-gradient(
         120deg,
         rgba(255, 255, 255, 0.95),
@@ -515,14 +515,14 @@ h1 {
 .input-field:not(:placeholder-shown) + label {
     top: 0;
     transform: translateY(-50%) scale(0.9);
-    background: linear-gradient(120deg, #0066cc, #FFD700);
+    background: linear-gradient(120deg, var(--primary-color), var(--accent-color));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 600;
 }
 
 .input-field:focus {
-    border-image: linear-gradient(120deg, #0066cc, #FFD700);
+    border-image: linear-gradient(120deg, var(--primary-color), var(--accent-color));
     border-image-slice: 1;
     animation: inputFocus 3s ease infinite;
     background-size: 200% 200%;
@@ -542,17 +542,18 @@ h1 {
 }
 
 .forgot-password {
-    display: block;
-    text-align: right;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    font-size: 14px;
     color: var(--primary-color);
     text-decoration: none;
-    font-size: 14px;
-    margin-top: 8px;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .forgot-password:hover {
     color: var(--primary-dark);
+    text-decoration: underline;
 }
 
 .sign-in-btn {
