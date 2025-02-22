@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account</title>
+    <title>Create Account - greenFeather</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <div class="left-panel">
             <div class="logo-section">
-                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo" class="logo">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="greenFeather" class="logo">
                 <span class="logo-text">greenFeather</span>
             </div>
             <div class="form-container">
@@ -41,7 +42,7 @@
                         <div class="input-group">
                             <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
                             <input type="password" id="password" name="password" placeholder="Create a strong password" required>
-                            <button type="button" class="toggle-password">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                                 <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
                             </button>
                         </div>
@@ -64,16 +65,14 @@
                         <div class="input-group">
                             <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
                             <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
-                            <button type="button" class="toggle-password">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                                 <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
                             </button>
                         </div>
                         <div class="password-match" id="passwordMatch"></div>
                     </div>
 
-                    <button type="submit" class="submit-btn">
-                        Create Account
-                    </button>
+                    <button type="submit" class="submit-btn">Create Account</button>
 
                     <div class="bottom-text">
                         Already have an account? <a href="{{ url_for('index') }}" class="link">Sign in</a>
@@ -83,30 +82,31 @@
         </div>
         <div class="right-panel">
             <div class="illustration">
-                <!-- Add your illustration or image here -->
+                <img src="{{ url_for('static', filename='img/login-illustration.svg') }}" alt="Signup illustration">
             </div>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirm-password');
         const strengthMeter = document.getElementById('strengthMeter');
         const passwordFeedback = document.getElementById('passwordFeedback');
-        const passwordMatch = document.getElementById('passwordMatch');
         const signupForm = document.getElementById('signupForm');
-
-        const requirements = {
-            length: { regex: /.{8,}/, text: 'At least 8 characters' },
-            uppercase: { regex: /[A-Z]/, text: 'One uppercase letter' },
-            lowercase: { regex: /[a-z]/, text: 'One lowercase letter' },
-            number: { regex: /\d/, text: 'One number' },
-            special: { regex: /[!@#$%^&*(),.?":{}|<>]/, text: 'One special character' }
-        };
 
         function updatePasswordStrength() {
             const password = passwordInput.value;
             let strength = 0;
             let meetsAllRequirements = true;
+
+            const requirements = {
+                length: { regex: /.{8,}/, text: 'At least 8 characters' },
+                uppercase: { regex: /[A-Z]/, text: 'One uppercase letter' },
+                lowercase: { regex: /[a-z]/, text: 'One lowercase letter' },
+                number: { regex: /\d/, text: 'One number' },
+                special: { regex: /[!@#$%^&*(),.?":{}|<>]/, text: 'One special character' }
+            };
 
             Object.entries(requirements).forEach(([key, requirement]) => {
                 const requirementElement = passwordFeedback.querySelector(`[data-requirement="${key}"]`);
@@ -121,16 +121,16 @@
                 }
             });
 
-            strengthMeter.style.width = `${strength}%`;
-            if (strength <= 40) {
-                strengthMeter.className = 'strength-meter-fill weak';
-            } else if (strength <= 80) {
-                strengthMeter.className = 'strength-meter-fill medium';
-            } else {
-                strengthMeter.className = 'strength-meter-fill strong';
-            }
+            strengthMeter.style.width = strength + '%';
+            strengthMeter.className = 'strength-meter-fill ' + getStrengthClass(strength);
 
             return meetsAllRequirements;
+        }
+
+        function getStrengthClass(strength) {
+            if (strength < 40) return 'weak';
+            if (strength < 80) return 'medium';
+            return 'strong';
         }
 
         function checkPasswordsMatch() {
@@ -138,10 +138,10 @@
                 passwordMatch.textContent = '';
                 return false;
             }
-
+            
             const match = passwordInput.value === confirmPasswordInput.value;
-            passwordMatch.textContent = match ? '✓ Passwords match' : '✗ Passwords do not match';
-            passwordMatch.className = `password-match ${match ? 'success' : 'error'}`;
+            passwordMatch.textContent = match ? 'Passwords match' : 'Passwords do not match';
+            passwordMatch.className = 'password-match ' + (match ? 'valid' : 'invalid');
             return match;
         }
 
@@ -152,12 +152,20 @@
             e.preventDefault();
             
             if (!updatePasswordStrength()) {
-                alert('Please ensure your password meets all requirements.');
+                const flashMessage = document.createElement('div');
+                flashMessage.textContent = 'Please ensure your password meets all requirements.';
+                flashMessage.className = 'flash-message error';
+                document.body.appendChild(flashMessage);
+                setTimeout(() => flashMessage.remove(), 5000);
                 return;
             }
 
             if (!checkPasswordsMatch()) {
-                alert('Passwords do not match.');
+                const flashMessage = document.createElement('div');
+                flashMessage.textContent = 'Passwords do not match.';
+                flashMessage.className = 'flash-message error';
+                document.body.appendChild(flashMessage);
+                setTimeout(() => flashMessage.remove(), 5000);
                 return;
             }
 
@@ -173,12 +181,15 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify(formData)
                 });
 
                 const data = await response.json();
                 
-                alert(data.message);
+                const flashMessage = document.createElement('div');
+                flashMessage.textContent = data.message;
+                flashMessage.className = `flash-message ${response.ok ? 'success' : 'error'}`;
+                document.body.appendChild(flashMessage);
 
                 if (response.ok) {
                     signupForm.reset();
@@ -186,8 +197,17 @@
                         window.location.href = '/';
                     }, 2000);
                 }
+
+                setTimeout(() => flashMessage.remove(), 5000);
             } catch (error) {
-                alert('An error occurred. Please try again later.');
+                console.error('Signup error:', error);
+                
+                const flashMessage = document.createElement('div');
+                flashMessage.textContent = 'An error occurred. Please try again later.';
+                flashMessage.className = 'flash-message error';
+                document.body.appendChild(flashMessage);
+                
+                setTimeout(() => flashMessage.remove(), 5000);
             }
         });
     </script>

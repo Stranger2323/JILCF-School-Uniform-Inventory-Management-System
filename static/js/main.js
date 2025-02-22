@@ -19,7 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
                 input.setAttribute('type', type);
-                eyeIcon.src = type === 'password' ? '/static/img/eye.svg' : '/static/img/eye-off.svg';
+                eyeIcon.src = type === 'password' 
+                    ? '/static/img/eye.svg'
+                    : '/static/img/eye-off.svg';
             }, 200); // Half of the 0.4s animation
             
             // Remove animation classes after animation completes
@@ -52,20 +54,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const data = await response.json();
                 
+                // Create flash message
+                const flashMessage = document.createElement('div');
+                flashMessage.textContent = data.message;
+                flashMessage.className = `flash-message ${response.ok ? 'success' : 'error'}`;
+                document.body.appendChild(flashMessage);
+                
                 if (response.ok) {
-                    // Show success message
-                    showMessage(data.message, 'success');
-                    
-                    // Redirect after successful login
+                    // Redirect to dashboard after successful login
                     setTimeout(() => {
-                        window.location.href = '/dashboard';  // Change this to your dashboard URL
+                        window.location.href = '/dashboard';
                     }, 1500);
-                } else {
-                    showMessage(data.message, 'error');
                 }
+                
+                // Remove flash message after 5 seconds
+                setTimeout(() => {
+                    flashMessage.remove();
+                }, 5000);
             } catch (error) {
-                showMessage('An error occurred. Please try again.', 'error');
                 console.error('Login error:', error);
+                
+                // Show error message
+                const flashMessage = document.createElement('div');
+                flashMessage.textContent = 'An error occurred. Please try again later.';
+                flashMessage.className = 'flash-message error';
+                document.body.appendChild(flashMessage);
+                
+                // Remove error message after 5 seconds
+                setTimeout(() => {
+                    flashMessage.remove();
+                }, 5000);
             }
         });
     }

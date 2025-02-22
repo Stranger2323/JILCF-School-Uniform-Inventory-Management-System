@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>greenFeather - Login</title>
+    <title>Login - greenFeather</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="login-container">
-        <section class="login-form-section">
-            <div class="login-form-wrapper">
-                <div class="logo">
-                    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="greenFeather" width="24" height="24">
-                    <span class="logo-text">greenFeather</span>
-                </div>
-                
+    <div class="container">
+        <div class="left-panel">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="greenFeather" class="logo">
+                <span class="logo-text">greenFeather</span>
+            </div>
+            
+            <div class="form-container">
                 <div class="login-header">
-                    <h1>Log in to your Account</h1>
-                    <p class="welcome-text">Welcome back! Select method to login:</p>
+                    <h1>Welcome back!</h1>
+                    <p>Log in to your account</p>
                 </div>
 
                 <div class="social-login">
-                    <button class="social-btn google">
+                    <button type="button" class="social-btn google-login">
                         <img src="{{ url_for('static', filename='img/google.svg') }}" alt="Google">
-                        <span>Google</span>
+                        <span>Continue with Google</span>
                     </button>
-                    <button class="social-btn facebook">
+                    <button type="button" class="social-btn facebook-login">
                         <img src="{{ url_for('static', filename='img/facebook.svg') }}" alt="Facebook">
-                        <span>Facebook</span>
+                        <span>Continue with Facebook</span>
                     </button>
                 </div>
 
@@ -37,22 +37,18 @@
                 </div>
                 
                 <form class="login-form" id="loginForm">
-                    <div class="flash-message" style="display: none;"></div>
-                    
                     <div class="form-group">
-                        <label for="email">
-                            <img src="{{ url_for('static', filename='img/email.svg') }}" alt="Email">
-                            Email
-                        </label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        <label for="email">Email</label>
+                        <div class="input-group">
+                            <img src="{{ url_for('static', filename='img/email.svg') }}" alt="Email" class="input-icon">
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="password">
-                            <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password">
-                            Password
-                        </label>
-                        <div class="password-input">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
                             <input type="password" id="password" name="password" placeholder="Enter your password" required>
                             <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                                 <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
@@ -65,72 +61,25 @@
                             <input type="checkbox" id="remember" name="remember">
                             <span>Remember me</span>
                         </label>
-                        <a href="{{ url_for('forgot_password') }}" class="forgot-link">Forgot Password?</a>
+                        <a href="{{ url_for('forgot_password') }}" class="forgot-password">Forgot Password?</a>
                     </div>
                     
-                    <button type="submit" class="sign-in-btn">Log in</button>
+                    <button type="submit" class="submit-btn">Log in</button>
                     
-                    <div class="create-account">
-                        Don't have an account? 
-                        <a href="{{ url_for('signup') }}">Create an account</a>
+                    <div class="bottom-text">
+                        Don't have an account? <a href="{{ url_for('signup') }}" class="link">Create an account</a>
                     </div>
                 </form>
             </div>
-        </section>
+        </div>
 
-        <section class="illustration-section">
-            <div class="circle-bg"></div>
-            <div class="dots-bg"></div>
-        </section>
+        <div class="right-panel">
+            <div class="illustration">
+                <img src="{{ url_for('static', filename='img/login-illustration.svg') }}" alt="Login illustration">
+            </div>
+        </div>
     </div>
 
-    <script>
-        const loginForm = document.getElementById('loginForm');
-        const flashMessage = document.querySelector('.flash-message');
-        const togglePassword = document.querySelector('.toggle-password');
-        const passwordInput = document.getElementById('password');
-
-        togglePassword.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            togglePassword.querySelector('img').src = type === 'password' 
-                ? "{{ url_for('static', filename='img/eye.svg') }}"
-                : "{{ url_for('static', filename='img/eye-off.svg') }}";
-        });
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                email: document.getElementById('email').value,
-                password: passwordInput.value,
-                remember: document.getElementById('remember').checked
-            };
-
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData),
-                });
-
-                const data = await response.json();
-                
-                flashMessage.textContent = data.message;
-                flashMessage.className = `flash-message ${response.ok ? 'success' : 'error'}`;
-                flashMessage.style.display = 'block';
-
-                if (response.ok) {
-                    window.location.href = '/dashboard';
-                }
-            } catch (error) {
-                flashMessage.textContent = 'An error occurred. Please try again later.';
-                flashMessage.className = 'flash-message error';
-                flashMessage.style.display = 'block';
-            }
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
