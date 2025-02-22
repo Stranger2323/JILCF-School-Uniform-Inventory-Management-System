@@ -7,195 +7,180 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <div class="feather-bg left"></div>
-        <div class="feather-bg right"></div>
-        
-        <main class="login-container fade-in">
+    <div class="login-container">
+        <section class="login-form-section">
             <div class="logo">
-                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="GreenFeather Logo">
+                <span class="logo-text">greenFeather</span>
             </div>
             
-            <h1>Create Account</h1>
-            
-            <form class="login-form slide-up" id="signupForm">
-                <div class="message-box" id="messageBox"></div>
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" placeholder="John Doe" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="john@example.com" required>
-                </div>
+            <div class="login-form-wrapper">
+                <h1>Create Account</h1>
+                <p class="welcome-text">Join greenFeather and start your journey with us.</p>
                 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Create a strong password" required>
-                    <div class="password-strength">
-                        <div class="strength-meter">
-                            <div class="strength-meter-fill" id="strengthMeter"></div>
-                        </div>
-                        <div class="strength-text" id="strengthText"></div>
+                <form class="login-form" id="signupForm">
+                    <div class="flash-message" style="display: none;"></div>
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="John Doe" required>
                     </div>
-                    <ul class="password-requirements" id="passwordFeedback"></ul>
-                </div>
 
-                <div class="form-group">
-                    <label for="confirm-password">Confirm Password</label>
-                    <input type="password" id="confirm-password" placeholder="Confirm your password" required>
-                    <div class="password-match" id="passwordMatch"></div>
-                </div>
-                
-                <button type="submit" class="sign-in-btn">Create Account</button>
-                
-                <p class="create-account">
-                    Already have an account? 
-                    <a href="{{ url_for('index') }}">Sign In</a>
-                </p>
-            </form>
-        </main>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                        <div class="password-strength">
+                            <div class="strength-meter">
+                                <div class="strength-meter-fill" id="strengthMeter"></div>
+                            </div>
+                            <div class="password-requirements" id="passwordFeedback">
+                                <div class="requirement" data-requirement="length">At least 8 characters</div>
+                                <div class="requirement" data-requirement="uppercase">One uppercase letter</div>
+                                <div class="requirement" data-requirement="lowercase">One lowercase letter</div>
+                                <div class="requirement" data-requirement="number">One number</div>
+                                <div class="requirement" data-requirement="special">One special character</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
+                        <div class="password-match" id="passwordMatch"></div>
+                    </div>
+                    
+                    <button type="submit" class="sign-in-btn">Create Account</button>
+                    
+                    <div class="create-account">
+                        Already have an account? 
+                        <a href="{{ url_for('index') }}">Sign In</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="illustration-section">
+            <div class="circle-bg"></div>
+            <div class="dots-bg"></div>
+        </section>
     </div>
 
     <script>
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirm-password');
         const strengthMeter = document.getElementById('strengthMeter');
-        const strengthText = document.getElementById('strengthText');
         const passwordFeedback = document.getElementById('passwordFeedback');
         const passwordMatch = document.getElementById('passwordMatch');
         const signupForm = document.getElementById('signupForm');
-        const messageBox = document.getElementById('messageBox');
+        const flashMessage = document.querySelector('.flash-message');
 
-        // Initialize password requirements list
-        const requirements = [
-            { text: 'Password should be at least 8 characters long', regex: /.{8,}/ },
-            { text: 'Include at least one uppercase letter', regex: /[A-Z]/ },
-            { text: 'Include at least one lowercase letter', regex: /[a-z]/ },
-            { text: 'Include at least one number', regex: /\d/ },
-            { text: 'Include at least one special character', regex: /[!@#$%^&*(),.?":{}|<>]/ }
-        ];
+        const requirements = {
+            length: { regex: /.{8,}/, text: 'At least 8 characters' },
+            uppercase: { regex: /[A-Z]/, text: 'One uppercase letter' },
+            lowercase: { regex: /[a-z]/, text: 'One lowercase letter' },
+            number: { regex: /\d/, text: 'One number' },
+            special: { regex: /[!@#$%^&*(),.?":{}|<>]/, text: 'One special character' }
+        };
 
-        passwordFeedback.innerHTML = requirements
-            .map(req => `<li>${req.text}</li>`)
-            .join('');
-
-        function showMessage(message, isError = false) {
-            messageBox.textContent = message;
-            messageBox.className = `message-box ${isError ? 'error' : 'success'}`;
-            messageBox.style.display = 'block';
-            setTimeout(() => {
-                messageBox.style.display = 'none';
-            }, 5000);
-        }
-
-        // Check password strength
-        async function checkPasswordStrength(password) {
-            const response = await fetch('/api/check-password-strength', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ password }),
-            });
-            return await response.json();
-        }
-
-        // Check password strength and update UI
-        async function updatePasswordStrength() {
+        function updatePasswordStrength() {
             const password = passwordInput.value;
-            if (!password) {
-                strengthMeter.style.width = '0%';
-                strengthText.textContent = '';
-                passwordFeedback.querySelectorAll('li').forEach(li => li.classList.remove('met'));
-                return;
-            }
+            let strength = 0;
+            let meetsAllRequirements = true;
 
-            // Update requirements list
-            const reqItems = passwordFeedback.querySelectorAll('li');
-            requirements.forEach((req, index) => {
-                const ismet = req.regex.test(password);
-                reqItems[index].classList.toggle('met', ismet);
+            Object.entries(requirements).forEach(([key, requirement]) => {
+                const requirementElement = passwordFeedback.querySelector(`[data-requirement="${key}"]`);
+                const isMet = requirement.regex.test(password);
+                
+                if (isMet) {
+                    requirementElement.classList.add('met');
+                    strength += 20;
+                } else {
+                    requirementElement.classList.remove('met');
+                    meetsAllRequirements = false;
+                }
             });
 
-            const result = await checkPasswordStrength(password);
-            const percentage = (result.score / 5) * 100;
-            
-            strengthMeter.style.width = `${percentage}%`;
-            strengthMeter.className = `strength-meter-fill strength-${result.strength.toLowerCase().replace(' ', '-')}`;
-            strengthText.textContent = result.strength;
-        }
-
-        // Check if passwords match
-        function checkPasswordsMatch() {
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-            
-            if (!confirmPassword) {
-                passwordMatch.textContent = '';
-                return;
-            }
-            
-            if (password === confirmPassword) {
-                passwordMatch.textContent = 'Passwords match';
-                passwordMatch.className = 'password-match match';
+            strengthMeter.style.width = `${strength}%`;
+            if (strength <= 40) {
+                strengthMeter.className = 'strength-meter-fill weak';
+            } else if (strength <= 80) {
+                strengthMeter.className = 'strength-meter-fill medium';
             } else {
-                passwordMatch.textContent = 'Passwords do not match';
-                passwordMatch.className = 'password-match no-match';
+                strengthMeter.className = 'strength-meter-fill strong';
             }
+
+            return meetsAllRequirements;
         }
 
-        // Handle form submission
+        function checkPasswordsMatch() {
+            if (confirmPasswordInput.value === '') {
+                passwordMatch.textContent = '';
+                return false;
+            }
+
+            const match = passwordInput.value === confirmPasswordInput.value;
+            passwordMatch.textContent = match ? '✓ Passwords match' : '✗ Passwords do not match';
+            passwordMatch.className = `password-match ${match ? 'success' : 'error'}`;
+            return match;
+        }
+
+        passwordInput.addEventListener('input', updatePasswordStrength);
+        confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
+
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-            
-            if (password !== confirmPassword) {
-                showMessage('Passwords do not match!', true);
+            if (!updatePasswordStrength()) {
+                flashMessage.textContent = 'Please ensure your password meets all requirements.';
+                flashMessage.className = 'flash-message error';
+                flashMessage.style.display = 'block';
                 return;
             }
-            
-            const strengthCheck = await checkPasswordStrength(password);
-            if (strengthCheck.score < 3) {
-                showMessage('Please choose a stronger password!', true);
+
+            if (!checkPasswordsMatch()) {
+                flashMessage.textContent = 'Passwords do not match.';
+                flashMessage.className = 'flash-message error';
+                flashMessage.style.display = 'block';
                 return;
             }
-            
+
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: passwordInput.value
+            };
+
             try {
                 const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        name: document.getElementById('name').value,
-                        email: document.getElementById('email').value,
-                        password: password,
-                    }),
+                    body: JSON.stringify(formData),
                 });
-                
+
                 const data = await response.json();
                 
-                if (data.success) {
-                    showMessage('Account created successfully!');
+                flashMessage.textContent = data.message;
+                flashMessage.className = `flash-message ${response.ok ? 'success' : 'error'}`;
+                flashMessage.style.display = 'block';
+
+                if (response.ok) {
+                    signupForm.reset();
                     setTimeout(() => {
                         window.location.href = '/';
-                    }, 1500);
-                } else {
-                    showMessage(data.message, true);
+                    }, 2000);
                 }
             } catch (error) {
-                showMessage('Error creating account. Please try again.', true);
-                console.error('Error:', error);
+                flashMessage.textContent = 'An error occurred. Please try again later.';
+                flashMessage.className = 'flash-message error';
+                flashMessage.style.display = 'block';
             }
         });
-
-        // Add event listeners
-        passwordInput.addEventListener('input', updatePasswordStrength);
-        confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
     </script>
 </body>
 </html>
