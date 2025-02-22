@@ -265,6 +265,30 @@ h1 {
     color: #0043CC;
 }
 
+/* Password visibility animation */
+@keyframes blink-text {
+    0% { opacity: 1; }
+    25% { opacity: 0; }
+    75% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.password-blink {
+    animation: blink-text 0.2s ease-in-out;
+}
+
+/* Eye icon animation */
+@keyframes blink-eye {
+    0% { transform: scaleY(1); }
+    25% { transform: scaleY(0.1); }
+    75% { transform: scaleY(0.1); }
+    100% { transform: scaleY(1); }
+}
+
+.eye-blink {
+    animation: blink-eye 0.2s ease-in-out;
+}
+
 /* Right side - Illustration */
 .illustration-section {
     flex: 1;

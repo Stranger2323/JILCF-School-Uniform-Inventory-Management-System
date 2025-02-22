@@ -1,15 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Password visibility toggle
-    const togglePassword = document.querySelector('.toggle-password');
-    const passwordInput = document.querySelector('input[type="password"]');
+    const toggleButtons = document.querySelectorAll('.toggle-password');
     
-    if (togglePassword && passwordInput) {
-        togglePassword.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            togglePassword.querySelector('img').src = type === 'password' ? '/static/img/eye.svg' : '/static/img/eye-off.svg';
+    toggleButtons.forEach(toggleButton => {
+        const input = toggleButton.parentElement.querySelector('input');
+        const eyeIcon = toggleButton.querySelector('img');
+        
+        toggleButton.addEventListener('click', () => {
+            // Add blink animation classes
+            input.classList.add('password-blink');
+            eyeIcon.classList.add('eye-blink');
+            
+            // Toggle password visibility
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            eyeIcon.src = type === 'password' ? '/static/img/eye.svg' : '/static/img/eye-off.svg';
+            
+            // Remove animation classes after animation completes
+            setTimeout(() => {
+                input.classList.remove('password-blink');
+                eyeIcon.classList.remove('eye-blink');
+            }, 200); // Match the animation duration
         });
-    }
+    });
 
     // Form submission
     const loginForm = document.querySelector('.login-form');
@@ -123,6 +136,23 @@ style.textContent = `
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+.password-blink {
+    animation: blink 0.2s ease-out;
+}
+
+.eye-blink {
+    animation: blink 0.2s ease-out;
+}
+
+@keyframes blink {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
     }
 }
 `;
