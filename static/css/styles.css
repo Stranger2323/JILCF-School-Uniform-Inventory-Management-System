@@ -92,6 +92,18 @@
     100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4); }
 }
 
+@keyframes fluidAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
 .fade-in {
     animation: fadeIn 0.8s ease-out;
 }
@@ -228,25 +240,30 @@ input:focus {
 .sign-in-btn {
     background-color: #0066cc;
     color: white;
-    border: 2px solid transparent;
     padding: 12px 24px;
     border-radius: 25px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    background-size: 200% 200%;
 }
 
 .sign-in-btn:hover {
-    background-color: #0052a3;
-    border-color: #FFD700;
-    animation: borderFlow 2s infinite;
+    background-image: linear-gradient(
+        45deg,
+        #FFD700 0%,
+        #FFEB3B 25%,
+        #FFD700 50%,
+        #FFEB3B 75%,
+        #FFD700 100%
+    );
+    animation: fluidAnimation 3s ease infinite;
     transform: translateY(-2px);
-}
-
-.sign-in-btn:active {
-    animation: shake 0.2s ease-in-out, redPulse 0.5s ease-in-out;
-    transform: scale(1.1);
+    color: #000; /* Make text dark for better contrast on yellow */
 }
 
 .create-account {
