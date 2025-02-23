@@ -41,6 +41,13 @@
     --border-radius: 0.75rem;
 }
 
+html {
+    font-size: 16px;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -48,21 +55,25 @@
 }
 
 body {
+    min-height: 100vh;
     font-family: var(--font-body);
     background-color: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.5;
-    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 /* Container layout */
 .container {
-    display: flex;
-    min-height: 100vh;
-    background-color: var(--bg-secondary);
+    width: 100%;
     max-width: 1440px;
     margin: 0 auto;
     animation: fadeIn 0.8s ease-out;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
 }
 
 .left-panel {
@@ -130,6 +141,12 @@ body {
     max-width: 440px;
     margin: 0 auto;
     padding: 2rem 0;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .login-form {
@@ -184,6 +201,7 @@ body {
     transition: all 0.15s linear 0s;
     top: 0;
     left: 0;
+    contain: content;
 }
 
 .social-btn img {
@@ -376,6 +394,8 @@ body {
     height: var(--input-height);
     padding: 0 var(--input-padding);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    contain: content;
+    min-height: var(--input-height);
 }
 
 .input-group input {
@@ -388,6 +408,8 @@ body {
     font-size: 0.9375rem;
     font-family: var(--font-body);
     outline: none;
+    font-size: 16px; /* Prevent iOS zoom */
+    transform: translateZ(0);
 }
 
 .input-group input::placeholder {
@@ -558,6 +580,10 @@ body {
     font-family: var(--font-heading);
     cursor: pointer;
     transition: all 0.2s ease;
+    contain: content;
+    height: var(--input-height);
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .submit-btn:hover {

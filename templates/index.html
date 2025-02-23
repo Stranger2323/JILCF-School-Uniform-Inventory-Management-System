@@ -6,6 +6,18 @@
     <title>Login - greenFeather</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        if ("fonts" in document) {
+            Promise.all([
+                document.fonts.load("1em Plus Jakarta Sans"),
+                document.fonts.load("1em Inter")
+            ]).then(() => {
+                document.documentElement.classList.add("fonts-loaded");
+            });
+        } else {
+            document.documentElement.classList.add("fonts-loaded");
+        }
+    </script>
 </head>
 <body>
     <div class="container">
