@@ -48,8 +48,8 @@ GOOGLE_DISCOVERY_URL = os.getenv('GOOGLE_DISCOVERY_URL')
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 mail = Mail(app)
 db = SQLAlchemy(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
+
+login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin, db.Model):
@@ -65,6 +65,18 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+    def get_id(self):
+        return str(self.id)
+
+    def is_active(self):
+        return True
+
+    def is_authenticated(self):
+        return True
+
+    def is_anonymous(self):
+        return False
 
 with app.app_context():
     db.create_all()
