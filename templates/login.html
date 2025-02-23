@@ -70,4 +70,32 @@
         </div>
     </div>
 </div>
+
+<script>
+    const togglePassword = document.querySelectorAll('.toggle-password');
+
+    togglePassword.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            
+            const img = this.querySelector('img');
+            this.classList.add('animating');
+            
+            if (type === 'text') {
+                img.src = "{{ url_for('static', filename='img/eye-off.svg') }}";
+                img.alt = 'Hide password';
+            } else {
+                img.src = "{{ url_for('static', filename='img/eye.svg') }}";
+                img.alt = 'Show password';
+            }
+
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                this.classList.remove('animating');
+            }, 300);
+        });
+    });
+</script>
 {% endblock %}

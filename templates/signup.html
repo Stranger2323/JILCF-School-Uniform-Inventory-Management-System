@@ -195,6 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
             input.setAttribute('type', type);
             
             const img = this.querySelector('img');
+            this.classList.add('animating');
+            
             if (type === 'text') {
                 img.src = "{{ url_for('static', filename='img/eye-off.svg') }}";
                 img.alt = 'Hide password';
@@ -202,6 +204,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 img.src = "{{ url_for('static', filename='img/eye.svg') }}";
                 img.alt = 'Show password';
             }
+
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                this.classList.remove('animating');
+            }, 300);
         });
     });
 
