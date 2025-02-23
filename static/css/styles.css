@@ -162,10 +162,14 @@ body {
     font-weight: 500;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: all 0.5s ease;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
 }
 
 .social-btn img {
@@ -173,109 +177,94 @@ body {
     height: 20px;
     position: relative;
     z-index: 2;
-    transition: transform 0.5s ease;
-    filter: none !important; /* Ensure logos stay colorful */
 }
 
 .social-btn span {
     position: relative;
     z-index: 2;
-    transition: all 0.5s ease;
+}
+
+.button-outline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.social-shape {
+    fill: none;
+    stroke-width: 2;
+    stroke-dasharray: 40 180;
+    stroke-dashoffset: -130;
+    transition: all 0.6s cubic-bezier(0.86, 0, 0.07, 1);
 }
 
 /* Google button effects */
 .google-login {
-    background: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.google-login::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 0.75rem;
-    background: linear-gradient(
-        45deg,
-        rgba(66, 133, 244, 0.85),  /* Google Blue */
-        rgba(234, 67, 53, 0.85),   /* Google Red */
-        rgba(251, 188, 5, 0.85),   /* Google Yellow */
-        rgba(52, 168, 83, 0.85)    /* Google Green */
-    );
-    transition: 0.5s;
-    transform: scale(0.9);
-    z-index: 1;
-    opacity: 0;
+.google-shape {
+    stroke: #4285f4;
+}
+
+.google-login:hover .social-shape {
+    stroke-dashoffset: 10;
+    stroke-dasharray: 20 40;
+    stroke: #ea4335;
+    animation: google-outline 3s linear infinite;
+}
+
+@keyframes google-outline {
+    0% {
+        stroke: #4285f4;  /* Google Blue */
+    }
+    25% {
+        stroke: #ea4335;  /* Google Red */
+    }
+    50% {
+        stroke: #fbbc05;  /* Google Yellow */
+    }
+    75% {
+        stroke: #34a853;  /* Google Green */
+    }
+    100% {
+        stroke: #4285f4;  /* Back to Blue */
+    }
 }
 
 .google-login:hover {
-    color: #fff;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-}
-
-.google-login:hover::before {
-    transform: scale(1.1);
-    opacity: 1;
-    box-shadow: 0 0 15px #4285f4,
-                0 0 25px #ea4335,
-                0 0 35px #fbbc05,
-                0 0 45px #34a853;
-    filter: blur(3px);
-}
-
-.google-login:hover img {
-    transform: scale(1.1) rotate(5deg);
-}
-
-.google-login:hover span {
-    color: #fff;
-    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.2);
 }
 
 /* Facebook button effects */
 .facebook-login {
-    background: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.facebook-login::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 0.75rem;
-    background: rgba(24, 119, 242, 0.85); /* Semi-transparent Facebook blue */
-    transition: 0.5s;
-    transform: scale(0.9);
-    z-index: 1;
-    opacity: 0;
+.facebook-shape {
+    stroke: #1877f2;
+}
+
+.facebook-login:hover .social-shape {
+    stroke-dashoffset: 10;
+    stroke-dasharray: 20 40;
+    animation: facebook-outline 1s cubic-bezier(0.86, 0, 0.07, 1) infinite alternate;
+}
+
+@keyframes facebook-outline {
+    0% {
+        stroke: #1877f2;
+        stroke-width: 2;
+    }
+    100% {
+        stroke: #0056d0;
+        stroke-width: 3;
+    }
 }
 
 .facebook-login:hover {
-    color: #fff;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-}
-
-.facebook-login:hover::before {
-    transform: scale(1.1);
-    opacity: 1;
-    box-shadow: 0 0 15px #1877f2,
-                0 0 25px #1877f2,
-                0 0 35px #1877f2;
-    filter: blur(3px);
-}
-
-.facebook-login:hover img {
-    transform: scale(1.1) rotate(-5deg);
-}
-
-.facebook-login:hover span {
-    color: #fff;
-    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.2);
 }
 
 /* Divider */

@@ -23,10 +23,16 @@
 
                 <div class="social-login">
                     <button type="button" class="social-btn google-login">
+                        <svg class="button-outline" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+                            <rect class="social-shape google-shape" height="100%" width="100%" rx="12"/>
+                        </svg>
                         <img src="{{ url_for('static', filename='img/google.svg') }}" alt="Google">
                         <span>Continue with Google</span>
                     </button>
                     <button type="button" class="social-btn facebook-login">
+                        <svg class="button-outline" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+                            <rect class="social-shape facebook-shape" height="100%" width="100%" rx="12"/>
+                        </svg>
                         <img src="{{ url_for('static', filename='img/facebook.svg') }}" alt="Facebook">
                         <span>Continue with Facebook</span>
                     </button>
