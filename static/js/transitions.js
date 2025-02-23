@@ -25,19 +25,37 @@ for (let i = 0; i < 5; i++) {
 
 document.body.appendChild(transitionElement);
 
+// Function to start transition
+function startTransition(url) {
+    transitionElement.classList.add('active');
+    setTimeout(() => {
+        window.location.href = url;
+    }, 1000);
+}
+
 // Handle all link clicks for page transitions
 document.addEventListener('click', (e) => {
+    // Check for any link or element with href
     const link = e.target.closest('a');
     if (link && !link.target && link.href) {
         e.preventDefault();
-        
-        // Start transition animation
-        transitionElement.classList.add('active');
-        
-        // Navigate to new page after transition
-        setTimeout(() => {
-            window.location.href = link.href;
-        }, 1000); // Adjusted timing to match animation
+        startTransition(link.href);
+    }
+    
+    // Check for forgot password link specifically
+    const forgotPassword = e.target.closest('.forgot-password');
+    if (forgotPassword && forgotPassword.href) {
+        e.preventDefault();
+        startTransition(forgotPassword.href);
+    }
+});
+
+// Handle form submissions
+document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (form.id === 'loginForm' || form.id === 'signupForm' || form.id === 'resetForm') {
+        // Don't prevent default here, let the form handle its own submission
+        startTransition(window.location.href);
     }
 });
 
