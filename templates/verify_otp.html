@@ -2,28 +2,39 @@
 
 {% block content %}
 <div class="container">
-    <div class="form-container">
-        <div class="form-header">
-            <h2>Email Verification</h2>
-            <p>Please enter the verification code sent to your email.</p>
+    <div class="left-panel">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="greenFeather" class="logo">
+            <span class="logo-text">greenFeather</span>
         </div>
-
-        <form method="POST" action="{{ url_for('verify_otp') }}">
-            <div class="form-group">
-                <label for="otp">Verification Code</label>
-                <div class="otp-input-container">
-                    <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter 6-digit code" maxlength="6" required>
-                </div>
-                <div class="otp-timer" id="otpTimer">
-                    Code expires in: <span id="timer">15:00</span>
-                </div>
+        <div class="form-container">
+            <div class="form-header">
+                <h2>Email Verification</h2>
+                <p>Please enter the verification code sent to your email.</p>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block">Verify Email</button>
-        </form>
+            <form method="POST" action="{{ url_for('verify_otp') }}">
+                <div class="form-group">
+                    <label for="otp">Verification Code</label>
+                    <div class="otp-input-container">
+                        <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter 6-digit code" maxlength="6" required>
+                    </div>
+                    <div class="otp-timer" id="otpTimer">
+                        Code expires in: <span id="timer">15:00</span>
+                    </div>
+                </div>
 
-        <div class="form-footer">
-            <p>Didn't receive the code? <a href="{{ url_for('resend_otp') }}">Resend Code</a></p>
+                <button type="submit" class="btn btn-primary btn-block">Verify Email</button>
+            </form>
+
+            <div class="form-footer">
+                <p>Didn't receive the code? <a href="{{ url_for('resend_otp') }}">Resend Code</a></p>
+            </div>
+        </div>
+    </div>
+    <div class="right-panel">
+        <div class="illustration">
+            <img src="{{ url_for('static', filename='img/illustration.svg') }}" alt="Login Illustration">
         </div>
     </div>
 </div>

@@ -87,7 +87,7 @@ def get_google_provider_cfg():
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
-    return render_template('login.html')
+    return redirect(url_for('login'))
 
 @app.route('/home')
 @login_required
@@ -96,6 +96,10 @@ def home():
 
 @app.route('/login/google')
 def google_login():
+    # First check if we're already logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
     
@@ -108,57 +112,77 @@ def google_login():
 
 @app.route('/login/google/callback')
 def google_callback():
+    # Get authorization code Google sent back
     code = request.args.get("code")
-    google_provider_cfg = get_google_provider_cfg()
-    token_endpoint = google_provider_cfg["token_endpoint"]
+    if not code:
+        flash("Authentication failed - No code received", "error")
+        return redirect(url_for('login'))
 
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url,
-        redirect_url=request.base_url,
-        code=code
-    )
-    
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-    )
+    try:
+        google_provider_cfg = get_google_provider_cfg()
+        token_endpoint = google_provider_cfg["token_endpoint"]
 
-    client.parse_request_body_response(json.dumps(token_response.json()))
-    
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body)
-    
-    if userinfo_response.json().get("email_verified"):
-        email = userinfo_response.json()["email"]
-        name = userinfo_response.json()["given_name"]
+        token_url, headers, body = client.prepare_token_request(
+            token_endpoint,
+            authorization_response=request.url,
+            redirect_url=request.base_url,
+            code=code
+        )
         
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            user = User(
-                username=email.split('@')[0],
-                email=email,
-                name=name,
-                password=None  # Google-authenticated users don't need a password
-            )
-            db.session.add(user)
+        token_response = requests.post(
+            token_url,
+            headers=headers,
+            data=body,
+            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+        )
+
+        client.parse_request_body_response(json.dumps(token_response.json()))
+        
+        userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+        uri, headers, body = client.add_token(userinfo_endpoint)
+        userinfo_response = requests.get(uri, headers=headers, data=body)
+        
+        if userinfo_response.json().get("email_verified"):
+            email = userinfo_response.json()["email"]
+            name = userinfo_response.json()["given_name"]
+            
+            user = User.query.filter_by(email=email).first()
+            if not user:
+                # Create a username from email
+                username = email.split('@')[0]
+                base_username = username
+                counter = 1
+                
+                # Make sure username is unique
+                while User.query.filter_by(username=username).first():
+                    username = f"{base_username}{counter}"
+                    counter += 1
+                
+                user = User(
+                    username=username,
+                    email=email,
+                    name=name,
+                    password=generate_password_hash(os.urandom(24).hex(), method='sha256')  # Random secure password
+                )
+                db.session.add(user)
+                db.session.commit()
+                
+            # Generate and send OTP
+            otp = generate_otp()
+            user.otp = otp
+            user.otp_created_at = datetime.utcnow()
             db.session.commit()
             
-        # Generate and send OTP
-        otp = generate_otp()
-        user.otp = otp
-        user.otp_created_at = datetime.utcnow()
-        db.session.commit()
-        
-        send_otp_email(email, otp)
-        session['email'] = email  # Store email for OTP verification
-        
-        return redirect(url_for('verify_otp'))
-    else:
-        flash("Google login failed - Email not verified", "error")
+            send_otp_email(email, otp)
+            session['email'] = email  # Store email for OTP verification
+            
+            return redirect(url_for('verify_otp'))
+        else:
+            flash("Google login failed - Email not verified", "error")
+            return redirect(url_for('login'))
+            
+    except Exception as e:
+        flash("Authentication failed - Please try again", "error")
         return redirect(url_for('login'))
 
 @app.route('/verify-otp', methods=['GET', 'POST'])
@@ -214,18 +238,52 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        remember = True if request.form.get('remember') else False
+        
         user = User.query.filter_by(email=email).first()
-
+        
         if not user or not check_password_hash(user.password, password):
-            flash('Invalid email or password. Please try again.', 'error')
+            flash('Please check your login details and try again.', 'error')
             return redirect(url_for('login'))
-
-        login_user(user)
+            
+        login_user(user, remember=remember)
         user.last_login = datetime.utcnow()
         db.session.commit()
+        
         return redirect(url_for('home'))
-
+        
     return render_template('login.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+        
+    if request.method == 'POST':
+        email = request.form.get('email')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Check if user already exists
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash('Email address already exists', 'error')
+            return redirect(url_for('signup'))
+            
+        # Create new user
+        new_user = User(
+            username=username,
+            email=email,
+            password=generate_password_hash(password, method='sha256')
+        )
+        
+        db.session.add(new_user)
+        db.session.commit()
+        
+        flash('Successfully registered! Please log in.', 'success')
+        return redirect(url_for('login'))
+        
+    return render_template('signup.html')
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
@@ -253,70 +311,6 @@ def api_login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        terms = request.form.get('terms')
-
-        if not username or not email or not password or not confirm_password:
-            flash('All fields are required.', 'error')
-            return redirect(url_for('signup'))
-
-        if not terms:
-            flash('You must agree to the Terms and Privacy Policy.', 'error')
-            return redirect(url_for('signup'))
-
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists. Please choose a different username.', 'error')
-            return redirect(url_for('signup'))
-
-        if User.query.filter_by(email=email).first():
-            flash('Email already exists. Please login or use a different email.', 'error')
-            return redirect(url_for('signup'))
-
-        if password != confirm_password:
-            flash('Passwords do not match.', 'error')
-            return redirect(url_for('signup'))
-
-        # Password strength validation
-        if len(password) < 8:
-            flash('Password must be at least 8 characters long.', 'error')
-            return redirect(url_for('signup'))
-
-        if not any(c.isupper() for c in password):
-            flash('Password must contain at least one uppercase letter.', 'error')
-            return redirect(url_for('signup'))
-
-        if not any(c.islower() for c in password):
-            flash('Password must contain at least one lowercase letter.', 'error')
-            return redirect(url_for('signup'))
-
-        if not any(c.isdigit() for c in password):
-            flash('Password must contain at least one number.', 'error')
-            return redirect(url_for('signup'))
-
-        if not any(c in '!@#$%^&*(),.?":{}|<>' for c in password):
-            flash('Password must contain at least one special character.', 'error')
-            return redirect(url_for('signup'))
-
-        try:
-            hashed_password = generate_password_hash(password)
-            new_user = User(username=username, email=email, password=hashed_password)
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Account created successfully! Please login.', 'success')
-            return redirect(url_for('login'))
-        except Exception as e:
-            db.session.rollback()
-            flash('Error creating account. Please try again.', 'error')
-            return redirect(url_for('signup'))
-
-    return render_template('signup.html')
 
 @app.route('/api/signup', methods=['POST'])
 def signup_api():
