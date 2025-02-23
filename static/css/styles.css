@@ -155,14 +155,14 @@ body {
     justify-content: center;
     gap: 0.75rem;
     padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
+    border: none;
+    border-radius: 0.75rem;
     background: var(--bg-primary);
     color: var(--text-primary);
     font-weight: 500;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.5s ease;
     position: relative;
     overflow: hidden;
     text-decoration: none;
@@ -173,54 +173,108 @@ body {
     height: 20px;
     position: relative;
     z-index: 2;
+    transition: transform 0.5s ease;
 }
 
 .social-btn span {
     position: relative;
     z-index: 2;
+    transition: all 0.5s ease;
 }
 
-.social-btn::before {
+/* Google button effects */
+.google-login {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.google-login::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 400%;
+    left: 0;
+    width: 100%;
     height: 100%;
+    border-radius: 0.75rem;
     background: linear-gradient(
-        90deg,
-        transparent 0%,
-        #4285f4 25%,  /* Google Blue */
-        #ea4335 50%,  /* Google Red */
-        #fbbc05 75%,  /* Google Yellow */
-        #34a853 100%  /* Google Green */
+        45deg,
+        #4285f4,
+        #ea4335,
+        #fbbc05,
+        #34a853
     );
-    transition: transform 0.5s ease;
+    transition: 0.5s;
+    transform: scale(0.9);
     z-index: 1;
     opacity: 0;
 }
 
-.social-btn:hover::before {
-    opacity: 0.1;
-    animation: waterFlow 2s linear infinite;
-}
-
-@keyframes waterFlow {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(25%);
-    }
-}
-
 .google-login:hover {
-    border-color: rgba(66, 133, 244, 0.3);
+    color: #fff;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.google-login:hover::before {
+    transform: scale(1.1);
+    opacity: 1;
+    box-shadow: 0 0 15px #4285f4,
+                0 0 25px #ea4335,
+                0 0 35px #fbbc05,
+                0 0 45px #34a853;
+    filter: blur(3px);
+}
+
+.google-login:hover img {
+    transform: scale(1.2);
+    filter: brightness(0) invert(1);
+}
+
+.google-login:hover span {
+    color: #fff;
+}
+
+/* Facebook button effects */
+.facebook-login {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.facebook-login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.75rem;
+    background: #1877f2;
+    transition: 0.5s;
+    transform: scale(0.9);
+    z-index: 1;
+    opacity: 0;
 }
 
 .facebook-login:hover {
-    border-color: rgba(24, 119, 242, 0.3);
-    background-color: rgba(24, 119, 242, 0.1);
+    color: #fff;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.facebook-login:hover::before {
+    transform: scale(1.1);
+    opacity: 1;
+    box-shadow: 0 0 15px #1877f2,
+                0 0 25px #1877f2,
+                0 0 35px #1877f2;
+    filter: blur(3px);
+}
+
+.facebook-login:hover img {
+    transform: scale(1.2);
+    filter: brightness(0) invert(1);
+}
+
+.facebook-login:hover span {
+    color: #fff;
 }
 
 /* Divider */
