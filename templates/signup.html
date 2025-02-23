@@ -108,55 +108,65 @@ document.addEventListener('DOMContentLoaded', function() {
     let checkMatchTimeout;
 
     // Password Strength Check
-    passwordInput.addEventListener('input', async function() {
-        const response = await fetch('/api/check-password', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ password: this.value })
-        });
-
-        const data = await response.json();
-        
-        // Update strength bar
-        const percentage = (data.score / 5) * 100;
-        strengthBar.style.width = `${percentage}%`;
-        
-        // Update color based on strength with smooth transition
-        let color = '#ff4444'; // Very Weak (Red)
-        if (data.score >= 4) color = '#00C851'; // Very Strong (Green)
-        else if (data.score >= 3) color = '#00B0FF'; // Strong (Blue)
-        else if (data.score >= 2) color = '#FF8800'; // Fair (Orange)
-        strengthBar.style.color = color;
-        
-        // Update requirements list with animations
-        feedbackDiv.innerHTML = '';
-        if (data.feedback.length > 0) {
-            const ul = document.createElement('ul');
-            ul.className = 'password-requirements';
-            
-            const requirements = [
-                { text: 'Password should be at least 8 characters long', met: data.score >= 1 },
-                { text: 'Include at least one uppercase letter', met: /[A-Z]/.test(this.value) },
-                { text: 'Include at least one lowercase letter', met: /[a-z]/.test(this.value) },
-                { text: 'Include at least one number', met: /\d/.test(this.value) },
-                { text: 'Include at least one special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.value) }
-            ];
-
-            requirements.forEach((req, index) => {
-                const li = document.createElement('li');
-                li.textContent = req.text;
-                if (req.met) {
-                    setTimeout(() => li.classList.add('met'), index * 100);
-                } else {
-                    li.classList.remove('met');
-                }
-                ul.appendChild(li);
+    let debounceTimer;
+    passwordInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+            const response = await fetch('/api/check-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password: this.value })
             });
+
+            const data = await response.json();
             
-            feedbackDiv.appendChild(ul);
-        }
+            // Update strength bar
+            const percentage = (data.score / 5) * 100;
+            strengthBar.style.width = `${percentage}%`;
+            
+            // Update color based on strength with smooth transition
+            let color = '#ff4444'; // Very Weak (Red)
+            if (data.score >= 4) {
+                color = '#00C851'; // Very Strong (Green)
+                strengthBar.classList.add('complete');
+            } else {
+                strengthBar.classList.remove('complete');
+                if (data.score >= 3) color = '#00B0FF'; // Strong (Blue)
+                else if (data.score >= 2) color = '#FF8800'; // Fair (Orange)
+            }
+            strengthBar.style.color = color;
+            
+            // Update requirements list with animations
+            feedbackDiv.innerHTML = '';
+            if (data.feedback.length > 0) {
+                const ul = document.createElement('ul');
+                ul.className = 'password-requirements';
+                
+                const requirements = [
+                    { text: 'Password should be at least 8 characters long', met: data.score >= 1 },
+                    { text: 'Include at least one uppercase letter', met: /[A-Z]/.test(this.value) },
+                    { text: 'Include at least one lowercase letter', met: /[a-z]/.test(this.value) },
+                    { text: 'Include at least one number', met: /\d/.test(this.value) },
+                    { text: 'Include at least one special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.value) }
+                ];
+
+                requirements.forEach((req, index) => {
+                    if (!req.met || (req.met && !document.querySelector(`[data-requirement="${index}"].met`))) {
+                        const li = document.createElement('li');
+                        li.textContent = req.text;
+                        li.dataset.requirement = index;
+                        if (req.met) {
+                            setTimeout(() => li.classList.add('met'), 50);
+                        }
+                        ul.appendChild(li);
+                    }
+                });
+                
+                feedbackDiv.appendChild(ul);
+            }
+        }, 300); // Debounce delay
     });
 
     // Password Match Check with loading animation
