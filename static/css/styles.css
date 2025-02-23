@@ -1,11 +1,35 @@
 :root {
-    --primary-color: #4F46E5;
-    --primary-hover: #4338CA;
-    --secondary-color: #64748b;
-    --border-color: #e2e8f0;
-    --background-color: #ffffff;
-    --error-color: #ef4444;
-    --success-color: #22c55e;
+    /* Primary colors */
+    --primary-color: #1e40af;  /* Deep blue */
+    --primary-hover: #1e3a8a;  /* Darker blue for hover */
+    --secondary-color: #eab308;  /* Yellow */
+    --accent-color: #fbbf24;  /* Lighter yellow */
+    
+    /* Background colors */
+    --bg-primary: #ffffff;  /* White */
+    --bg-secondary: #f8fafc;  /* Very light gray-blue */
+    
+    /* Text colors */
+    --text-primary: #1e293b;  /* Dark blue-gray */
+    --text-secondary: #475569;  /* Medium blue-gray */
+    
+    /* Border and shadow */
+    --border-color: #e2e8f0;  /* Light gray-blue */
+    --shadow-color: rgba(30, 64, 175, 0.1);  /* Blue-tinted shadow */
+    
+    /* Status colors */
+    --success-color: #1e40af;  /* Blue for success */
+    --error-color: #dc2626;  /* Keep red for errors */
+    
+    /* Form colors */
+    --input-bg: #ffffff;
+    --input-border: #e2e8f0;
+    --input-focus: #1e40af;  /* Blue focus */
+    
+    /* Social button colors - keeping original for brand recognition */
+    --google-color: #ea4335;
+    --facebook-color: #1877f2;
+    --twitter-color: #1da1f2;
 }
 
 * {
@@ -16,8 +40,8 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--background-color);
-    color: #0f172a;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     line-height: 1.5;
     min-height: 100vh;
 }
@@ -26,32 +50,35 @@ body {
 .container {
     display: flex;
     min-height: 100vh;
-    background-color: #f8fafc;
+    background-color: var(--bg-secondary);
+    max-width: 1440px;
+    margin: 0 auto;
 }
 
 .left-panel {
     flex: 1;
-    padding: 2.5rem;
     display: flex;
     flex-direction: column;
-    max-width: 480px;
-    background-color: white;
+    max-width: 50%;
+    background-color: var(--bg-primary);
+    padding: 2rem 4rem;
 }
 
 .right-panel {
     flex: 1;
-    background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    overflow: hidden;
 }
 
 .illustration {
-    width: 100%;
-    max-width: 600px;
+    max-width: 80%;
     height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .illustration img {
@@ -100,7 +127,7 @@ body {
     font-size: 1.875rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .login-header p {
@@ -123,8 +150,8 @@ body {
     padding: 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    background: white;
-    color: #1f2937;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     font-weight: 500;
     font-size: 0.875rem;
     cursor: pointer;
@@ -132,8 +159,8 @@ body {
 }
 
 .social-btn:hover {
-    background-color: #f8fafc;
-    border-color: #cbd5e1;
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
 }
 
 .social-btn img {
@@ -171,7 +198,7 @@ body {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #1f2937;
+    color: var(--text-primary);
     font-size: 0.875rem;
 }
 
@@ -193,18 +220,18 @@ body {
 .input-group input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.75rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--input-border);
     border-radius: 0.5rem;
     font-size: 0.875rem;
-    color: #1f2937;
+    color: var(--text-primary);
     transition: all 0.2s ease;
-    background-color: white;
+    background-color: var(--input-bg);
 }
 
 .input-group input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
 }
 
 .input-group input::placeholder {
@@ -271,7 +298,7 @@ body {
 
 .remember-me span {
     font-size: 0.875rem;
-    color: #1f2937;
+    color: var(--text-primary);
 }
 
 .forgot-password {
@@ -291,7 +318,7 @@ body {
     width: 100%;
     padding: 0.75rem;
     background-color: var(--primary-color);
-    color: white;
+    color: var(--bg-primary);
     border: none;
     border-radius: 0.5rem;
     font-weight: 500;
@@ -306,7 +333,7 @@ body {
 
 .submit-btn:focus {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
 }
 
 /* Bottom text */
@@ -345,12 +372,12 @@ body {
 
 .flash-message.success {
     background-color: var(--success-color);
-    color: white;
+    color: var(--bg-primary);
 }
 
 .flash-message.error {
     background-color: var(--error-color);
-    color: white;
+    color: var(--bg-primary);
 }
 
 @keyframes slideDown {
@@ -468,26 +495,32 @@ body {
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
+        padding: 0;
     }
-    
+
     .left-panel {
-        max-width: none;
+        max-width: 100%;
+        padding: 2rem;
+        order: 2;
+    }
+
+    .right-panel {
+        max-width: 100%;
+        min-height: 300px;
+        order: 1;
+    }
+
+    .illustration {
+        max-width: 60%;
+    }
+}
+
+@media (max-width: 480px) {
+    .left-panel {
         padding: 1.5rem;
     }
-    
-    .right-panel {
-        display: none;
-    }
-    
-    .form-container {
-        padding: 1rem 0;
-    }
-    
-    .login-header h1 {
-        font-size: 1.5rem;
-    }
-    
-    .social-login {
-        flex-direction: column;
+
+    .illustration {
+        max-width: 80%;
     }
 }
