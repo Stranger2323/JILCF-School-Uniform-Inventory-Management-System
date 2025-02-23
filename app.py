@@ -159,13 +159,15 @@ def google_callback():
 
         # Get the correct redirect URI based on environment
         if os.environ.get('FLASK_ENV') == 'production':
-            base_url = request.host_url.rstrip('/')  # Remove trailing slash if present
-            redirect_uri = f"{base_url}/login/google/callback"
+            redirect_uri = "https://jilcf-school-uniform-inventory.onrender.com/login/google/callback"
         else:
             redirect_uri = url_for('google_callback', _external=True)
 
         # Get token endpoint
         google_provider_cfg = get_google_provider_cfg()
+        if not google_provider_cfg:
+            raise Exception("Failed to get Google provider configuration")
+            
         token_endpoint = google_provider_cfg["token_endpoint"]
 
         # Prepare and send token request
@@ -180,6 +182,7 @@ def google_callback():
             headers=headers,
             data=body,
             auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+            timeout=5
         )
 
         # Parse the token response
@@ -188,33 +191,32 @@ def google_callback():
         # Get user info from Google
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
         uri, headers, body = client.add_token(userinfo_endpoint)
-        userinfo_response = requests.get(uri, headers=headers, data=body)
+        userinfo_response = requests.get(uri, headers=headers, data=body, timeout=5)
 
         if userinfo_response.json().get("email_verified"):
             unique_id = userinfo_response.json()["sub"]
             users_email = userinfo_response.json()["email"]
             users_name = userinfo_response.json().get("name", users_email.split('@')[0])
+            
+            # Create or update user
+            user = User.query.filter_by(email=users_email).first()
+            if not user:
+                user = User(
+                    username=users_email,
+                    email=users_email,
+                    name=users_name,
+                    password=generate_password_hash(unique_id),
+                    is_verified=True
+                )
+                db.session.add(user)
+                db.session.commit()
+            
+            # Log in the user
+            login_user(user)
+            return redirect(url_for('home'))
         else:
             flash("Google login failed - Email not verified", "error")
             return redirect(url_for('login'))
-
-        # Create or update user
-        user = User.query.filter_by(email=users_email).first()
-        if not user:
-            # Create new user
-            user = User(
-                username=users_email,
-                email=users_email,
-                name=users_name,
-                password=generate_password_hash(unique_id),  # Use Google ID as password
-                is_verified=True  # Google verified the email
-            )
-            db.session.add(user)
-            db.session.commit()
-        
-        # Log in the user
-        login_user(user)
-        return redirect(url_for('home'))
 
     except Exception as e:
         app.logger.error(f"Error in Google callback: {str(e)}")
