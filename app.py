@@ -43,9 +43,20 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 # OAuth 2 client setup
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-GOOGLE_DISCOVERY_URL = os.getenv('GOOGLE_DISCOVERY_URL')
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+    print("Warning: Google OAuth credentials not found!")
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
+def get_google_provider_cfg():
+    try:
+        return requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
+    except Exception as e:
+        app.logger.error(f"Failed to fetch Google provider config: {str(e)}")
+        return None
+
 mail = Mail(app)
 db = SQLAlchemy(app)
 
@@ -95,9 +106,6 @@ def send_otp_email(email, otp):
     msg.body = f'Your verification code is: {otp}'
     mail.send(msg)
 
-def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
-
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -116,13 +124,16 @@ def google_login():
         return redirect(url_for('home'))
 
     try:
+        # Get provider configuration
         google_provider_cfg = get_google_provider_cfg()
+        if not google_provider_cfg:
+            raise Exception("Failed to get Google provider configuration")
+
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
         
-        # Get the correct redirect URI based on environment
+        # Use the deployment URL from Render when in production
         if os.environ.get('FLASK_ENV') == 'production':
-            base_url = request.host_url.rstrip('/')  # Remove trailing slash if present
-            redirect_uri = f"{base_url}/login/google/callback"
+            redirect_uri = "https://jilcf-school-uniform-inventory.onrender.com/login/google/callback"
         else:
             redirect_uri = url_for('google_callback', _external=True)
         
