@@ -103,35 +103,55 @@ def google_login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
 
-    google_provider_cfg = get_google_provider_cfg()
-    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-    
-    request_uri = client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
-        scope=["openid", "email", "profile"],
-    )
-    return redirect(request_uri)
+    try:
+        google_provider_cfg = get_google_provider_cfg()
+        authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+        
+        # Get the correct redirect URI based on environment
+        if os.environ.get('FLASK_ENV') == 'production':
+            base_url = request.host_url.rstrip('/')  # Remove trailing slash if present
+            redirect_uri = f"{base_url}/login/google/callback"
+        else:
+            redirect_uri = url_for('google_callback', _external=True)
+        
+        request_uri = client.prepare_request_uri(
+            authorization_endpoint,
+            redirect_uri=redirect_uri,
+            scope=["openid", "email", "profile"],
+        )
+        return redirect(request_uri)
+    except Exception as e:
+        app.logger.error(f"Error in Google login: {str(e)}")
+        flash("Failed to initialize Google login. Please try again.", "error")
+        return redirect(url_for('login'))
 
 @app.route('/login/google/callback')
 def google_callback():
-    # Get authorization code Google sent back
-    code = request.args.get("code")
-    if not code:
-        flash("Authentication failed - No code received", "error")
-        return redirect(url_for('login'))
-
     try:
+        # Get authorization code Google sent back
+        code = request.args.get("code")
+        if not code:
+            flash("Authentication failed - No code received", "error")
+            return redirect(url_for('login'))
+
+        # Get the correct redirect URI based on environment
+        if os.environ.get('FLASK_ENV') == 'production':
+            base_url = request.host_url.rstrip('/')  # Remove trailing slash if present
+            redirect_uri = f"{base_url}/login/google/callback"
+        else:
+            redirect_uri = url_for('google_callback', _external=True)
+
+        # Get token endpoint
         google_provider_cfg = get_google_provider_cfg()
         token_endpoint = google_provider_cfg["token_endpoint"]
 
+        # Prepare and send token request
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url,
-            redirect_url=request.base_url,
+            redirect_url=redirect_uri,
             code=code
         )
-        
         token_response = requests.post(
             token_url,
             headers=headers,
@@ -139,53 +159,43 @@ def google_callback():
             auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
         )
 
-        client.parse_request_body_response(json.dumps(token_response.json()))
-        
+        # Parse the token response
+        client.parse_request_body_response(token_response.text)
+
+        # Get user info from Google
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
         uri, headers, body = client.add_token(userinfo_endpoint)
         userinfo_response = requests.get(uri, headers=headers, data=body)
-        
+
         if userinfo_response.json().get("email_verified"):
-            email = userinfo_response.json()["email"]
-            name = userinfo_response.json()["given_name"]
-            
-            user = User.query.filter_by(email=email).first()
-            if not user:
-                # Create a username from email
-                username = email.split('@')[0]
-                base_username = username
-                counter = 1
-                
-                # Make sure username is unique
-                while User.query.filter_by(username=username).first():
-                    username = f"{base_username}{counter}"
-                    counter += 1
-                
-                user = User(
-                    username=username,
-                    email=email,
-                    name=name,
-                    password=generate_password_hash(os.urandom(24).hex(), method='sha256')  # Random secure password
-                )
-                db.session.add(user)
-                db.session.commit()
-                
-            # Generate and send OTP
-            otp = generate_otp()
-            user.otp = otp
-            user.otp_created_at = datetime.utcnow()
-            db.session.commit()
-            
-            send_otp_email(email, otp)
-            session['email'] = email  # Store email for OTP verification
-            
-            return redirect(url_for('verify_otp'))
+            unique_id = userinfo_response.json()["sub"]
+            users_email = userinfo_response.json()["email"]
+            users_name = userinfo_response.json().get("name", users_email.split('@')[0])
         else:
             flash("Google login failed - Email not verified", "error")
             return redirect(url_for('login'))
-            
+
+        # Create or update user
+        user = User.query.filter_by(email=users_email).first()
+        if not user:
+            # Create new user
+            user = User(
+                username=users_email,
+                email=users_email,
+                name=users_name,
+                password=generate_password_hash(unique_id),  # Use Google ID as password
+                is_verified=True  # Google verified the email
+            )
+            db.session.add(user)
+            db.session.commit()
+        
+        # Log in the user
+        login_user(user)
+        return redirect(url_for('home'))
+
     except Exception as e:
-        flash("Authentication failed - Please try again", "error")
+        app.logger.error(f"Error in Google callback: {str(e)}")
+        flash("Failed to complete Google authentication. Please try again.", "error")
         return redirect(url_for('login'))
 
 @app.route('/verify-otp', methods=['GET', 'POST'])
