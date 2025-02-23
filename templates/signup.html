@@ -55,7 +55,13 @@
                         </button>
                     </div>
                     <div class="password-strength-meter">
-                        <div class="strength-bar"></div>
+                        <div class="strength-meter-bar">
+                            <div class="strength-meter-fill"></div>
+                        </div>
+                        <div class="strength-meter-label">
+                            <span class="strength-text">Password Strength</span>
+                            <span class="strength-value">Weak</span>
+                        </div>
                     </div>
                     <div class="password-feedback"></div>
                 </div>
@@ -100,7 +106,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm_password');
-    const strengthBar = document.querySelector('.strength-bar');
     const feedbackDiv = document.querySelector('.password-feedback');
     const matchFeedbackDiv = document.querySelector('.password-match-feedback');
     const togglePassword = document.querySelectorAll('.toggle-password');
@@ -148,21 +153,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const data = await response.json();
             
-            // Update strength bar
-            const percentage = (data.score / 5) * 100;
-            strengthBar.style.width = `${percentage}%`;
+            // Update strength meter
+            const strengthMeter = document.querySelector('.password-strength-meter');
+            const strengthText = strengthMeter.querySelector('.strength-value');
             
-            // Update color based on strength
-            let color = '#ff4444'; // Very Weak (Red)
+            // Remove all previous strength classes
+            strengthMeter.classList.remove('strength-weak', 'strength-fair', 'strength-good', 'strength-strong');
+            
+            // Update strength meter based on score
             if (data.score >= 4) {
-                color = '#00C851'; // Very Strong (Green)
-                strengthBar.classList.add('complete');
+                strengthMeter.classList.add('strength-strong');
+                strengthText.textContent = 'Strong';
+            } else if (data.score >= 3) {
+                strengthMeter.classList.add('strength-good');
+                strengthText.textContent = 'Good';
+            } else if (data.score >= 2) {
+                strengthMeter.classList.add('strength-fair');
+                strengthText.textContent = 'Fair';
             } else {
-                strengthBar.classList.remove('complete');
-                if (data.score >= 3) color = '#00B0FF'; // Strong (Blue)
-                else if (data.score >= 2) color = '#FF8800'; // Fair (Orange)
+                strengthMeter.classList.add('strength-weak');
+                strengthText.textContent = 'Weak';
             }
-            strengthBar.style.backgroundColor = color;
         }, 300);
     });
 

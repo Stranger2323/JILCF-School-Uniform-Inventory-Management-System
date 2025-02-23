@@ -464,51 +464,69 @@ body {
 
 /* Password Strength Meter */
 .password-strength-meter {
-    height: 6px;
-    background-color: #f0f0f0;
-    border-radius: 3px;
-    margin-top: 12px;
-    overflow: hidden;
-    position: relative;
+    margin-top: 10px;
+    margin-bottom: 15px;
 }
 
-.strength-bar {
+.strength-meter-bar {
+    height: 4px;
+    border-radius: 2px;
+    background-color: #e4e4e7;
+    position: relative;
+    overflow: hidden;
+}
+
+.strength-meter-fill {
     height: 100%;
     width: 0;
-    border-radius: 3px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    background: linear-gradient(90deg, currentColor, currentColor);
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 2px;
 }
 
-.strength-bar.complete::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, 
-        rgba(255,255,255,0.1),
-        rgba(255,255,255,0.2),
-        rgba(255,255,255,0.1)
-    );
-    transform: translateX(-100%);
-    animation: shimmer 2s infinite;
+.strength-meter-label {
+    font-size: 0.85rem;
+    margin-top: 6px;
+    color: #71717a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(-10px);
-        height: 0;
-        margin: 0;
-        padding: 0;
-    }
+/* Strength levels */
+.strength-weak .strength-meter-fill {
+    background-color: #ef4444;
+    width: 25%;
+}
+
+.strength-fair .strength-meter-fill {
+    background-color: #f97316;
+    width: 50%;
+}
+
+.strength-good .strength-meter-fill {
+    background-color: #22c55e;
+    width: 75%;
+}
+
+.strength-strong .strength-meter-fill {
+    background-color: #15803d;
+    width: 100%;
+}
+
+.strength-weak .strength-meter-label {
+    color: #ef4444;
+}
+
+.strength-fair .strength-meter-label {
+    color: #f97316;
+}
+
+.strength-good .strength-meter-label {
+    color: #22c55e;
+}
+
+.strength-strong .strength-meter-label {
+    color: #15803d;
 }
 
 /* Password Match Feedback */
