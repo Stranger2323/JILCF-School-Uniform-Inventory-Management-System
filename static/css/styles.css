@@ -68,9 +68,11 @@ body {
 /* Container layout */
 .container {
     width: 100%;
+    min-height: 100vh;
     max-width: 1440px;
     margin: 0 auto;
-    animation: fadeIn 0.8s ease-out;
+    display: flex;
+    background-color: var(--bg-secondary);
     transform: translateZ(0);
     backface-visibility: hidden;
     will-change: transform;
@@ -78,22 +80,37 @@ body {
 
 .left-panel {
     flex: 1;
+    background-color: var(--bg-primary);
+    padding: 2rem;
     display: flex;
     flex-direction: column;
-    max-width: 50%;
-    background-color: var(--bg-primary);
-    padding: 2rem 4rem;
-    animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
 }
 
 .right-panel {
     flex: 1;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    background-color: var(--bg-secondary);
+    padding: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.right-panel::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle at center, var(--accent-yellow) 0%, transparent 70%);
+    opacity: 0.1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
 
 .illustration {
@@ -133,17 +150,12 @@ body {
 
 /* Form container */
 .form-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
     width: 100%;
     max-width: 440px;
     margin: 0 auto;
-    padding: 2rem 0;
+    padding: 2.5rem;
     background: var(--bg-primary);
     border-radius: var(--border-radius);
-    padding: 2rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -526,6 +538,17 @@ body {
 .strength-meter-fill.medium { background: #ffd700; }
 .strength-meter-fill.strong { background: #2ecc71; }
 
+/* Password Input Specific */
+.password-input {
+    font-size: 16px !important;
+    letter-spacing: 0.05em;
+    font-family: var(--font-body) !important;
+}
+
+.password-input::placeholder {
+    letter-spacing: normal;
+}
+
 /* Form options */
 .form-options {
     display: flex;
@@ -689,49 +712,25 @@ body {
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .container {
         flex-direction: column;
-        padding: 0;
     }
 
-    .left-panel {
-        max-width: 100%;
-        padding: 2rem;
-        order: 2;
+    .left-panel,
+    .right-panel {
+        flex: none;
+        width: 100%;
     }
 
     .right-panel {
-        max-width: 100%;
         min-height: 300px;
-        order: 1;
-    }
-
-    .illustration {
-        max-width: 60%;
-    }
-
-    .form-container {
-        padding: 1rem 0;
-        max-width: 100%;
-    }
-
-    .social-login {
-        gap: 0.75rem;
-    }
-
-    .login-header {
-        text-align: center;
     }
 }
 
 @media (max-width: 480px) {
-    .left-panel {
+    .form-container {
         padding: 1.5rem;
-    }
-
-    .illustration {
-        max-width: 80%;
     }
 }
 
