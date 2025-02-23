@@ -139,32 +139,43 @@ document.addEventListener('DOMContentLoaded', function() {
             strengthBar.style.color = color;
             
             // Update requirements list with animations
-            feedbackDiv.innerHTML = '';
-            if (data.feedback.length > 0) {
+            const requirements = [
+                { text: 'Password should be at least 8 characters long', met: this.value.length >= 8 },
+                { text: 'Include at least one uppercase letter', met: /[A-Z]/.test(this.value) },
+                { text: 'Include at least one lowercase letter', met: /[a-z]/.test(this.value) },
+                { text: 'Include at least one number', met: /\d/.test(this.value) },
+                { text: 'Include at least one special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.value) }
+            ];
+
+            // Check if all requirements are met
+            const allMet = requirements.every(req => req.met);
+            
+            // Only update the list if there are unmet requirements
+            if (!allMet) {
+                feedbackDiv.innerHTML = '';
                 const ul = document.createElement('ul');
                 ul.className = 'password-requirements';
                 
-                const requirements = [
-                    { text: 'Password should be at least 8 characters long', met: data.score >= 1 },
-                    { text: 'Include at least one uppercase letter', met: /[A-Z]/.test(this.value) },
-                    { text: 'Include at least one lowercase letter', met: /[a-z]/.test(this.value) },
-                    { text: 'Include at least one number', met: /\d/.test(this.value) },
-                    { text: 'Include at least one special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.value) }
-                ];
-
                 requirements.forEach((req, index) => {
-                    if (!req.met || (req.met && !document.querySelector(`[data-requirement="${index}"].met`))) {
+                    if (!req.met) {
                         const li = document.createElement('li');
                         li.textContent = req.text;
                         li.dataset.requirement = index;
-                        if (req.met) {
-                            setTimeout(() => li.classList.add('met'), 50);
-                        }
                         ul.appendChild(li);
                     }
                 });
                 
                 feedbackDiv.appendChild(ul);
+            } else {
+                // If all requirements are met, add the all-met class for transition
+                const ul = feedbackDiv.querySelector('.password-requirements');
+                if (ul) {
+                    ul.classList.add('all-met');
+                    // Remove the element after transition
+                    setTimeout(() => {
+                        feedbackDiv.innerHTML = '';
+                    }, 500);
+                }
             }
         }, 300); // Debounce delay
     });

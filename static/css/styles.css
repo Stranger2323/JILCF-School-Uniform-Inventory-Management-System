@@ -423,7 +423,15 @@ body {
     list-style: none;
     padding-left: 20px;
     margin: 8px 0;
-    transition: all 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.password-requirements.all-met {
+    opacity: 0;
+    transform: translateY(-10px);
+    height: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .password-requirements li {
@@ -432,7 +440,19 @@ body {
     margin: 8px 0;
     position: relative;
     padding-left: 25px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    transform: translateY(0);
+    height: 20px;
+}
+
+.password-requirements li.met {
+    opacity: 0;
+    transform: translateY(-10px);
+    height: 0;
+    margin: 0;
+    padding: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .password-requirements li::before {
@@ -445,13 +465,7 @@ body {
     height: 16px;
     border: 2px solid #ddd;
     border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-.password-requirements li.met {
-    color: #00C851;
-    animation: fadeOut 0.5s ease forwards;
-    animation-delay: 1s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .password-requirements li.met::before {
@@ -462,7 +476,19 @@ body {
     font-size: 10px;
     text-align: center;
     line-height: 14px;
-    animation: none;
+    animation: checkmark 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: translateY(-50%) scale(0);
+    }
+    50% {
+        transform: translateY(-50%) scale(1.2);
+    }
+    100% {
+        transform: translateY(-50%) scale(1);
+    }
 }
 
 /* Password Strength Meter */
