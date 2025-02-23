@@ -112,8 +112,13 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    max-width: 400px;
+    width: 100%;
+    max-width: 440px;
     margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.login-form {
     width: 100%;
 }
 
@@ -137,7 +142,9 @@ body {
 /* Social login buttons */
 .social-login {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
+    width: 100%;
     margin-bottom: 1.5rem;
 }
 
@@ -191,7 +198,7 @@ body {
 
 /* Form groups */
 .form-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-group label {
@@ -204,6 +211,7 @@ body {
 
 .input-group {
     position: relative;
+    width: 100%;
     display: flex;
     align-items: center;
 }
@@ -238,19 +246,15 @@ body {
     color: #94a3b8;
 }
 
-/* Password toggle button */
 .toggle-password {
     position: absolute;
     right: 1rem;
-    background: none;
+    background: transparent;
     border: none;
-    padding: 0.25rem;
     cursor: pointer;
+    padding: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: var(--secondary-color);
-    transition: all 0.2s ease;
 }
 
 .toggle-password img {
@@ -362,10 +366,6 @@ body {
     top: 1rem;
     left: 50%;
     transform: translateX(-50%);
-    padding: 1rem 2rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.875rem;
     z-index: 1000;
     animation: slideDown 0.3s ease-out forwards;
 }
@@ -512,6 +512,19 @@ body {
 
     .illustration {
         max-width: 60%;
+    }
+
+    .form-container {
+        padding: 1rem 0;
+        max-width: 100%;
+    }
+
+    .social-login {
+        gap: 0.75rem;
+    }
+
+    .login-header {
+        text-align: center;
     }
 }
 
