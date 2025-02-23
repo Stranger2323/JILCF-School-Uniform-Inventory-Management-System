@@ -1,19 +1,19 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 from flask_cors import CORS
-import re
+from flask_mail import Mail, Message
 import os
+import re
+from datetime import datetime, timedelta
+import requests
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime
-import json
+from werkzeug.security import generate_password_hash, check_password_hash
 from oauthlib.oauth2 import WebApplicationClient
-import requests
+import json
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 import random
 import string
-from flask_mail import Mail, Message
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -45,8 +45,20 @@ GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
+# OAuth configuration
+app.config['OAUTH_CREDENTIALS'] = {
+    'google': {
+        'id': GOOGLE_CLIENT_ID,
+        'secret': GOOGLE_CLIENT_SECRET
+    }
+}
+
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
     print("Warning: Google OAuth credentials not found!")
+
+# Configure HTTPS for OAuth
+if os.environ.get('FLASK_ENV') != 'production':
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
@@ -119,29 +131,39 @@ def home():
 
 @app.route('/login/google')
 def google_login():
+    app.logger.info("Starting Google login process")
+    
     # First check if we're already logged in
     if current_user.is_authenticated:
+        app.logger.info("User already authenticated, redirecting to home")
         return redirect(url_for('home'))
 
     try:
         # Get provider configuration
+        app.logger.info("Fetching Google provider configuration")
         google_provider_cfg = get_google_provider_cfg()
         if not google_provider_cfg:
+            app.logger.error("Failed to get Google provider configuration")
             raise Exception("Failed to get Google provider configuration")
 
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+        app.logger.info(f"Got authorization endpoint: {authorization_endpoint}")
         
         # Use the deployment URL from Render when in production
         if os.environ.get('FLASK_ENV') == 'production':
             redirect_uri = "https://jilcf-school-uniform-inventory.onrender.com/login/google/callback"
         else:
-            redirect_uri = url_for('google_callback', _external=True)
+            redirect_uri = url_for('google_callback', _external=True, _scheme='http')
+        
+        app.logger.info(f"Using redirect URI: {redirect_uri}")
         
         request_uri = client.prepare_request_uri(
             authorization_endpoint,
             redirect_uri=redirect_uri,
             scope=["openid", "email", "profile"],
+            prompt="select_account"  # Force Google account selection
         )
+        app.logger.info(f"Prepared request URI: {request_uri}")
         return redirect(request_uri)
     except Exception as e:
         app.logger.error(f"Error in Google login: {str(e)}")
@@ -154,6 +176,7 @@ def google_callback():
         # Get authorization code Google sent back
         code = request.args.get("code")
         if not code:
+            app.logger.error("No code received from Google")
             flash("Authentication failed - No code received", "error")
             return redirect(url_for('login'))
 
@@ -161,42 +184,69 @@ def google_callback():
         if os.environ.get('FLASK_ENV') == 'production':
             redirect_uri = "https://jilcf-school-uniform-inventory.onrender.com/login/google/callback"
         else:
-            redirect_uri = url_for('google_callback', _external=True)
+            redirect_uri = url_for('google_callback', _external=True, _scheme='http')
 
         # Get token endpoint
         google_provider_cfg = get_google_provider_cfg()
         if not google_provider_cfg:
+            app.logger.error("Failed to get Google provider configuration")
             raise Exception("Failed to get Google provider configuration")
             
         token_endpoint = google_provider_cfg["token_endpoint"]
+        app.logger.info(f"Token endpoint: {token_endpoint}")
 
-        # Prepare and send token request
+        # Prepare token request
         token_url, headers, body = client.prepare_token_request(
             token_endpoint,
             authorization_response=request.url,
             redirect_url=redirect_uri,
             code=code
         )
+        app.logger.info(f"Preparing token request to: {token_url}")
+
+        # Add client authentication
+        basic_auth = requests.auth.HTTPBasicAuth(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
         token_response = requests.post(
             token_url,
             headers=headers,
             data=body,
-            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+            auth=basic_auth,
             timeout=5
         )
+
+        app.logger.info(f"Token response status: {token_response.status_code}")
+        if token_response.status_code != 200:
+            app.logger.error(f"Token response error: {token_response.text}")
+            raise Exception(f"Failed to get token: {token_response.text}")
 
         # Parse the token response
         client.parse_request_body_response(token_response.text)
 
         # Get user info from Google
         userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+        app.logger.info(f"Getting user info from: {userinfo_endpoint}")
+        
         uri, headers, body = client.add_token(userinfo_endpoint)
         userinfo_response = requests.get(uri, headers=headers, data=body, timeout=5)
+
+        app.logger.info(f"Userinfo response status: {userinfo_response.status_code}")
+        if userinfo_response.status_code != 200:
+            app.logger.error(f"Userinfo response error: {userinfo_response.text}")
+            raise Exception(f"Failed to get user info: {userinfo_response.text}")
 
         if userinfo_response.json().get("email_verified"):
             unique_id = userinfo_response.json()["sub"]
             users_email = userinfo_response.json()["email"]
             users_name = userinfo_response.json().get("name", users_email.split('@')[0])
+            
+            app.logger.info(f"Authenticated user: {users_email}")
+            
+            # Only allow specific test users
+            allowed_users = ['josiahdeasis009@gmail.com', 'urbanninvidz2@gmail.com']
+            if users_email not in allowed_users:
+                app.logger.error(f"User not in allowed list: {users_email}")
+                flash("Access denied. Only test users are allowed.", "error")
+                return redirect(url_for('login'))
             
             # Create or update user
             user = User.query.filter_by(email=users_email).first()
@@ -210,11 +260,14 @@ def google_callback():
                 )
                 db.session.add(user)
                 db.session.commit()
+                app.logger.info(f"Created new user: {users_email}")
             
             # Log in the user
             login_user(user)
+            app.logger.info(f"Logged in user: {users_email}")
             return redirect(url_for('home'))
         else:
+            app.logger.error("Email not verified by Google")
             flash("Google login failed - Email not verified", "error")
             return redirect(url_for('login'))
 
@@ -452,5 +505,8 @@ def reset_password():
         }), 200
 
 if __name__ == '__main__':
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    app.logger.setLevel(logging.INFO)
     port = int(os.environ.get('PORT', 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
