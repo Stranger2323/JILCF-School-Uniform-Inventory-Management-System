@@ -48,6 +48,7 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="password-input-container">
+                        <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
                         <input type="password" id="password" name="password" class="password-input" placeholder="Create a password" required>
                         <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                             <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
@@ -58,16 +59,23 @@
                             <div class="strength-meter-fill"></div>
                         </div>
                         <div class="strength-meter-label">
-                            <span class="strength-text">Password Strength</span>
+                            <span class="strength-text">Password Strength:</span>
                             <span class="strength-value">Weak</span>
                         </div>
                     </div>
-                    <div class="password-feedback"></div>
+                    <ul class="password-requirements">
+                        <li>Password should be at least 8 characters long</li>
+                        <li>Include at least one uppercase letter</li>
+                        <li>Include at least one lowercase letter</li>
+                        <li>Include at least one number</li>
+                        <li>Include at least one special character</li>
+                    </ul>
                 </div>
 
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password</label>
                     <div class="password-input-container">
+                        <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
                         <input type="password" id="confirm_password" name="confirm_password" class="password-input" placeholder="Confirm your password" required>
                         <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                             <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
@@ -104,142 +112,108 @@
 document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm_password');
-    const feedbackDiv = document.querySelector('.password-feedback');
+    const requirementsList = document.querySelector('.password-requirements');
     const matchFeedbackDiv = document.querySelector('.password-match-feedback');
     const togglePassword = document.querySelectorAll('.toggle-password');
+    const strengthMeterFill = document.querySelector('.strength-meter-fill');
+    const strengthValue = document.querySelector('.strength-value');
 
-    let checkMatchTimeout;
+    // Password requirements
+    const requirements = [
+        { regex: /.{8,}/, index: 0 }, // At least 8 characters
+        { regex: /[A-Z]/, index: 1 }, // Uppercase letter
+        { regex: /[a-z]/, index: 2 }, // Lowercase letter
+        { regex: /[0-9]/, index: 3 }, // Number
+        { regex: /[^A-Za-z0-9]/, index: 4 } // Special character
+    ];
 
-    // Password Strength Check
-    let debounceTimer;
-    passwordInput.addEventListener('input', function() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-            const requirements = [
-                { text: 'Password should be at least 8 characters long', met: this.value.length >= 8 },
-                { text: 'Include at least one uppercase letter', met: /[A-Z]/.test(this.value) },
-                { text: 'Include at least one lowercase letter', met: /[a-z]/.test(this.value) },
-                { text: 'Include at least one number', met: /\d/.test(this.value) },
-                { text: 'Include at least one special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.value) }
-            ];
+    function updatePasswordStrength(password) {
+        let strength = 0;
+        let metRequirements = 0;
 
-            // Update requirements list
-            feedbackDiv.innerHTML = '';
-            const ul = document.createElement('ul');
-            ul.className = 'password-requirements';
+        requirements.forEach(({ regex }, i) => {
+            const meets = regex.test(password);
+            const requirementItem = requirementsList.children[i];
             
-            requirements.forEach((req, index) => {
-                const li = document.createElement('li');
-                li.textContent = req.text;
-                li.dataset.requirement = index;
-                if (req.met) {
-                    li.classList.add('met');
-                }
-                ul.appendChild(li);
-            });
-            
-            feedbackDiv.appendChild(ul);
-
-            // Check password strength
-            const response = await fetch('/api/check-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ password: this.value })
-            });
-
-            const data = await response.json();
-            
-            // Update strength meter
-            const strengthMeter = document.querySelector('.password-strength-meter');
-            const strengthText = strengthMeter.querySelector('.strength-value');
-            
-            // Remove all previous strength classes
-            strengthMeter.classList.remove('strength-weak', 'strength-fair', 'strength-good', 'strength-strong');
-            
-            // Update strength meter based on score
-            if (data.score >= 4) {
-                strengthMeter.classList.add('strength-strong');
-                strengthText.textContent = 'Strong';
-            } else if (data.score >= 3) {
-                strengthMeter.classList.add('strength-good');
-                strengthText.textContent = 'Good';
-            } else if (data.score >= 2) {
-                strengthMeter.classList.add('strength-fair');
-                strengthText.textContent = 'Fair';
+            if (meets) {
+                requirementItem.classList.add('met');
+                metRequirements++;
             } else {
-                strengthMeter.classList.add('strength-weak');
-                strengthText.textContent = 'Weak';
+                requirementItem.classList.remove('met');
             }
-        }, 300);
-    });
+        });
 
-    // Password Match Check with loading animation
-    function checkPasswordMatch() {
-        const password = passwordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-        
-        if (confirmPassword) {
-            matchFeedbackDiv.classList.add('visible');
-            matchFeedbackDiv.classList.remove('matched', 'not-matched');
-            
-            // Clear previous timeout
-            if (checkMatchTimeout) clearTimeout(checkMatchTimeout);
-            
-            // Show loading animation
-            matchFeedbackDiv.classList.add('checking');
-            matchFeedbackDiv.textContent = 'Checking...';
-            
-            // Simulate check with delay for better UX
-            checkMatchTimeout = setTimeout(() => {
-                matchFeedbackDiv.classList.remove('checking');
-                
-                if (password === confirmPassword) {
-                    matchFeedbackDiv.classList.add('matched');
-                    matchFeedbackDiv.textContent = 'Perfect match!';
-                    
-                    // Add success animation class
-                    matchFeedbackDiv.style.animation = 'none';
-                    matchFeedbackDiv.offsetHeight; // Trigger reflow
-                    matchFeedbackDiv.style.animation = null;
-                } else {
-                    matchFeedbackDiv.classList.add('not-matched');
-                    matchFeedbackDiv.textContent = 'Passwords do not match';
-                }
-            }, 600);
+        // Update strength meter
+        if (metRequirements === 0) {
+            strengthValue.textContent = 'Weak';
+            strengthMeterFill.style.width = '25%';
+            strengthMeterFill.style.backgroundColor = '#ef4444';
+        } else if (metRequirements <= 2) {
+            strengthValue.textContent = 'Fair';
+            strengthMeterFill.style.width = '50%';
+            strengthMeterFill.style.backgroundColor = '#f97316';
+        } else if (metRequirements <= 4) {
+            strengthValue.textContent = 'Good';
+            strengthMeterFill.style.width = '75%';
+            strengthMeterFill.style.backgroundColor = '#22c55e';
         } else {
-            matchFeedbackDiv.classList.remove('visible', 'checking', 'matched', 'not-matched');
-            matchFeedbackDiv.textContent = '';
+            strengthValue.textContent = 'Strong';
+            strengthMeterFill.style.width = '100%';
+            strengthMeterFill.style.backgroundColor = '#15803d';
         }
     }
 
-    let matchDebounceTimer;
-    passwordInput.addEventListener('input', () => {
-        clearTimeout(matchDebounceTimer);
-        matchDebounceTimer = setTimeout(checkPasswordMatch, 300);
-    });
-    
-    confirmPasswordInput.addEventListener('input', () => {
-        clearTimeout(matchDebounceTimer);
-        matchDebounceTimer = setTimeout(checkPasswordMatch, 300);
-    });
+    function checkPasswordMatch() {
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
 
-    // Toggle Password Visibility
+        if (!confirmPassword) {
+            matchFeedbackDiv.className = 'password-match-feedback';
+            matchFeedbackDiv.textContent = '';
+            return;
+        }
+
+        matchFeedbackDiv.className = 'password-match-feedback checking';
+        matchFeedbackDiv.textContent = 'Checking...';
+
+        setTimeout(() => {
+            if (password === confirmPassword) {
+                matchFeedbackDiv.className = 'password-match-feedback matched';
+                matchFeedbackDiv.textContent = '✓ Passwords match';
+            } else {
+                matchFeedbackDiv.className = 'password-match-feedback not-matched';
+                matchFeedbackDiv.textContent = '× Passwords do not match';
+            }
+        }, 500);
+    }
+
+    // Toggle password visibility
     togglePassword.forEach(button => {
         button.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('input');
+            const input = this.previousElementSibling;
             const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
             input.setAttribute('type', type);
             
             const img = this.querySelector('img');
             if (type === 'text') {
                 img.src = "{{ url_for('static', filename='img/eye-off.svg') }}";
+                img.alt = 'Hide password';
             } else {
                 img.src = "{{ url_for('static', filename='img/eye.svg') }}";
+                img.alt = 'Show password';
             }
         });
     });
+
+    // Event listeners
+    passwordInput.addEventListener('input', () => {
+        updatePasswordStrength(passwordInput.value);
+        if (confirmPasswordInput.value) {
+            checkPasswordMatch();
+        }
+    });
+
+    confirmPasswordInput.addEventListener('input', checkPasswordMatch);
 });
 </script>
 {% endblock %}

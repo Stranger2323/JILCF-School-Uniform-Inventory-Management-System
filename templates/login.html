@@ -40,6 +40,7 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="password-input-container">
+                        <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
                         <input type="password" id="password" name="password" class="password-input" placeholder="Enter your password" required>
                         <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                             <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">

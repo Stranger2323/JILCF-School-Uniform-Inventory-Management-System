@@ -65,19 +65,20 @@ body {
     text-rendering: optimizeLegibility;
 }
 
-/* Container and Panel Layout */
+/* Container and Form Layout Improvements */
 .container {
     display: flex;
     min-height: 100vh;
     max-width: 1440px;
     margin: 0 auto;
+    background: var(--bg-primary);
 }
 
 .left-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 2rem 4rem;
+    padding: 3rem 4rem;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -143,14 +144,12 @@ body {
 /* Form container improvements */
 .form-container {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     margin: 2rem auto;
     padding: 2.5rem;
     background: var(--bg-primary);
     border-radius: var(--border-radius);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transform: translateZ(0);
-    backface-visibility: hidden;
 }
 
 .login-form {
@@ -178,11 +177,11 @@ body {
 }
 
 /* Social login buttons */
-.social-login {
-    margin: 1.5rem 0;
+.social-buttons {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
+    margin: 1.5rem 0;
 }
 
 .social-btn {
@@ -191,44 +190,247 @@ body {
     justify-content: center;
     gap: 0.75rem;
     width: 100%;
-    padding: 0.75rem;
+    height: 48px;
     border: 1px solid var(--border-color);
-    border-radius: 0.75rem;
+    border-radius: 8px;
     background: var(--bg-primary);
     color: var(--text-primary);
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease-out;
-    position: relative;
-    overflow: hidden;
-    transform: translateZ(0);
-    backface-visibility: hidden;
+    transition: all 0.3s ease;
 }
 
 .social-btn:hover {
     background: var(--bg-secondary);
-    border-color: var(--input-border);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-color);
 }
 
-.social-btn:active {
-    transform: translateY(0);
+/* Input Groups and Icons */
+.input-group {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
 }
 
-.social-btn img {
+.input-group input,
+.password-input {
+    width: 100%;
+    height: 48px;
+    padding: 0.75rem 3rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: var(--bg-secondary);
+}
+
+.input-group input:focus,
+.password-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    outline: none;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* Password Input Container */
+.password-input-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.password-input-container .input-icon {
+    left: 1rem;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 24px;
     height: 24px;
-    object-fit: contain;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
 }
 
-.google-btn {
-    color: var(--google-color);
+.toggle-password:hover {
+    opacity: 1;
 }
 
-.facebook-btn {
-    color: var(--facebook-color);
+/* Password Strength Meter */
+.password-strength-meter {
+    margin-top: 0.75rem;
+    padding: 0 0.5rem;
+}
+
+.strength-meter-bar {
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.strength-meter-fill {
+    height: 100%;
+    width: 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.strength-meter-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Password Requirements */
+.password-requirements {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.password-requirements li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+.password-requirements li::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.password-requirements li.met {
+    color: var(--success-color);
+}
+
+.password-requirements li.met::before {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M4 8l2 2 6-6'/%3E%3C/svg%3E");
+}
+
+/* Password Match Feedback */
+.password-match-feedback {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.password-match-feedback.checking {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.password-match-feedback.matched {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.password-match-feedback.not-matched {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Strength levels */
+.strength-weak .strength-meter-fill {
+    background-color: #ef4444;
+    width: 25%;
+}
+
+.strength-fair .strength-meter-fill {
+    background-color: #f97316;
+    width: 50%;
+}
+
+.strength-good .strength-meter-fill {
+    background-color: #22c55e;
+    width: 75%;
+}
+
+.strength-strong .strength-meter-fill {
+    background-color: #15803d;
+    width: 100%;
+}
+
+/* Form Options */
+.form-options {
+    margin: 1.5rem 0;
+}
+
+.terms-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.terms-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border-color);
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    height: 48px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 1.5rem 0;
+}
+
+.submit-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
 }
 
 /* Divider */
@@ -250,200 +452,6 @@ body {
 .divider span {
     padding: 0 1rem;
     font-size: 0.875rem;
-}
-
-/* Input group improvements */
-.input-group {
-    position: relative;
-    width: 100%;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 12px 40px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.input-group .input-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    opacity: 0.6;
-}
-
-/* Password input container improvements */
-.password-input-container {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
-
-.password-input {
-    width: 100%;
-    padding: 12px 40px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-}
-
-.toggle-password img {
-    width: 20px;
-    height: 20px;
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
-}
-
-.toggle-password:hover img {
-    opacity: 1;
-}
-
-/* Form group improvements */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-/* Submit button improvements */
-.submit-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.submit-btn:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-}
-
-/* Password strength meter improvements */
-.password-strength-meter {
-    margin-top: 8px;
-}
-
-.strength-meter-bar {
-    height: 4px;
-    background: #e2e8f0;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.strength-meter-fill {
-    height: 100%;
-    width: 0;
-    transition: all 0.3s ease;
-    border-radius: 2px;
-}
-
-.strength-meter-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 4px;
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-/* Password requirements list */
-.password-requirements {
-    list-style: none;
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
-.password-requirements li {
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-}
-
-.password-requirements li.met {
-    color: var(--success-color);
-}
-
-/* Form options improvements */
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 1.5rem 0;
-}
-
-.remember-me, .terms-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-
-.forgot-password {
-    font-size: 14px;
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.forgot-password:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
-}
-
-/* Bottom text */
-.bottom-text {
-    text-align: center;
-    margin-top: 1.5rem;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-}
-
-.bottom-text .link {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 500;
-    margin-left: 0.25rem;
-    transition: all 0.2s ease;
-}
-
-.bottom-text .link:hover {
-    text-decoration: underline;
 }
 
 /* Flash messages */
