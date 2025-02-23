@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_cors import CORS
 import sqlite3
 import hashlib
 import re
 import os
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
@@ -15,81 +15,21 @@ CORS(app)
 
 # Database initialization
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), nullable=False)
+    username = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    last_login = db.Column(db.DateTime)
+    last_login = db.Column(db.DateTime, default=datetime.utcnow)
 
-def init_db():
-    with sqlite3.connect('users.db') as conn:
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        conn.commit()
+    def __repr__(self):
+        return f'<User {self.username}>'
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-def check_password_strength(password):
-    # Initialize score and feedback
-    score = 0
-    feedback = []
-    
-    # Length check
-    if len(password) >= 8:
-        score += 1
-    else:
-        feedback.append("Password should be at least 8 characters long")
-    
-    # Check for uppercase
-    if re.search(r"[A-Z]", password):
-        score += 1
-    else:
-        feedback.append("Include at least one uppercase letter")
-    
-    # Check for lowercase
-    if re.search(r"[a-z]", password):
-        score += 1
-    else:
-        feedback.append("Include at least one lowercase letter")
-    
-    # Check for numbers
-    if re.search(r"\d", password):
-        score += 1
-    else:
-        feedback.append("Include at least one number")
-    
-    # Check for special characters
-    if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-        score += 1
-    else:
-        feedback.append("Include at least one special character")
-    
-    strength = {
-        0: "Very Weak",
-        1: "Weak",
-        2: "Fair",
-        3: "Good",
-        4: "Strong",
-        5: "Very Strong"
-    }
-    
-    return {
-        "score": score,
-        "strength": strength[score],
-        "feedback": feedback
-    }
+with app.app_context():
+    db.create_all()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -254,6 +194,58 @@ def check_strength():
     password = data.get('password')
     return jsonify(check_password_strength(password))
 
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def check_password_strength(password):
+    # Initialize score and feedback
+    score = 0
+    feedback = []
+    
+    # Length check
+    if len(password) >= 8:
+        score += 1
+    else:
+        feedback.append("Password should be at least 8 characters long")
+    
+    # Check for uppercase
+    if re.search(r"[A-Z]", password):
+        score += 1
+    else:
+        feedback.append("Include at least one uppercase letter")
+    
+    # Check for lowercase
+    if re.search(r"[a-z]", password):
+        score += 1
+    else:
+        feedback.append("Include at least one lowercase letter")
+    
+    # Check for numbers
+    if re.search(r"\d", password):
+        score += 1
+    else:
+        feedback.append("Include at least one number")
+    
+    # Check for special characters
+    if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        score += 1
+    else:
+        feedback.append("Include at least one special character")
+    
+    strength = {
+        0: "Very Weak",
+        1: "Weak",
+        2: "Fair",
+        3: "Good",
+        4: "Strong",
+        5: "Very Strong"
+    }
+    
+    return {
+        "score": score,
+        "strength": strength[score],
+        "feedback": feedback
+    }
+
 if __name__ == '__main__':
-    init_db()
     app.run(host='0.0.0.0', port=8080, debug=True)
