@@ -24,7 +24,10 @@ CORS(app)
 
 # Database initialization
 if os.environ.get('FLASK_ENV') == 'production':
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url and database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///users.db'
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
     
@@ -414,4 +417,5 @@ def reset_password():
         }), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)

@@ -1,10 +1,12 @@
 import multiprocessing
+import os
 
-# Bind to 0.0.0.0:$PORT for Render deployment
-bind = "0.0.0.0:10000"
+# Bind to PORT provided by Render
+port = int(os.environ.get("PORT", 10000))
+bind = f"0.0.0.0:{port}"
 
 # Worker configuration
-workers = 4
+workers = multiprocessing.cpu_count() * 2 + 1
 threads = 2
 worker_class = "sync"
 worker_connections = 1000
@@ -15,10 +17,6 @@ keepalive = 2
 accesslog = '-'
 errorlog = '-'
 loglevel = 'info'
-
-# SSL configuration (if needed)
-# keyfile = 'path/to/keyfile'
-# certfile = 'path/to/certfile'
 
 # Process naming
 proc_name = 'gunicorn_feather_login'
