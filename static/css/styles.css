@@ -55,7 +55,7 @@ body {
     margin: 0 auto;
     opacity: 0;
     transform: translateY(10px);
-    animation: fadeIn 0.5s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+    animation: fadeIn 0.3s ease-out;
     animation-delay: 0.1s;
 }
 
@@ -643,12 +643,10 @@ body {
     z-index: 9999;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 0;
     height: 100vh;
-    transform: translateX(-100%);
-    transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition: width 0.6s cubic-bezier(0.7, 0, 0.3, 1);
     pointer-events: none;
-    background: transparent;
 }
 
 .page-transition__icon {
@@ -656,69 +654,68 @@ body {
     z-index: 10000;
     top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    transform: translate(-50%, -50%);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s;
 }
 
 .page-transition__icon svg {
-    transform-origin: center center;
-    animation: spin 1s linear infinite;
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+    width: 40px;
+    height: 40px;
+    animation: spin 0.8s linear infinite;
 }
 
 .page-transition__tile {
     position: absolute;
     left: 0;
-    width: 100%;
+    width: 0;
     height: 20%;
-    transform: translateX(-100%);
-    transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    background-color: var(--accent-blue);
+    transition: width 0.6s cubic-bezier(0.7, 0, 0.3, 1);
 }
 
 .page-transition__tile:nth-child(1) {
     top: 0%;
     transition-delay: 0s;
-    background-color: var(--accent-blue);
+    background-color: #2196f3;
 }
 
 .page-transition__tile:nth-child(2) {
     top: 20%;
-    transition-delay: 0.08s;
-    background-color: #1a8cff;
+    transition-delay: 0.05s;
+    background-color: #42a5f5;
 }
 
 .page-transition__tile:nth-child(3) {
     top: 40%;
-    transition-delay: 0.16s;
-    background-color: #3399ff;
+    transition-delay: 0.1s;
+    background-color: #64b5f6;
 }
 
 .page-transition__tile:nth-child(4) {
     top: 60%;
-    transition-delay: 0.24s;
-    background-color: #4da6ff;
+    transition-delay: 0.15s;
+    background-color: #90caf9;
 }
 
 .page-transition__tile:nth-child(5) {
     top: 80%;
-    transition-delay: 0.32s;
-    background-color: #66b3ff;
+    transition-delay: 0.2s;
+    background-color: #bbdefb;
 }
 
 .page-transition.active {
-    transform: translateX(0);
+    width: 100%;
     pointer-events: all;
 }
 
 .page-transition.active .page-transition__icon {
     opacity: 1;
-    transition: opacity 0.3s 0.5s ease;
+    transition: opacity 0.3s 0.3s;
 }
 
 .page-transition.active .page-transition__tile {
-    transform: translateX(0);
+    width: 100%;
 }
 
 /* Responsive design */
@@ -835,9 +832,6 @@ body {
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
     to {
         transform: rotate(360deg);
     }
