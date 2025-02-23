@@ -47,8 +47,7 @@
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <div class="input-group">
-                        <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
+                    <div class="password-input-container">
                         <input type="password" id="password" name="password" class="password-input" placeholder="Create a password" required>
                         <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                             <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
@@ -68,8 +67,7 @@
 
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password</label>
-                    <div class="input-group">
-                        <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
+                    <div class="password-input-container">
                         <input type="password" id="confirm_password" name="confirm_password" class="password-input" placeholder="Confirm your password" required>
                         <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                             <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
