@@ -174,6 +174,7 @@ body {
     position: relative;
     z-index: 2;
     transition: transform 0.5s ease;
+    filter: none !important; /* Ensure logos stay colorful */
 }
 
 .social-btn span {
@@ -198,10 +199,10 @@ body {
     border-radius: 0.75rem;
     background: linear-gradient(
         45deg,
-        #4285f4,
-        #ea4335,
-        #fbbc05,
-        #34a853
+        rgba(66, 133, 244, 0.85),  /* Google Blue */
+        rgba(234, 67, 53, 0.85),   /* Google Red */
+        rgba(251, 188, 5, 0.85),   /* Google Yellow */
+        rgba(52, 168, 83, 0.85)    /* Google Green */
     );
     transition: 0.5s;
     transform: scale(0.9);
@@ -225,12 +226,12 @@ body {
 }
 
 .google-login:hover img {
-    transform: scale(1.2);
-    filter: brightness(0) invert(1);
+    transform: scale(1.1) rotate(5deg);
 }
 
 .google-login:hover span {
     color: #fff;
+    transform: scale(1.05);
 }
 
 /* Facebook button effects */
@@ -247,7 +248,7 @@ body {
     width: 100%;
     height: 100%;
     border-radius: 0.75rem;
-    background: #1877f2;
+    background: rgba(24, 119, 242, 0.85); /* Semi-transparent Facebook blue */
     transition: 0.5s;
     transform: scale(0.9);
     z-index: 1;
@@ -269,12 +270,12 @@ body {
 }
 
 .facebook-login:hover img {
-    transform: scale(1.2);
-    filter: brightness(0) invert(1);
+    transform: scale(1.1) rotate(-5deg);
 }
 
 .facebook-login:hover span {
     color: #fff;
+    transform: scale(1.05);
 }
 
 /* Divider */
