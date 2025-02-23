@@ -549,6 +549,60 @@ body {
     letter-spacing: normal;
 }
 
+/* Password Strength Requirements */
+.password-requirements {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    opacity: 0.7;
+    transform: scale(0.95);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.requirement::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--error-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.requirement.valid {
+    color: var(--success-color);
+    opacity: 1;
+    transform: scale(1);
+    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.requirement.valid::before {
+    background-color: var(--success-color);
+    transform: scale(1.2);
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 /* Form options */
 .form-options {
     display: flex;

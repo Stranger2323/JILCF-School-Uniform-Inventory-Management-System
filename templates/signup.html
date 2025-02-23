@@ -51,11 +51,13 @@
                                 <div class="strength-meter-fill" id="strengthMeter"></div>
                             </div>
                             <div class="password-requirements" id="passwordFeedback">
-                                <div class="requirement" data-requirement="length">At least 8 characters</div>
-                                <div class="requirement" data-requirement="uppercase">One uppercase letter</div>
-                                <div class="requirement" data-requirement="lowercase">One lowercase letter</div>
-                                <div class="requirement" data-requirement="number">One number</div>
-                                <div class="requirement" data-requirement="special">One special character</div>
+                                <ul>
+                                    <li class="requirement" data-requirement="length">At least 8 characters</li>
+                                    <li class="requirement" data-requirement="uppercase">One uppercase letter</li>
+                                    <li class="requirement" data-requirement="lowercase">One lowercase letter</li>
+                                    <li class="requirement" data-requirement="number">One number</li>
+                                    <li class="requirement" data-requirement="special">One special character</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -89,6 +91,7 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/transitions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
     <script>
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirm-password');
