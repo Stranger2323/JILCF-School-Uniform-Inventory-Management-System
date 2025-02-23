@@ -418,41 +418,21 @@ body {
     letter-spacing: normal;
 }
 
-/* Password Strength Requirements */
+/* Password Requirements */
 .password-requirements {
     list-style: none;
     padding-left: 20px;
     margin: 8px 0;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.password-requirements.all-met {
-    opacity: 0;
-    transform: translateY(-10px);
-    height: 0;
-    margin: 0;
-    padding: 0;
 }
 
 .password-requirements li {
     font-size: 0.85rem;
-    color: #666;
-    margin: 8px 0;
+    color: #71717a;
+    margin: 12px 0;
     position: relative;
     padding-left: 25px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 1;
-    transform: translateY(0);
-    height: 20px;
-}
-
-.password-requirements li.met {
-    opacity: 0;
-    transform: translateY(-10px);
-    height: 0;
-    margin: 0;
-    padding: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
 }
 
 .password-requirements li::before {
@@ -463,59 +443,23 @@ body {
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
-    border: 2px solid #ddd;
+    border: 1.5px solid #d4d4d8;
     border-radius: 50%;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: transparent;
 }
 
 .password-requirements li.met::before {
-    content: "✓";
-    border-color: #00C851;
-    background-color: #00C851;
-    color: white;
-    font-size: 10px;
-    text-align: center;
-    line-height: 14px;
-    animation: checkmark 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    border-color: #22c55e;
+    background-color: #22c55e;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M4 8l2 2 6-6'/%3E%3C/svg%3E");
+    background-size: 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: all 0.2s ease;
 }
 
-@keyframes checkmark {
-    0% {
-        transform: translateY(-50%) scale(0);
-    }
-    50% {
-        transform: translateY(-50%) scale(1.2);
-    }
-    100% {
-        transform: translateY(-50%) scale(1);
-    }
-}
-
-.password-requirements li.met::before {
-    content: "✓";
-    border-color: #00C851;
-    background-color: #00C851;
-    color: white;
-    font-size: 10px;
-    text-align: center;
-    line-height: 14px;
-    box-shadow: 0 0 10px #00C851;
-    animation: successPulse 0.4s ease-out;
-}
-
-@keyframes successPulse {
-    0% {
-        transform: translateY(-50%) scale(0.8);
-        box-shadow: 0 0 0 0 rgba(0, 200, 81, 0.7);
-    }
-    70% {
-        transform: translateY(-50%) scale(1.1);
-        box-shadow: 0 0 10px 5px rgba(0, 200, 81, 0);
-    }
-    100% {
-        transform: translateY(-50%) scale(1);
-        box-shadow: 0 0 0 0 rgba(0, 200, 81, 0);
-    }
+.password-requirements li.met {
+    color: #22c55e;
 }
 
 /* Password Strength Meter */
