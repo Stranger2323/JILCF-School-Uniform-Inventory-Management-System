@@ -66,7 +66,7 @@ def get_google_provider_cfg():
     try:
         return requests.get(GOOGLE_DISCOVERY_URL, timeout=5).json()
     except Exception as e:
-        app.logger.error(f"Failed to fetch Google provider config: {str(e)}")
+        app.logger.error(f"Failed to get Google provider config: {e}")
         return None
 
 mail = Mail(app)
@@ -129,45 +129,38 @@ def index():
 def home():
     return render_template('home.html')
 
-@app.route('/login/google')
+@app.route("/login/google")
 def google_login():
-    app.logger.info("Starting Google login process")
-    
-    # First check if we're already logged in
-    if current_user.is_authenticated:
-        app.logger.info("User already authenticated, redirecting to home")
-        return redirect(url_for('home'))
-
     try:
-        # Get provider configuration
-        app.logger.info("Fetching Google provider configuration")
+        # Find out what URL to hit for Google login
         google_provider_cfg = get_google_provider_cfg()
         if not google_provider_cfg:
-            app.logger.error("Failed to get Google provider configuration")
-            raise Exception("Failed to get Google provider configuration")
+            flash("Error connecting to Google services", "error")
+            return redirect(url_for('login'))
 
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-        app.logger.info(f"Got authorization endpoint: {authorization_endpoint}")
         
-        # Use the deployment URL from Render when in production
-        if os.environ.get('FLASK_ENV') == 'production':
+        # Use the correct redirect URI based on environment
+        if os.environ.get('RENDER'):
             redirect_uri = "https://jilcf-school-uniform-inventory.onrender.com/login/google/callback"
         else:
             redirect_uri = url_for('google_callback', _external=True, _scheme='http')
-        
+
         app.logger.info(f"Using redirect URI: {redirect_uri}")
-        
+
+        # Construct the request for Google login
         request_uri = client.prepare_request_uri(
             authorization_endpoint,
             redirect_uri=redirect_uri,
             scope=["openid", "email", "profile"],
-            prompt="select_account"  # Force Google account selection
+            prompt="select_account"
         )
-        app.logger.info(f"Prepared request URI: {request_uri}")
+        
+        app.logger.info(f"Redirecting to Google auth: {request_uri}")
         return redirect(request_uri)
     except Exception as e:
-        app.logger.error(f"Error in Google login: {str(e)}")
-        flash("Failed to initialize Google login. Please try again.", "error")
+        app.logger.error(f"Error in google_login: {str(e)}")
+        flash("Failed to initiate Google login. Please try again.", "error")
         return redirect(url_for('login'))
 
 @app.route('/login/google/callback')
@@ -181,10 +174,12 @@ def google_callback():
             return redirect(url_for('login'))
 
         # Get the correct redirect URI based on environment
-        if os.environ.get('FLASK_ENV') == 'production':
+        if os.environ.get('RENDER'):
             redirect_uri = "https://jilcf-school-uniform-inventory.onrender.com/login/google/callback"
         else:
             redirect_uri = url_for('google_callback', _external=True, _scheme='http')
+
+        app.logger.info(f"Using callback redirect URI: {redirect_uri}")
 
         # Get token endpoint
         google_provider_cfg = get_google_provider_cfg()
@@ -205,12 +200,11 @@ def google_callback():
         app.logger.info(f"Preparing token request to: {token_url}")
 
         # Add client authentication
-        basic_auth = requests.auth.HTTPBasicAuth(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
         token_response = requests.post(
             token_url,
             headers=headers,
             data=body,
-            auth=basic_auth,
+            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
             timeout=5
         )
 
