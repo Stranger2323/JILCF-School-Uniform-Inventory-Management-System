@@ -107,9 +107,14 @@ def signup():
         email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
+        terms = request.form.get('terms')
 
-        if not username or not email or not password:
+        if not username or not email or not password or not confirm_password:
             flash('All fields are required.', 'error')
+            return redirect(url_for('signup'))
+
+        if not terms:
+            flash('You must agree to the Terms and Privacy Policy.', 'error')
             return redirect(url_for('signup'))
 
         if User.query.filter_by(username=username).first():
@@ -122,6 +127,27 @@ def signup():
 
         if password != confirm_password:
             flash('Passwords do not match.', 'error')
+            return redirect(url_for('signup'))
+
+        # Password strength validation
+        if len(password) < 8:
+            flash('Password must be at least 8 characters long.', 'error')
+            return redirect(url_for('signup'))
+
+        if not any(c.isupper() for c in password):
+            flash('Password must contain at least one uppercase letter.', 'error')
+            return redirect(url_for('signup'))
+
+        if not any(c.islower() for c in password):
+            flash('Password must contain at least one lowercase letter.', 'error')
+            return redirect(url_for('signup'))
+
+        if not any(c.isdigit() for c in password):
+            flash('Password must contain at least one number.', 'error')
+            return redirect(url_for('signup'))
+
+        if not any(c in '!@#$%^&*(),.?":{}|<>' for c in password):
+            flash('Password must contain at least one special character.', 'error')
             return redirect(url_for('signup'))
 
         try:
