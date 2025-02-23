@@ -204,5 +204,30 @@ def check_password_strength(password):
         "feedback": feedback
     }
 
+@app.route('/forgot-password')
+def forgot_password():
+    return render_template('forgot-password.html')
+
+@app.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({"message": "Email is required"}), 400
+    
+    user = User.query.filter_by(email=email).first()
+    
+    if user:
+        # In a real application, send a password reset email
+        return jsonify({
+            "message": "If an account exists with this email, password reset instructions have been sent."
+        })
+    else:
+        # For security, don't reveal if the email exists or not
+        return jsonify({
+            "message": "If an account exists with this email, password reset instructions have been sent."
+        }), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

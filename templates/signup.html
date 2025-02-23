@@ -1,131 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - greenFeather</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <div class="auth-container">
-            <div class="auth-box">
-                <div class="auth-header">
-                    <h1>Create Account</h1>
-                    <p>Join our community today</p>
-                </div>
+{% extends "base.html" %}
 
-                <div class="auth-content">
-                    <div class="social-buttons">
-                        <button class="social-btn google-btn">
-                            <img src="{{ url_for('static', filename='img/google.svg') }}" alt="Google">
-                            Continue with Google
-                        </button>
-                        <button class="social-btn facebook-btn">
-                            <img src="{{ url_for('static', filename='img/facebook.svg') }}" alt="Facebook">
-                            Continue with Facebook
-                        </button>
-                    </div>
-
-                    <div class="divider">
-                        <span>or sign up with email</span>
-                    </div>
-                    
-                    <form class="signup-form" id="signupForm" action="{{ url_for('signup') }}" method="POST">
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <div class="input-group">
-                                <img src="{{ url_for('static', filename='img/user.svg') }}" alt="User" class="input-icon">
-                                <input type="text" id="username" name="username" placeholder="Enter your username" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <div class="input-group">
-                                <img src="{{ url_for('static', filename='img/email.svg') }}" alt="Email" class="input-icon">
-                                <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <div class="input-group">
-                                <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
-                                <input type="password" id="password" name="password" class="password-input" placeholder="Create a password" required>
-                                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-                                    <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
-                                </button>
-                            </div>
-                            <div class="password-strength-meter">
-                                <div class="strength-bar"></div>
-                            </div>
-                            <div class="password-feedback"></div>
-                        </div>
-
-                        <div class="form-options">
-                            <label class="terms-checkbox">
-                                <input type="checkbox" id="terms" name="terms" required>
-                                <span>I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a></span>
-                            </label>
-                        </div>
-                        
-                        <button type="submit" class="submit-btn">Create Account</button>
-                    </form>
-
-                    <div class="auth-footer">
-                        Already have an account? <a href="{{ url_for('index') }}">Log in</a>
-                    </div>
-                </div>
+{% block content %}
+<div class="container">
+    <div class="left-panel">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="greenFeather" class="logo">
+            <span class="logo-text">greenFeather</span>
+        </div>
+        <div class="form-container">
+            <div class="login-header">
+                <h1>Create Account</h1>
+                <p>Join greenFeather and start your journey with us.</p>
             </div>
+
+            <div class="social-buttons">
+                <button class="social-btn google-btn">
+                    <img src="{{ url_for('static', filename='img/google.svg') }}" alt="Google">
+                    Continue with Google
+                </button>
+                <button class="social-btn facebook-btn">
+                    <img src="{{ url_for('static', filename='img/facebook.svg') }}" alt="Facebook">
+                    Continue with Facebook
+                </button>
+            </div>
+
+            <div class="divider">
+                <span>or sign up with email</span>
+            </div>
+            
+            <form class="login-form" id="signupForm" action="{{ url_for('signup') }}" method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-group">
+                        <img src="{{ url_for('static', filename='img/user.svg') }}" alt="User" class="input-icon">
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-group">
+                        <img src="{{ url_for('static', filename='img/email.svg') }}" alt="Email" class="input-icon">
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
+                        <input type="password" id="password" name="password" class="password-input" placeholder="Create a password" required>
+                        <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                            <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
+                        </button>
+                    </div>
+                    <div class="password-strength-meter">
+                        <div class="strength-bar"></div>
+                    </div>
+                    <div class="password-feedback"></div>
+                </div>
+
+                <div class="form-options">
+                    <label class="terms-checkbox">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <span>I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a></span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="submit-btn">Create Account</button>
+
+                <div class="bottom-text">
+                    Already have an account? <a href="{{ url_for('index') }}" class="link">Sign in</a>
+                </div>
+            </form>
         </div>
     </div>
+    <div class="right-panel">
+        <div class="illustration">
+            <img src="{{ url_for('static', filename='img/login-illustration.svg') }}" alt="Signup illustration">
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/transitions.js') }}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const passwordInput = document.getElementById('password');
-            const strengthBar = document.querySelector('.strength-bar');
-            const feedbackDiv = document.querySelector('.password-feedback');
-            const togglePassword = document.querySelector('.toggle-password');
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const strengthBar = document.querySelector('.strength-bar');
+    const feedbackDiv = document.querySelector('.password-feedback');
+    const togglePassword = document.querySelector('.toggle-password');
 
-            passwordInput.addEventListener('input', async function() {
-                const response = await fetch('/api/check-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ password: this.value })
-                });
-
-                const data = await response.json();
-                const score = data.score;
-                const maxScore = 5;
-                const percentage = (score / maxScore) * 100;
-
-                strengthBar.style.width = percentage + '%';
-                strengthBar.className = 'strength-bar';
-                strengthBar.classList.add(`strength-${score}`);
-
-                feedbackDiv.innerHTML = '';
-                if (data.feedback.length > 0) {
-                    const ul = document.createElement('ul');
-                    data.feedback.forEach(feedback => {
-                        const li = document.createElement('li');
-                        li.textContent = feedback;
-                        ul.appendChild(li);
-                    });
-                    feedbackDiv.appendChild(ul);
-                }
-            });
-
-            togglePassword.addEventListener('click', function() {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-            });
+    passwordInput.addEventListener('input', async function() {
+        const response = await fetch('/api/check-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ password: this.value })
         });
-    </script>
-</body>
-</html>
+
+        const data = await response.json();
+        const score = data.score;
+        const maxScore = 5;
+        const percentage = (score / maxScore) * 100;
+
+        strengthBar.style.width = percentage + '%';
+        strengthBar.className = 'strength-bar';
+        strengthBar.classList.add(`strength-${score}`);
+
+        feedbackDiv.innerHTML = '';
+        if (data.feedback.length > 0) {
+            const ul = document.createElement('ul');
+            data.feedback.forEach(feedback => {
+                const li = document.createElement('li');
+                li.textContent = feedback;
+                ul.appendChild(li);
+            });
+            feedbackDiv.appendChild(ul);
+        }
+    });
+
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+    });
+});
+</script>
+{% endblock %}
