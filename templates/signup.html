@@ -112,6 +112,32 @@ document.addEventListener('DOMContentLoaded', function() {
     passwordInput.addEventListener('input', function() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
+            const requirements = [
+                { text: 'Password should be at least 8 characters long', met: this.value.length >= 8 },
+                { text: 'Include at least one uppercase letter', met: /[A-Z]/.test(this.value) },
+                { text: 'Include at least one lowercase letter', met: /[a-z]/.test(this.value) },
+                { text: 'Include at least one number', met: /\d/.test(this.value) },
+                { text: 'Include at least one special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.value) }
+            ];
+
+            // Update requirements list
+            feedbackDiv.innerHTML = '';
+            const ul = document.createElement('ul');
+            ul.className = 'password-requirements';
+            
+            requirements.forEach((req, index) => {
+                const li = document.createElement('li');
+                li.textContent = req.text;
+                li.dataset.requirement = index;
+                if (req.met) {
+                    li.classList.add('met');
+                }
+                ul.appendChild(li);
+            });
+            
+            feedbackDiv.appendChild(ul);
+
+            // Check password strength
             const response = await fetch('/api/check-password', {
                 method: 'POST',
                 headers: {
@@ -126,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const percentage = (data.score / 5) * 100;
             strengthBar.style.width = `${percentage}%`;
             
-            // Update color based on strength with smooth transition
+            // Update color based on strength
             let color = '#ff4444'; // Very Weak (Red)
             if (data.score >= 4) {
                 color = '#00C851'; // Very Strong (Green)
@@ -136,48 +162,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.score >= 3) color = '#00B0FF'; // Strong (Blue)
                 else if (data.score >= 2) color = '#FF8800'; // Fair (Orange)
             }
-            strengthBar.style.color = color;
-            
-            // Update requirements list with animations
-            const requirements = [
-                { text: 'Password should be at least 8 characters long', met: this.value.length >= 8 },
-                { text: 'Include at least one uppercase letter', met: /[A-Z]/.test(this.value) },
-                { text: 'Include at least one lowercase letter', met: /[a-z]/.test(this.value) },
-                { text: 'Include at least one number', met: /\d/.test(this.value) },
-                { text: 'Include at least one special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.value) }
-            ];
-
-            // Check if all requirements are met
-            const allMet = requirements.every(req => req.met);
-            
-            // Only update the list if there are unmet requirements
-            if (!allMet) {
-                feedbackDiv.innerHTML = '';
-                const ul = document.createElement('ul');
-                ul.className = 'password-requirements';
-                
-                requirements.forEach((req, index) => {
-                    if (!req.met) {
-                        const li = document.createElement('li');
-                        li.textContent = req.text;
-                        li.dataset.requirement = index;
-                        ul.appendChild(li);
-                    }
-                });
-                
-                feedbackDiv.appendChild(ul);
-            } else {
-                // If all requirements are met, add the all-met class for transition
-                const ul = feedbackDiv.querySelector('.password-requirements');
-                if (ul) {
-                    ul.classList.add('all-met');
-                    // Remove the element after transition
-                    setTimeout(() => {
-                        feedbackDiv.innerHTML = '';
-                    }, 500);
-                }
-            }
-        }, 300); // Debounce delay
+            strengthBar.style.backgroundColor = color;
+        }, 300);
     });
 
     // Password Match Check with loading animation

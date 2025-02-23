@@ -491,6 +491,33 @@ body {
     }
 }
 
+.password-requirements li.met::before {
+    content: "✓";
+    border-color: #00C851;
+    background-color: #00C851;
+    color: white;
+    font-size: 10px;
+    text-align: center;
+    line-height: 14px;
+    box-shadow: 0 0 10px #00C851;
+    animation: successPulse 0.4s ease-out;
+}
+
+@keyframes successPulse {
+    0% {
+        transform: translateY(-50%) scale(0.8);
+        box-shadow: 0 0 0 0 rgba(0, 200, 81, 0.7);
+    }
+    70% {
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 0 10px 5px rgba(0, 200, 81, 0);
+    }
+    100% {
+        transform: translateY(-50%) scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 200, 81, 0);
+    }
+}
+
 /* Password Strength Meter */
 .password-strength-meter {
     height: 6px;
