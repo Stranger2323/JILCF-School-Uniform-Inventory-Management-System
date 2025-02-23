@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 from flask_cors import CORS
 import re
 import os
@@ -6,6 +6,17 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, cur
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
+import json
+from oauthlib.oauth2 import WebApplicationClient
+import requests
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+import random
+import string
+from flask_mail import Mail, Message
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -18,7 +29,25 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
     
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Mail settings
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+
+# OAuth 2 client setup
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_DISCOVERY_URL = os.getenv('GOOGLE_DISCOVERY_URL')
+
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
+mail = Mail(app)
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -26,6 +55,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
+    name = db.Column(db.String(1000))
+    is_verified = db.Column(db.Boolean, default=False)
+    otp = db.Column(db.String(6))
+    otp_created_at = db.Column(db.DateTime)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -33,13 +66,22 @@ class User(UserMixin, db.Model):
 with app.app_context():
     db.create_all()
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+def generate_otp():
+    return ''.join(random.choices(string.digits, k=6))
+
+def send_otp_email(email, otp):
+    msg = Message('Email Verification Code',
+                sender=app.config['MAIL_USERNAME'],
+                recipients=[email])
+    msg.body = f'Your verification code is: {otp}'
+    mail.send(msg)
+
+def get_google_provider_cfg():
+    return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 @app.route('/')
 def index():
@@ -51,6 +93,118 @@ def index():
 @login_required
 def home():
     return render_template('home.html')
+
+@app.route('/login/google')
+def google_login():
+    google_provider_cfg = get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+    
+    request_uri = client.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=request.base_url + "/callback",
+        scope=["openid", "email", "profile"],
+    )
+    return redirect(request_uri)
+
+@app.route('/login/google/callback')
+def google_callback():
+    code = request.args.get("code")
+    google_provider_cfg = get_google_provider_cfg()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code
+    )
+    
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    )
+
+    client.parse_request_body_response(json.dumps(token_response.json()))
+    
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    uri, headers, body = client.add_token(userinfo_endpoint)
+    userinfo_response = requests.get(uri, headers=headers, data=body)
+    
+    if userinfo_response.json().get("email_verified"):
+        email = userinfo_response.json()["email"]
+        name = userinfo_response.json()["given_name"]
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(
+                username=email.split('@')[0],
+                email=email,
+                name=name,
+                password=None  # Google-authenticated users don't need a password
+            )
+            db.session.add(user)
+            db.session.commit()
+            
+        # Generate and send OTP
+        otp = generate_otp()
+        user.otp = otp
+        user.otp_created_at = datetime.utcnow()
+        db.session.commit()
+        
+        send_otp_email(email, otp)
+        session['email'] = email  # Store email for OTP verification
+        
+        return redirect(url_for('verify_otp'))
+    else:
+        flash("Google login failed - Email not verified", "error")
+        return redirect(url_for('login'))
+
+@app.route('/verify-otp', methods=['GET', 'POST'])
+def verify_otp():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+        
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+        user = User.query.filter_by(email=session['email']).first()
+        
+        if user and user.otp == entered_otp:
+            # Check if OTP is not expired (15 minutes validity)
+            if (datetime.utcnow() - user.otp_created_at).total_seconds() <= 900:
+                user.is_verified = True
+                user.otp = None  # Clear the OTP
+                db.session.commit()
+                login_user(user)
+                flash('Email verified successfully!', 'success')
+                return redirect(url_for('home'))
+            else:
+                flash('OTP has expired. Please request a new one.', 'error')
+                return redirect(url_for('login'))
+        else:
+            flash('Invalid OTP. Please try again.', 'error')
+            
+    return render_template('verify_otp.html')
+
+@app.route('/resend-otp')
+def resend_otp():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+        
+    user = User.query.filter_by(email=session['email']).first()
+    if user:
+        otp = generate_otp()
+        user.otp = otp
+        user.otp_created_at = datetime.utcnow()
+        db.session.commit()
+        
+        send_otp_email(session['email'], otp)
+        flash('New OTP has been sent to your email.', 'success')
+    else:
+        flash('User not found.', 'error')
+        
+    return redirect(url_for('verify_otp'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

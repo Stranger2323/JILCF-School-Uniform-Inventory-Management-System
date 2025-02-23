@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <div class="form-header">
+            <h2>Email Verification</h2>
+            <p>Please enter the verification code sent to your email.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('verify_otp') }}">
+            <div class="form-group">
+                <label for="otp">Verification Code</label>
+                <div class="otp-input-container">
+                    <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter 6-digit code" maxlength="6" required>
+                </div>
+                <div class="otp-timer" id="otpTimer">
+                    Code expires in: <span id="timer">15:00</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Verify Email</button>
+        </form>
+
+        <div class="form-footer">
+            <p>Didn't receive the code? <a href="{{ url_for('resend_otp') }}">Resend Code</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let timeLeft = 900; // 15 minutes in seconds
+    const timerDisplay = document.getElementById('timer');
+    
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = 'Expired';
+        } else {
+            timeLeft--;
+        }
+    }
+    
+    const timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+});
+</script>
+
+<style>
+.otp-input-container {
+    margin-bottom: 1rem;
+}
+
+.otp-input-container input {
+    letter-spacing: 0.5em;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.otp-timer {
+    text-align: center;
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 0.9em;
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.form-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
