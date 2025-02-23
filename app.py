@@ -22,9 +22,9 @@ db = SQLAlchemy(app)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
@@ -67,6 +67,8 @@ def login():
             return redirect(url_for('login'))
 
         login_user(user)
+        user.last_login = datetime.utcnow()
+        db.session.commit()
         return redirect(url_for('home'))
 
     return render_template('login.html')
@@ -83,9 +85,12 @@ def api_login():
     user = User.query.filter_by(email=email).first()
     
     if user and check_password_hash(user.password, password):
+        user.last_login = datetime.utcnow()
+        db.session.commit()
         return jsonify({
             "message": "Login successful",
-            "name": user.username
+            "username": user.username,
+            "email": user.email
         })
     return jsonify({"message": "Invalid email or password"}), 401
 
@@ -98,9 +103,18 @@ def logout():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
+        username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
+
+        if not username or not email or not password:
+            flash('All fields are required.', 'error')
+            return redirect(url_for('signup'))
+
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists. Please choose a different username.', 'error')
+            return redirect(url_for('signup'))
 
         if User.query.filter_by(email=email).first():
             flash('Email already exists. Please login or use a different email.', 'error')
@@ -110,13 +124,17 @@ def signup():
             flash('Passwords do not match.', 'error')
             return redirect(url_for('signup'))
 
-        hashed_password = generate_password_hash(password)
-        new_user = User(email=email, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-
-        flash('Account created successfully! Please login.', 'success')
-        return redirect(url_for('login'))
+        try:
+            hashed_password = generate_password_hash(password)
+            new_user = User(username=username, email=email, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Account created successfully! Please login.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error creating account. Please try again.', 'error')
+            return redirect(url_for('signup'))
 
     return render_template('signup.html')
 
@@ -127,22 +145,24 @@ def signup_api():
     email = data.get('email')
     password = data.get('password')
     
-    if not all([username, email, password]):
-        return jsonify({"message": "All fields are required"}), 400
-        
-    if User.query.filter_by(email=email).first():
-        return jsonify({"message": "Email already registered"}), 400
+    if not username or not email or not password:
+        return jsonify({"message": "Username, email and password are required"}), 400
     
-    hashed_password = generate_password_hash(password)
-    user = User(username=username, email=email, password=hashed_password)
+    if User.query.filter_by(username=username).first():
+        return jsonify({"message": "Username already exists"}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"message": "Email already exists"}), 400
     
     try:
-        db.session.add(user)
+        hashed_password = generate_password_hash(password)
+        new_user = User(username=username, email=email, password=hashed_password)
+        db.session.add(new_user)
         db.session.commit()
-        return jsonify({"message": "Account created successfully"})
-    except:
+        return jsonify({"message": "User created successfully"}), 201
+    except Exception as e:
         db.session.rollback()
-        return jsonify({"message": "Error creating account"}), 500
+        return jsonify({"message": "Error creating user"}), 500
 
 @app.route('/api/check-password', methods=['POST'])
 def check_strength():
