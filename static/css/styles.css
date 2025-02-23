@@ -1210,3 +1210,29 @@ body {
         transform: scale(1.2);
     }
 }
+
+/* Error Message */
+.error-message {
+    background-color: #ef4444;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

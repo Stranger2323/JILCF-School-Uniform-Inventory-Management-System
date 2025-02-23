@@ -60,22 +60,16 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        remember = request.form.get('remember') == 'on'
-        
         user = User.query.filter_by(email=email).first()
-        
-        if user and check_password_hash(user.password, password):
-            login_user(user, remember=remember)
-            user.last_login = datetime.utcnow()
-            db.session.commit()
-            
-            next_page = request.args.get('next')
-            return redirect(next_page if next_page else url_for('home'))
-        
-        flash('Invalid email or password')
-        return redirect(url_for('index'))
-    
-    return redirect(url_for('index'))
+
+        if not user or not check_password_hash(user.password, password):
+            flash('Invalid email or password. Please try again.', 'error')
+            return redirect(url_for('login'))
+
+        login_user(user)
+        return redirect(url_for('home'))
+
+    return render_template('login.html')
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
@@ -103,31 +97,27 @@ def logout():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-        
     if request.method == 'POST':
-        username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
-        
+        confirm_password = request.form.get('confirm_password')
+
         if User.query.filter_by(email=email).first():
-            flash('Email already registered')
+            flash('Email already exists. Please login or use a different email.', 'error')
             return redirect(url_for('signup'))
-        
+
+        if password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return redirect(url_for('signup'))
+
         hashed_password = generate_password_hash(password)
-        user = User(username=username, email=email, password=hashed_password)
-        
-        try:
-            db.session.add(user)
-            db.session.commit()
-            login_user(user)
-            return redirect(url_for('home'))
-        except:
-            db.session.rollback()
-            flash('Error creating account')
-            return redirect(url_for('signup'))
-            
+        new_user = User(email=email, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Account created successfully! Please login.', 'success')
+        return redirect(url_for('login'))
+
     return render_template('signup.html')
 
 @app.route('/api/signup', methods=['POST'])
