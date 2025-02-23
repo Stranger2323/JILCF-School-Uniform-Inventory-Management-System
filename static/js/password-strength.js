@@ -27,6 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 requirementStates.set(type, isValid);
                 
                 if (isValid) {
+                    // Remove and re-add for animation
+                    req.classList.remove('valid');
+                    // Force browser reflow
+                    void req.offsetWidth;
                     req.classList.add('valid');
                 } else {
                     req.classList.remove('valid');
@@ -35,12 +39,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add debounce to prevent too frequent updates
+    // Debounce to prevent too frequent updates
     let timeout;
     passwordInput.addEventListener('input', (e) => {
         clearTimeout(timeout);
         timeout = setTimeout(() => {
             validatePassword(e.target.value);
-        }, 100);
+        }, 150); // Slightly longer delay for smoother highlighting
     });
 });
