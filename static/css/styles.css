@@ -354,70 +354,145 @@ body {
 
 .input-group {
     position: relative;
-    width: 100%;
     display: flex;
     align-items: center;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.input-icon {
-    position: absolute;
-    left: 1rem;
-    width: 20px;
-    height: 20px;
-    color: var(--secondary-color);
-    pointer-events: none;
+.input-group:focus-within {
+    border-color: var(--accent-yellow);
+    box-shadow: 0 0 0 4px rgba(255, 232, 0, 0.1);
 }
 
 .input-group input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.75rem;
-    border: 1px solid var(--input-border);
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0 0.5rem;
     color: var(--text-primary);
-    transition: all 0.2s ease;
-    background-color: var(--input-bg);
-}
-
-.input-group input:focus {
+    font-size: 0.875rem;
     outline: none;
-    border-color: var(--input-focus);
-    box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
 }
 
-.input-group input::placeholder {
-    color: #94a3b8;
+.input-group .input-icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.input-group:focus-within .input-icon {
+    opacity: 1;
+    transform: scale(1.1);
 }
 
 .toggle-password {
-    position: absolute;
-    right: 1rem;
-    background: transparent;
+    background: none;
     border: none;
+    padding: 0.25rem;
     cursor: pointer;
-    padding: 0;
+    border-radius: 50%;
     display: flex;
     align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.toggle-password::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--accent-yellow);
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-password:hover::before {
+    transform: scale(1);
+    opacity: 0.1;
 }
 
 .toggle-password img {
     width: 20px;
     height: 20px;
-    opacity: 0.5;
-    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: opacity(0.6);
 }
 
 .toggle-password:hover img {
-    opacity: 0.8;
+    filter: opacity(1);
+    transform: rotate(10deg);
 }
 
-.toggle-password:focus {
-    outline: none;
+.toggle-password:active img {
+    transform: rotate(-10deg);
 }
 
-.toggle-password:focus img {
-    opacity: 0.8;
+.input-group input[type="password"] {
+    letter-spacing: 0.25em;
+    transition: letter-spacing 0.3s ease;
 }
+
+.input-group input[type="text"] {
+    letter-spacing: normal;
+}
+
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.strength-meter {
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.strength-meter-fill {
+    height: 100%;
+    width: 0;
+    background: var(--accent-yellow);
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 2px;
+    position: relative;
+}
+
+.strength-meter-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        transparent 100%);
+    animation: shimmer 1.5s infinite;
+    transform: translateX(-100%);
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.strength-meter-fill.weak { background: #ff4d4d; }
+.strength-meter-fill.medium { background: #ffd700; }
+.strength-meter-fill.strong { background: #2ecc71; }
 
 /* Form options */
 .form-options {
@@ -556,82 +631,6 @@ body {
         opacity: 1;
         transform: scale(1);
     }
-}
-
-/* Password strength meter */
-.password-strength {
-    margin-top: 0.75rem;
-}
-
-.strength-meter {
-    height: 4px;
-    background-color: var(--border-color);
-    border-radius: 2px;
-    margin-bottom: 0.75rem;
-    overflow: hidden;
-}
-
-.strength-meter-fill {
-    height: 100%;
-    width: 0;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-}
-
-.strength-meter-fill.weak {
-    background-color: var(--error-color);
-}
-
-.strength-meter-fill.medium {
-    background-color: #eab308;
-}
-
-.strength-meter-fill.strong {
-    background-color: var(--success-color);
-}
-
-.password-requirements {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.requirement {
-    font-size: 0.75rem;
-    color: var(--secondary-color);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.requirement::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: var(--border-color);
-    transition: all 0.2s ease;
-}
-
-.requirement.met {
-    color: var(--success-color);
-}
-
-.requirement.met::before {
-    background-color: var(--success-color);
-}
-
-.password-match {
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-}
-
-.password-match.valid {
-    color: var(--success-color);
-}
-
-.password-match.invalid {
-    color: var(--error-color);
 }
 
 /* Page Transitions */
