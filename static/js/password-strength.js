@@ -11,21 +11,36 @@ document.addEventListener('DOMContentLoaded', function() {
         special: password => /[!@#$%^&*(),.?":{}|<>]/.test(password)
     };
 
+    // Keep track of requirement states
+    const requirementStates = new Map();
+    requirements.forEach(req => {
+        requirementStates.set(req.dataset.requirement, false);
+    });
+
     function validatePassword(password) {
         requirements.forEach(req => {
             const type = req.dataset.requirement;
             const isValid = patterns[type](password);
             
-            req.classList.remove('valid');
-            if (isValid) {
-                // Remove and re-add the class to restart the animation
-                void req.offsetWidth; // Trigger reflow
-                req.classList.add('valid');
+            // Only update if the state has changed
+            if (isValid !== requirementStates.get(type)) {
+                requirementStates.set(type, isValid);
+                
+                if (isValid) {
+                    req.classList.add('valid');
+                } else {
+                    req.classList.remove('valid');
+                }
             }
         });
     }
 
+    // Add debounce to prevent too frequent updates
+    let timeout;
     passwordInput.addEventListener('input', (e) => {
-        validatePassword(e.target.value);
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            validatePassword(e.target.value);
+        }, 100);
     });
 });

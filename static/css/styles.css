@@ -564,8 +564,8 @@ body {
     align-items: center;
     gap: 0.375rem;
     opacity: 0.7;
-    transform: scale(0.95);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(0);
+    transition: all 0.2s ease-out;
 }
 
 .requirement::before {
@@ -574,32 +574,40 @@ body {
     height: 0.5rem;
     border-radius: 50%;
     background-color: var(--error-color);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease-out;
 }
 
 .requirement.valid {
     color: var(--success-color);
     opacity: 1;
-    transform: scale(1);
-    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: slideIn 0.3s ease-out forwards;
 }
 
 .requirement.valid::before {
     background-color: var(--success-color);
-    transform: scale(1.2);
+    animation: pulse 0.3s ease-out;
 }
 
-@keyframes popIn {
+@keyframes slideIn {
     0% {
-        transform: scale(0.95);
         opacity: 0.7;
+        transform: translateX(-4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
     }
     50% {
-        transform: scale(1.05);
+        transform: scale(1.2);
     }
     100% {
         transform: scale(1);
-        opacity: 1;
     }
 }
 
