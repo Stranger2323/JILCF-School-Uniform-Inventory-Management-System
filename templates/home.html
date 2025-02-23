@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="home-container">
+    <!-- Welcome Section -->
+    <header class="welcome-header">
+        <div class="user-welcome">
+            <div class="avatar-wrapper">
+                <div class="avatar">{{ current_user.username[0] | upper }}</div>
+            </div>
+            <div class="welcome-text">
+                <h1>Welcome back, <span class="username">{{ current_user.username }}</span></h1>
+                <p class="last-login">Last login: {{ current_user.last_login.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            </div>
+        </div>
+        <nav class="quick-actions">
+            <button class="action-btn">
+                <i class="fas fa-plus"></i>
+                New Task
+            </button>
+            <button class="action-btn">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+            </button>
+            <button class="action-btn profile-btn">
+                <i class="fas fa-user"></i>
+                Profile
+            </button>
+        </nav>
+    </header>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Quick Stats -->
+        <section class="dashboard-card stats-card">
+            <h2>Quick Stats</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-value">12</span>
+                    <span class="stat-label">Tasks</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">5</span>
+                    <span class="stat-label">Projects</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">89%</span>
+                    <span class="stat-label">Complete</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="dashboard-card activity-card">
+            <h2>Recent Activity</h2>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="activity-content">
+                        <p>Completed Project Alpha</p>
+                        <span class="activity-time">2 hours ago</span>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="activity-content">
+                        <p>Created new document</p>
+                        <span class="activity-time">Yesterday</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Access -->
+        <section class="dashboard-card quick-access-card">
+            <h2>Quick Access</h2>
+            <div class="quick-access-grid">
+                <a href="#" class="quick-access-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+                <a href="#" class="quick-access-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Calendar</span>
+                </a>
+                <a href="#" class="quick-access-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="#" class="quick-access-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal" id="profileModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Profile Settings</h2>
+            <button class="close-modal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="profile-info">
+                <div class="avatar-large">{{ current_user.username[0] | upper }}</div>
+                <h3>{{ current_user.username }}</h3>
+                <p>{{ current_user.email }}</p>
+            </div>
+            <div class="profile-actions">
+                <button class="btn">Edit Profile</button>
+                <button class="btn btn-danger">Sign Out</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}

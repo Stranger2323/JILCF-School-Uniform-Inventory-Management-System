@@ -4,12 +4,26 @@ import sqlite3
 import hashlib
 import re
 import os
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 CORS(app)
 
 # Database initialization
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+db = SQLAlchemy(app)
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+    last_login = db.Column(db.DateTime)
+
 def init_db():
     with sqlite3.connect('users.db') as conn:
         c = conn.cursor()
@@ -77,12 +91,49 @@ def check_password_strength(password):
         "feedback": feedback
     }
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/home')
+@login_required
+def home():
+    return render_template('home.html')
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        remember = request.form.get('remember') == 'on'
+        
+        user = User.query.filter_by(email=email).first()
+        
+        if user and check_password_hash(user.password, password):
+            login_user(user, remember=remember)
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            next_page = request.args.get('next')
+            return redirect(next_page if next_page else url_for('home'))
+        
+        flash('Invalid email or password')
+    
+    return render_template('login.html')
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
