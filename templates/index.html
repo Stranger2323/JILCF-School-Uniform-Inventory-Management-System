@@ -20,6 +20,9 @@
     </script>
 </head>
 <body>
+    {% extends "base.html" %}
+
+    {% block content %}
     <div class="container">
         <div class="left-panel">
             <div class="logo-section">
@@ -28,10 +31,46 @@
             </div>
             
             <div class="form-container">
-                <div class="login-header">
-                    <h1>Welcome back!</h1>
-                    <p>Log in to your account</p>
+                <div class="form-header">
+                    <h1>Welcome Back</h1>
+                    <p>Please log in to continue</p>
                 </div>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-error">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form id="loginForm" method="POST" action="{{ url_for('login') }}">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-input">
+                            <input type="password" id="password" name="password" required>
+                            <button type="button" class="toggle-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="remember" id="remember">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="{{ url_for('forgot_password') }}" class="forgot-password">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Log In</button>
+                </form>
 
                 <div class="social-login">
                     <button class="social-btn google-btn">
@@ -44,44 +83,9 @@
                     </button>
                 </div>
 
-                <div class="divider">
-                    <span>or continue with email</span>
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a></p>
                 </div>
-                
-                <form class="login-form" id="loginForm">
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <div class="input-group">
-                            <img src="{{ url_for('static', filename='img/email.svg') }}" alt="Email" class="input-icon">
-                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="input-group">
-                            <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
-                            <input type="password" id="password" name="password" class="password-input" placeholder="Enter your password" required>
-                            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-                                <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input type="checkbox" id="remember" name="remember">
-                            <span>Remember me</span>
-                        </label>
-                        <a href="{{ url_for('forgot_password') }}" class="forgot-password">Forgot Password?</a>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn">Log in</button>
-                    
-                    <div class="bottom-text">
-                        Don't have an account? <a href="{{ url_for('signup') }}" class="link">Create an account</a>
-                    </div>
-                </form>
             </div>
         </div>
 
@@ -91,7 +95,11 @@
             </div>
         </div>
     </div>
+    {% endblock %}
 
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    {% endblock %}
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/transitions.js') }}"></script>
 </body>
