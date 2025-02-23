@@ -601,6 +601,179 @@ body {
     color: #00C851;
 }
 
+/* Password Requirements List */
+.password-requirements {
+    list-style: none;
+    padding-left: 20px;
+    margin: 8px 0;
+    transition: all 0.3s ease;
+}
+
+.password-requirements li {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 8px 0;
+    position: relative;
+    padding-left: 25px;
+    transition: color 0.3s ease;
+}
+
+.password-requirements li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.password-requirements li.met {
+    color: #00C851;
+}
+
+.password-requirements li.met::before {
+    content: "✓";
+    border-color: #00C851;
+    background-color: #00C851;
+    color: white;
+    font-size: 10px;
+    text-align: center;
+    line-height: 14px;
+}
+
+/* Password Strength Meter */
+.password-strength-meter {
+    height: 6px;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    margin-top: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0;
+    border-radius: 3px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    background: linear-gradient(90deg, currentColor, currentColor);
+}
+
+.strength-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.1),
+        rgba(255,255,255,0.2),
+        rgba(255,255,255,0.1)
+    );
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+/* Password Match Feedback */
+.password-match-feedback {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.password-match-feedback.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.password-match-feedback::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid;
+    border-color: inherit;
+    border-right-color: transparent;
+    display: none;
+}
+
+.password-match-feedback.checking::before {
+    display: block;
+    animation: spin 0.6s linear infinite;
+}
+
+.password-match-feedback.matched::before {
+    display: block;
+    content: '✓';
+    border: none;
+    background-color: #00C851;
+    color: white;
+    text-align: center;
+    line-height: 16px;
+    font-size: 10px;
+    animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.password-match-feedback.not-matched::before {
+    display: block;
+    content: '×';
+    border: none;
+    background-color: #ff4444;
+    color: white;
+    text-align: center;
+    line-height: 16px;
+    font-size: 12px;
+    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+/* Animations */
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes scale-in {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+    10%, 90% {
+        transform: translateX(-1px);
+    }
+    20%, 80% {
+        transform: translateX(2px);
+    }
+    30%, 50%, 70% {
+        transform: translateX(-4px);
+    }
+    40%, 60% {
+        transform: translateX(4px);
+    }
+}
+
 /* Form options */
 .form-options {
     display: flex;

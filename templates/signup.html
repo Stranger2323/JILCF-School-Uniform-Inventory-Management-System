@@ -105,6 +105,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const matchFeedbackDiv = document.querySelector('.password-match-feedback');
     const togglePassword = document.querySelectorAll('.toggle-password');
 
+    let checkMatchTimeout;
+
     // Password Strength Check
     passwordInput.addEventListener('input', async function() {
         const response = await fetch('/api/check-password', {
@@ -121,41 +123,74 @@ document.addEventListener('DOMContentLoaded', function() {
         const percentage = (data.score / 5) * 100;
         strengthBar.style.width = `${percentage}%`;
         
-        // Update color based on strength
+        // Update color based on strength with smooth transition
         let color = '#ff4444'; // Very Weak (Red)
         if (data.score >= 4) color = '#00C851'; // Very Strong (Green)
         else if (data.score >= 3) color = '#00B0FF'; // Strong (Blue)
         else if (data.score >= 2) color = '#FF8800'; // Fair (Orange)
-        strengthBar.style.backgroundColor = color;
+        strengthBar.style.color = color;
         
-        // Update feedback
+        // Update requirements list with animations
         feedbackDiv.innerHTML = '';
         if (data.feedback.length > 0) {
             const ul = document.createElement('ul');
             ul.className = 'password-requirements';
-            data.feedback.forEach(feedback => {
+            
+            const requirements = [
+                { text: 'Password should be at least 8 characters long', met: data.score >= 1 },
+                { text: 'Include at least one uppercase letter', met: /[A-Z]/.test(this.value) },
+                { text: 'Include at least one lowercase letter', met: /[a-z]/.test(this.value) },
+                { text: 'Include at least one number', met: /\d/.test(this.value) },
+                { text: 'Include at least one special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.value) }
+            ];
+
+            requirements.forEach((req, index) => {
                 const li = document.createElement('li');
-                li.textContent = feedback;
+                li.textContent = req.text;
+                if (req.met) {
+                    setTimeout(() => li.classList.add('met'), index * 100);
+                } else {
+                    li.classList.remove('met');
+                }
                 ul.appendChild(li);
             });
+            
             feedbackDiv.appendChild(ul);
         }
     });
 
-    // Password Match Check
+    // Password Match Check with loading animation
     function checkPasswordMatch() {
         const password = passwordInput.value;
         const confirmPassword = confirmPasswordInput.value;
         
         if (confirmPassword) {
-            if (password === confirmPassword) {
-                matchFeedbackDiv.textContent = 'Passwords match';
-                matchFeedbackDiv.style.color = '#00C851';
-            } else {
-                matchFeedbackDiv.textContent = 'Passwords do not match';
-                matchFeedbackDiv.style.color = '#ff4444';
-            }
+            matchFeedbackDiv.classList.add('visible');
+            
+            // Clear previous classes and set checking state
+            matchFeedbackDiv.classList.remove('matched', 'not-matched');
+            matchFeedbackDiv.classList.add('checking');
+            matchFeedbackDiv.textContent = 'Checking...';
+            
+            // Clear previous timeout
+            if (checkMatchTimeout) clearTimeout(checkMatchTimeout);
+            
+            // Set new timeout for checking animation
+            checkMatchTimeout = setTimeout(() => {
+                matchFeedbackDiv.classList.remove('checking');
+                
+                if (password === confirmPassword) {
+                    matchFeedbackDiv.classList.add('matched');
+                    matchFeedbackDiv.textContent = 'Passwords match';
+                    matchFeedbackDiv.style.color = '#00C851';
+                } else {
+                    matchFeedbackDiv.classList.add('not-matched');
+                    matchFeedbackDiv.textContent = 'Passwords do not match';
+                    matchFeedbackDiv.style.color = '#ff4444';
+                }
+            }, 600); // Matches the duration of the loading animation
         } else {
+            matchFeedbackDiv.classList.remove('visible', 'checking', 'matched', 'not-matched');
             matchFeedbackDiv.textContent = '';
         }
     }
