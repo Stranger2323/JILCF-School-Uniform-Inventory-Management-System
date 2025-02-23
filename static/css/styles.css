@@ -53,6 +53,7 @@ body {
     background-color: var(--bg-secondary);
     max-width: 1440px;
     margin: 0 auto;
+    animation: fadeIn 0.8s ease-out;
 }
 
 .left-panel {
@@ -62,6 +63,7 @@ body {
     max-width: 50%;
     background-color: var(--bg-primary);
     padding: 2rem 4rem;
+    animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .right-panel {
@@ -71,6 +73,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 2rem;
+    animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .illustration {
@@ -631,6 +634,24 @@ body {
     color: var(--error-color);
 }
 
+/* Page Transitions */
+.page-transition {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, var(--accent-yellow), var(--accent-blue));
+    z-index: 9999;
+    clip-path: circle(0% at center);
+    pointer-events: none;
+    transition: clip-path 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.page-transition.active {
+    clip-path: circle(150% at center);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {
@@ -675,5 +696,69 @@ body {
 
     .illustration {
         max-width: 80%;
+    }
+}
+
+/* Focus Animations */
+.link {
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent-yellow);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+.link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.link:focus {
+    outline: none;
+    color: var(--accent-yellow);
+}
+
+.link:focus::after {
+    transform: scaleX(1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
