@@ -30,6 +30,15 @@
     --google-color: #ea4335;
     --facebook-color: #1877f2;
     --twitter-color: #1da1f2;
+    
+    /* Typography */
+    --font-heading: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    
+    /* Sizes */
+    --input-height: 3rem;
+    --input-padding: 0.75rem;
+    --border-radius: 0.75rem;
 }
 
 * {
@@ -39,7 +48,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-body);
     background-color: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.5;
@@ -104,8 +113,10 @@ body {
 }
 
 .logo-text {
+    font-family: var(--font-heading);
+    font-weight: 700;
     font-size: 1.25rem;
-    font-weight: 600;
+    letter-spacing: -0.02em;
     color: var(--primary-color);
 }
 
@@ -132,14 +143,17 @@ body {
 }
 
 .login-header h1 {
-    font-size: 1.875rem;
+    font-family: var(--font-heading);
+    font-size: 2rem;
     font-weight: 600;
+    letter-spacing: -0.02em;
     margin-bottom: 0.5rem;
     color: var(--text-primary);
 }
 
 .login-header p {
-    color: var(--secondary-color);
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
 }
 
 /* Social login buttons */
@@ -323,7 +337,7 @@ body {
     display: flex;
     align-items: center;
     margin: 1.5rem 0;
-    color: var(--secondary-color);
+    color: var(--text-secondary);
 }
 
 .divider::before,
@@ -348,8 +362,8 @@ body {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: var(--text-primary);
     font-size: 0.875rem;
+    color: var(--text-primary);
 }
 
 .input-group {
@@ -357,37 +371,33 @@ body {
     display: flex;
     align-items: center;
     background: var(--bg-primary);
-    border: 2px solid var(--border-color);
-    border-radius: 0.75rem;
-    padding: 0.75rem;
+    border: 2px solid var(--input-border);
+    border-radius: var(--border-radius);
+    height: var(--input-height);
+    padding: 0 var(--input-padding);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-group input {
+    flex: 1;
+    height: 100%;
+    border: none;
+    background: transparent;
+    padding: 0 0.5rem;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.8;
 }
 
 .input-group:focus-within {
     border-color: var(--accent-yellow);
     box-shadow: 0 0 0 4px rgba(255, 232, 0, 0.1);
-}
-
-.input-group input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 0 0.5rem;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    outline: none;
-}
-
-.input-group .input-icon {
-    width: 20px;
-    height: 20px;
-    opacity: 0.6;
-    transition: all 0.3s ease;
-}
-
-.input-group:focus-within .input-icon {
-    opacity: 1;
-    transform: scale(1.1);
 }
 
 .toggle-password {
@@ -544,7 +554,8 @@ body {
     border: none;
     border-radius: 0.5rem;
     font-weight: 500;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
+    font-family: var(--font-heading);
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -562,7 +573,7 @@ body {
 .bottom-text {
     text-align: center;
     margin-top: 1.5rem;
-    color: var(--secondary-color);
+    color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
