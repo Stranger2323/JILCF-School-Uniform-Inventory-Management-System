@@ -52,39 +52,25 @@ def home():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
-
+    
     if request.method == 'POST':
-        data = request.get_json() if request.is_json else request.form
-        email = data.get('email')
-        password = data.get('password')
-        remember = data.get('remember', 'off') == 'on'
-
-        if not email or not password:
-            return jsonify({'error': 'Missing email or password'}), 400
-
+        email = request.form.get('email')
+        password = request.form.get('password')
+        remember = request.form.get('remember') == 'on'
+        
         user = User.query.filter_by(email=email).first()
+        
         if user and check_password_hash(user.password, password):
             login_user(user, remember=remember)
             user.last_login = datetime.utcnow()
             db.session.commit()
             
-            # Handle both JSON and form submissions
-            if request.is_json:
-                return jsonify({'success': True, 'redirect': url_for('home')})
-            return redirect(url_for('home'))
+            next_page = request.args.get('next')
+            return redirect(next_page if next_page else url_for('home'))
         
-        # Handle failed login
-        if request.is_json:
-            return jsonify({'error': 'Invalid email or password'}), 401
         flash('Invalid email or password')
-        
+    
     return render_template('login.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
 
 @app.route('/api/login', methods=['POST'])
 def api_login():

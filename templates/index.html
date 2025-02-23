@@ -20,13 +20,11 @@
     </script>
 </head>
 <body>
-    {% extends "base.html" %}
-
-    {% block content %}
     <div class="container">
         <div class="left-panel">
             <div class="logo-section">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="greenFeather" class="logo">
+                <span class="logo-text">greenFeather</span>
             </div>
             
             <div class="form-container">
@@ -35,22 +33,14 @@
                     <p>Log in to your account</p>
                 </div>
 
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-error">{{ message }}</div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
                 <div class="social-login">
-                    <button class="social-btn google-login">
+                    <button class="social-btn google-btn">
                         <img src="{{ url_for('static', filename='img/google.svg') }}" alt="Google">
-                        <span>Continue with Google</span>
+                        Continue with Google
                     </button>
-                    <button class="social-btn facebook-login">
+                    <button class="social-btn facebook-btn">
                         <img src="{{ url_for('static', filename='img/facebook.svg') }}" alt="Facebook">
-                        <span>Continue with Facebook</span>
+                        Continue with Facebook
                     </button>
                 </div>
 
@@ -58,7 +48,7 @@
                     <span>or continue with email</span>
                 </div>
                 
-                <form class="login-form" id="loginForm" method="POST" action="{{ url_for('login') }}">
+                <form class="login-form" id="loginForm">
                     <div class="form-group">
                         <label for="email">Email</label>
                         <div class="input-group">
@@ -96,15 +86,12 @@
         </div>
 
         <div class="right-panel">
-            <div class="background-image">
+            <div class="illustration">
+                <img src="{{ url_for('static', filename='img/login-illustration.svg') }}" alt="Login illustration">
             </div>
         </div>
     </div>
-    {% endblock %}
 
-    {% block scripts %}
-    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
-    {% endblock %}
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/transitions.js') }}"></script>
 </body>
