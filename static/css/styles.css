@@ -514,61 +514,66 @@ body {
     }
 }
 
-/* Password Match Message */
-.password-match {
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
+/* Password Match Feedback */
+.password-match-feedback {
+    margin-top: 8px;
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
     opacity: 0;
     transform: translateY(-10px);
-    transition: all 0.3s ease-out;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 20px;
+    overflow: hidden;
 }
 
-.password-match.show {
+.password-match-feedback.visible {
     opacity: 1;
     transform: translateY(0);
 }
 
-.password-match::before {
+.password-match-feedback::before {
     content: '';
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    border: 2px solid transparent;
-    border-top-color: currentColor;
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+.password-match-feedback.checking::before {
+    border: 2px solid #666;
+    border-right-color: transparent;
     animation: spin 0.6s linear infinite;
-    display: none;
 }
 
-.password-match.checking::before {
-    display: block;
+.password-match-feedback.matched {
+    color: #00C851;
 }
 
-.password-match.error {
-    color: var(--error-color);
-    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+.password-match-feedback.matched::before {
+    content: '✓';
+    background: #00C851;
+    color: white;
+    text-align: center;
+    line-height: 16px;
+    font-size: 10px;
+    animation: matchSuccess 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.password-match.match {
-    color: var(--success-color);
-    animation: pulse 0.3s ease-out;
+.password-match-feedback.not-matched {
+    color: #ff4444;
 }
 
-@keyframes shake {
-    10%, 90% {
-        transform: translateX(-1px);
-    }
-    20%, 80% {
-        transform: translateX(2px);
-    }
-    30%, 50%, 70% {
-        transform: translateX(-4px);
-    }
-    40%, 60% {
-        transform: translateX(4px);
-    }
+.password-match-feedback.not-matched::before {
+    content: '×';
+    background: #ff4444;
+    color: white;
+    text-align: center;
+    line-height: 16px;
+    font-size: 12px;
+    animation: noMatch 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
 
 @keyframes spin {
@@ -577,15 +582,27 @@ body {
     }
 }
 
-@keyframes pulse {
+@keyframes matchSuccess {
     0% {
-        transform: scale(0.95);
+        transform: scale(0) rotate(-45deg);
     }
-    50% {
-        transform: scale(1.05);
+    70% {
+        transform: scale(1.2) rotate(10deg);
     }
     100% {
+        transform: scale(1) rotate(0);
+    }
+}
+
+@keyframes noMatch {
+    0%, 100% {
         transform: scale(1);
+    }
+    33% {
+        transform: scale(1.1) rotate(3deg);
+    }
+    66% {
+        transform: scale(1.1) rotate(-3deg);
     }
 }
 

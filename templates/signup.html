@@ -176,37 +176,48 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (confirmPassword) {
             matchFeedbackDiv.classList.add('visible');
-            
-            // Clear previous classes and set checking state
             matchFeedbackDiv.classList.remove('matched', 'not-matched');
-            matchFeedbackDiv.classList.add('checking');
-            matchFeedbackDiv.textContent = 'Checking...';
             
             // Clear previous timeout
             if (checkMatchTimeout) clearTimeout(checkMatchTimeout);
             
-            // Set new timeout for checking animation
+            // Show loading animation
+            matchFeedbackDiv.classList.add('checking');
+            matchFeedbackDiv.textContent = 'Checking...';
+            
+            // Simulate check with delay for better UX
             checkMatchTimeout = setTimeout(() => {
                 matchFeedbackDiv.classList.remove('checking');
                 
                 if (password === confirmPassword) {
                     matchFeedbackDiv.classList.add('matched');
-                    matchFeedbackDiv.textContent = 'Passwords match';
-                    matchFeedbackDiv.style.color = '#00C851';
+                    matchFeedbackDiv.textContent = 'Perfect match!';
+                    
+                    // Add success animation class
+                    matchFeedbackDiv.style.animation = 'none';
+                    matchFeedbackDiv.offsetHeight; // Trigger reflow
+                    matchFeedbackDiv.style.animation = null;
                 } else {
                     matchFeedbackDiv.classList.add('not-matched');
                     matchFeedbackDiv.textContent = 'Passwords do not match';
-                    matchFeedbackDiv.style.color = '#ff4444';
                 }
-            }, 600); // Matches the duration of the loading animation
+            }, 600);
         } else {
             matchFeedbackDiv.classList.remove('visible', 'checking', 'matched', 'not-matched');
             matchFeedbackDiv.textContent = '';
         }
     }
 
-    passwordInput.addEventListener('input', checkPasswordMatch);
-    confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+    let matchDebounceTimer;
+    passwordInput.addEventListener('input', () => {
+        clearTimeout(matchDebounceTimer);
+        matchDebounceTimer = setTimeout(checkPasswordMatch, 300);
+    });
+    
+    confirmPasswordInput.addEventListener('input', () => {
+        clearTimeout(matchDebounceTimer);
+        matchDebounceTimer = setTimeout(checkPasswordMatch, 300);
+    });
 
     // Toggle Password Visibility
     togglePassword.forEach(button => {
