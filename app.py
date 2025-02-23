@@ -19,31 +19,26 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
-CORS(app)
-
-# Database initialization
-if os.environ.get('FLASK_ENV') == 'production':
-    database_url = os.environ.get('DATABASE_URL')
-    if database_url and database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///users.db'
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-    
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///users.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Mail settings
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+CORS(app)
+
+# Load environment variables
+IS_PRODUCTION = bool(os.getenv('RENDER', False))
 
 # OAuth 2 client setup
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+    app.logger.error("Google OAuth credentials not found! Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.")
+
+# Configure HTTPS for OAuth
+if not IS_PRODUCTION:
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # OAuth configuration
 app.config['OAUTH_CREDENTIALS'] = {
@@ -52,13 +47,6 @@ app.config['OAUTH_CREDENTIALS'] = {
         'secret': GOOGLE_CLIENT_SECRET
     }
 }
-
-if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-    print("Warning: Google OAuth credentials not found!")
-
-# Configure HTTPS for OAuth
-if os.environ.get('FLASK_ENV') != 'production':
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
@@ -132,6 +120,11 @@ def home():
 @app.route("/login/google")
 def google_login():
     try:
+        if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+            app.logger.error("Google OAuth credentials not configured")
+            flash("Google login is not configured properly. Please contact the administrator.", "error")
+            return redirect(url_for('login'))
+
         # Find out what URL to hit for Google login
         google_provider_cfg = get_google_provider_cfg()
         if not google_provider_cfg:
@@ -141,10 +134,12 @@ def google_login():
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
         
         # Use the correct redirect URI based on environment
-        if os.environ.get('RENDER'):
+        if IS_PRODUCTION:
             redirect_uri = "https://jilcf-school-uniform-inventory.onrender.com/login/google/callback"
+            app.logger.info("Using production redirect URI")
         else:
             redirect_uri = url_for('google_callback', _external=True, _scheme='http')
+            app.logger.info("Using development redirect URI")
 
         app.logger.info(f"Using redirect URI: {redirect_uri}")
 
@@ -174,7 +169,7 @@ def google_callback():
             return redirect(url_for('login'))
 
         # Get the correct redirect URI based on environment
-        if os.environ.get('RENDER'):
+        if IS_PRODUCTION:
             redirect_uri = "https://jilcf-school-uniform-inventory.onrender.com/login/google/callback"
         else:
             redirect_uri = url_for('google_callback', _external=True, _scheme='http')
