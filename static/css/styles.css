@@ -140,7 +140,7 @@ body {
     color: var(--primary-color);
 }
 
-/* Form container */
+/* Form container improvements */
 .form-container {
     width: 100%;
     max-width: 420px;
@@ -252,57 +252,32 @@ body {
     font-size: 0.875rem;
 }
 
-/* Form groups */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    color: var(--text-primary);
-}
-
+/* Input group improvements */
 .input-group {
     position: relative;
-    display: flex;
-    align-items: center;
-    background: var(--bg-primary);
-    border: 2px solid var(--input-border);
-    border-radius: var(--border-radius);
-    height: var(--input-height);
-    padding: 0 var(--input-padding);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    contain: content;
-    min-height: var(--input-height);
+    width: 100%;
 }
 
 .input-group input {
-    flex: 1;
-    height: 100%;
-    border: none;
-    background: transparent;
-    padding: 0 0.5rem;
-    color: var(--text-primary);
-    font-size: 0.9375rem;
-    font-family: var(--font-body);
-    outline: none;
-    font-size: 16px; /* Prevent iOS zoom */
-    transform: translateZ(0);
+    width: 100%;
+    padding: 12px 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
 }
 
-.input-group input::placeholder {
-    color: var(--text-secondary);
-    opacity: 0.8;
+.input-group .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
 }
 
-.input-group:focus-within {
-    border-color: var(--accent-yellow);
-    box-shadow: 0 0 0 4px rgba(255, 232, 0, 0.1);
-}
-
+/* Password input container improvements */
 .password-input-container {
     position: relative;
     width: 100%;
@@ -312,11 +287,11 @@ body {
 
 .password-input {
     width: 100%;
-    padding: 12px 40px 12px 40px;
-    border: 1px solid #e0e0e0;
+    padding: 12px 40px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 14px;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .toggle-password {
@@ -331,6 +306,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 24px;
+    height: 24px;
 }
 
 .toggle-password img {
@@ -344,333 +321,109 @@ body {
     opacity: 1;
 }
 
-.password-strength {
-    margin-top: 0.5rem;
+/* Form group improvements */
+.form-group {
+    margin-bottom: 1.5rem;
 }
 
-.strength-meter {
-    height: 4px;
-    background: var(--border-color);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
 }
 
-.strength-meter-fill {
-    height: 100%;
-    width: 0;
-    background: var(--accent-yellow);
-    transition: width 0.3s ease, background-color 0.3s ease;
-    border-radius: 2px;
-    position: relative;
-}
-
-.strength-meter-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
+/* Submit button improvements */
+.submit-btn {
     width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.2) 50%, 
-        transparent 100%);
-    animation: shimmer 1.5s infinite;
-    transform: translateX(-100%);
+    padding: 12px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-@keyframes shimmer {
-    100% {
-        transform: translateX(100%);
-    }
+.submit-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
 }
 
-.strength-meter-fill.weak { background: #ff4d4d; }
-.strength-meter-fill.medium { background: #ffd700; }
-.strength-meter-fill.strong { background: #2ecc71; }
-
-/* Password Input Specific */
-.password-input {
-    font-size: 16px !important;
-    letter-spacing: 0.05em;
-    font-family: var(--font-body) !important;
-}
-
-.password-input::placeholder {
-    letter-spacing: normal;
-}
-
-/* Password Requirements */
-.password-requirements {
-    list-style: none;
-    padding-left: 20px;
-    margin: 8px 0;
-}
-
-.password-requirements li {
-    font-size: 0.85rem;
-    color: #71717a;
-    margin: 12px 0;
-    position: relative;
-    padding-left: 25px;
-    display: flex;
-    align-items: center;
-}
-
-.password-requirements li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
-    border: 1.5px solid #d4d4d8;
-    border-radius: 50%;
-    background-color: transparent;
-}
-
-.password-requirements li.met::before {
-    border-color: #22c55e;
-    background-color: #22c55e;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2' d='M4 8l2 2 6-6'/%3E%3C/svg%3E");
-    background-size: 12px;
-    background-position: center;
-    background-repeat: no-repeat;
-    transition: all 0.2s ease;
-}
-
-.password-requirements li.met {
-    color: #22c55e;
-}
-
-/* Password Strength Meter */
+/* Password strength meter improvements */
 .password-strength-meter {
-    margin-top: 10px;
-    margin-bottom: 15px;
+    margin-top: 8px;
 }
 
 .strength-meter-bar {
     height: 4px;
+    background: #e2e8f0;
     border-radius: 2px;
-    background-color: #e4e4e7;
-    position: relative;
     overflow: hidden;
 }
 
 .strength-meter-fill {
     height: 100%;
     width: 0;
-    transition: width 0.3s ease, background-color 0.3s ease;
+    transition: all 0.3s ease;
     border-radius: 2px;
 }
 
 .strength-meter-label {
-    font-size: 0.85rem;
-    margin-top: 6px;
-    color: #71717a;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
 }
 
-/* Strength levels */
-.strength-weak .strength-meter-fill {
-    background-color: #ef4444;
-    width: 25%;
-}
-
-.strength-fair .strength-meter-fill {
-    background-color: #f97316;
-    width: 50%;
-}
-
-.strength-good .strength-meter-fill {
-    background-color: #22c55e;
-    width: 75%;
-}
-
-.strength-strong .strength-meter-fill {
-    background-color: #15803d;
-    width: 100%;
-}
-
-.strength-weak .strength-meter-label {
-    color: #ef4444;
-}
-
-.strength-fair .strength-meter-label {
-    color: #f97316;
-}
-
-.strength-good .strength-meter-label {
-    color: #22c55e;
-}
-
-.strength-strong .strength-meter-label {
-    color: #15803d;
-}
-
-/* Password Match Feedback */
-.password-match-feedback {
+/* Password requirements list */
+.password-requirements {
+    list-style: none;
     margin-top: 8px;
-    font-size: 0.85rem;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.password-requirements li {
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    height: 20px;
-    overflow: hidden;
 }
 
-.password-match-feedback.visible {
-    opacity: 1;
-    transform: translateY(0);
+.password-requirements li.met {
+    color: var(--success-color);
 }
 
-.password-match-feedback::before {
-    content: '';
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin-right: 4px;
-}
-
-.password-match-feedback.checking::before {
-    border: 2px solid #666;
-    border-right-color: transparent;
-    animation: spin 0.6s linear infinite;
-}
-
-.password-match-feedback.matched {
-    color: #00C851;
-}
-
-.password-match-feedback.matched::before {
-    content: '✓';
-    background: #00C851;
-    color: white;
-    text-align: center;
-    line-height: 16px;
-    font-size: 10px;
-    animation: matchSuccess 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.password-match-feedback.not-matched {
-    color: #ff4444;
-}
-
-.password-match-feedback.not-matched::before {
-    content: '×';
-    background: #ff4444;
-    color: white;
-    text-align: center;
-    line-height: 16px;
-    font-size: 12px;
-    animation: noMatch 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes matchSuccess {
-    0% {
-        transform: scale(0) rotate(-45deg);
-    }
-    70% {
-        transform: scale(1.2) rotate(10deg);
-    }
-    100% {
-        transform: scale(1) rotate(0);
-    }
-}
-
-@keyframes noMatch {
-    0%, 100% {
-        transform: scale(1);
-    }
-    33% {
-        transform: scale(1.1) rotate(3deg);
-    }
-    66% {
-        transform: scale(1.1) rotate(-3deg);
-    }
-}
-
-/* Form options */
+/* Form options improvements */
 .form-options {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin: 1.5rem 0;
 }
 
-.remember-me {
+.remember-me, .terms-checkbox {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.remember-me input[type="checkbox"] {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 0.25rem;
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    accent-color: var(--primary-color);
-}
-
-.remember-me span {
-    font-size: 0.875rem;
-    color: var(--text-primary);
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
 }
 
 .forgot-password {
+    font-size: 14px;
     color: var(--primary-color);
     text-decoration: none;
-    font-weight: 500;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
+    transition: color 0.3s ease;
 }
 
 .forgot-password:hover {
+    color: var(--primary-hover);
     text-decoration: underline;
-}
-
-/* Submit button */
-.submit-btn {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--primary-color);
-    color: var(--bg-primary);
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.9375rem;
-    font-family: var(--font-heading);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    contain: content;
-    height: var(--input-height);
-    transform: translateZ(0);
-    backface-visibility: hidden;
-}
-
-.submit-btn:hover {
-    background-color: var(--primary-hover);
-}
-
-.submit-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
 }
 
 /* Bottom text */
