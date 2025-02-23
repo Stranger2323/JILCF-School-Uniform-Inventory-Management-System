@@ -98,6 +98,8 @@
         const strengthMeter = document.getElementById('strengthMeter');
         const passwordFeedback = document.getElementById('passwordFeedback');
         const signupForm = document.getElementById('signupForm');
+        const passwordMatchDiv = document.getElementById('passwordMatch');
+        let checkTimeout;
 
         function updatePasswordStrength() {
             const password = passwordInput.value;
@@ -138,19 +140,44 @@
         }
 
         function checkPasswordsMatch() {
-            if (confirmPasswordInput.value === '') {
-                passwordMatch.textContent = '';
-                return false;
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            // Clear previous state
+            passwordMatchDiv.className = 'password-match show';
+
+            if (confirmPassword.length === 0) {
+                passwordMatchDiv.className = 'password-match';
+                passwordMatchDiv.textContent = '';
+                return;
             }
-            
-            const match = passwordInput.value === confirmPasswordInput.value;
-            passwordMatch.textContent = match ? 'Passwords match' : 'Passwords do not match';
-            passwordMatch.className = 'password-match ' + (match ? 'valid' : 'invalid');
-            return match;
+
+            // Show checking state
+            passwordMatchDiv.className = 'password-match show checking';
+            passwordMatchDiv.textContent = 'Checking...';
+
+            // Clear previous timeout
+            clearTimeout(checkTimeout);
+
+            // Set new timeout for checking
+            checkTimeout = setTimeout(() => {
+                if (password === confirmPassword) {
+                    passwordMatchDiv.className = 'password-match show match';
+                    passwordMatchDiv.textContent = 'Passwords match!';
+                } else {
+                    passwordMatchDiv.className = 'password-match show error';
+                    passwordMatchDiv.textContent = 'Passwords do not match';
+                }
+            }, 300);
         }
 
         passwordInput.addEventListener('input', updatePasswordStrength);
         confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
+        passwordInput.addEventListener('input', () => {
+            if (confirmPasswordInput.value) {
+                checkPasswordsMatch();
+            }
+        });
 
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -164,7 +191,7 @@
                 return;
             }
 
-            if (!checkPasswordsMatch()) {
+            if (passwordMatchDiv.className.includes('error')) {
                 const flashMessage = document.createElement('div');
                 flashMessage.textContent = 'Passwords do not match.';
                 flashMessage.className = 'flash-message error';
