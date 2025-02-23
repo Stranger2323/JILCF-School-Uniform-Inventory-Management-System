@@ -9,237 +9,122 @@
 </head>
 <body>
     <div class="container">
-        <div class="left-panel">
-            <div class="logo-section">
-                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="greenFeather" class="logo">
-                <span class="logo-text">greenFeather</span>
-            </div>
-            <div class="form-container">
-                <div class="login-header">
+        <div class="auth-container">
+            <div class="auth-box">
+                <div class="auth-header">
                     <h1>Create Account</h1>
-                    <p>Join greenFeather and start your journey with us.</p>
+                    <p>Join our community today</p>
                 </div>
 
-                <form class="login-form" id="signupForm">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <div class="input-group">
-                            <img src="{{ url_for('static', filename='img/user.svg') }}" alt="User" class="input-icon">
-                            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
-                        </div>
+                <div class="auth-content">
+                    <div class="social-buttons">
+                        <button class="social-btn google-btn">
+                            <img src="{{ url_for('static', filename='img/google.svg') }}" alt="Google">
+                            Continue with Google
+                        </button>
+                        <button class="social-btn facebook-btn">
+                            <img src="{{ url_for('static', filename='img/facebook.svg') }}" alt="Facebook">
+                            Continue with Facebook
+                        </button>
                     </div>
 
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <div class="input-group">
-                            <img src="{{ url_for('static', filename='img/email.svg') }}" alt="Email" class="input-icon">
-                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                        </div>
+                    <div class="divider">
+                        <span>or sign up with email</span>
                     </div>
-
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="input-group">
-                            <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
-                            <input type="password" id="password" name="password" class="password-input" placeholder="Create a strong password" required>
-                            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-                                <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
-                            </button>
-                        </div>
-                        <div class="password-strength">
-                            <div class="strength-meter">
-                                <div class="strength-meter-fill" id="strengthMeter"></div>
-                            </div>
-                            <div class="password-requirements" id="passwordFeedback">
-                                <ul>
-                                    <li class="requirement" data-requirement="length">At least 8 characters</li>
-                                    <li class="requirement" data-requirement="uppercase">One uppercase letter</li>
-                                    <li class="requirement" data-requirement="lowercase">One lowercase letter</li>
-                                    <li class="requirement" data-requirement="number">One number</li>
-                                    <li class="requirement" data-requirement="special">One special character</li>
-                                </ul>
+                    
+                    <form class="signup-form" id="signupForm" action="{{ url_for('signup') }}" method="POST">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <div class="input-group">
+                                <img src="{{ url_for('static', filename='img/user.svg') }}" alt="User" class="input-icon">
+                                <input type="text" id="username" name="username" placeholder="Enter your username" required>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="confirm-password">Confirm Password</label>
-                        <div class="input-group">
-                            <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
-                            <input type="password" id="confirm-password" name="confirm-password" class="password-input" placeholder="Confirm your password" required>
-                            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-                                <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
-                            </button>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <div class="input-group">
+                                <img src="{{ url_for('static', filename='img/email.svg') }}" alt="Email" class="input-icon">
+                                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                            </div>
                         </div>
-                        <div class="password-match" id="passwordMatch"></div>
-                    </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-group">
+                                <img src="{{ url_for('static', filename='img/lock.svg') }}" alt="Password" class="input-icon">
+                                <input type="password" id="password" name="password" class="password-input" placeholder="Create a password" required>
+                                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                                    <img src="{{ url_for('static', filename='img/eye.svg') }}" alt="Show password">
+                                </button>
+                            </div>
+                            <div class="password-strength-meter">
+                                <div class="strength-bar"></div>
+                            </div>
+                            <div class="password-feedback"></div>
+                        </div>
 
-                    <button type="submit" class="submit-btn">Create Account</button>
+                        <div class="form-options">
+                            <label class="terms-checkbox">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <span>I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a></span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Create Account</button>
+                    </form>
 
-                    <div class="bottom-text">
-                        Already have an account? <a href="{{ url_for('index') }}" class="link">Sign in</a>
+                    <div class="auth-footer">
+                        Already have an account? <a href="{{ url_for('index') }}">Log in</a>
                     </div>
-                </form>
-            </div>
-        </div>
-        <div class="right-panel">
-            <div class="illustration">
-                <img src="{{ url_for('static', filename='img/login-illustration.svg') }}" alt="Signup illustration">
+                </div>
             </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/transitions.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
     <script>
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
-        const strengthMeter = document.getElementById('strengthMeter');
-        const passwordFeedback = document.getElementById('passwordFeedback');
-        const signupForm = document.getElementById('signupForm');
-        const passwordMatchDiv = document.getElementById('passwordMatch');
-        let checkTimeout;
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const strengthBar = document.querySelector('.strength-bar');
+            const feedbackDiv = document.querySelector('.password-feedback');
+            const togglePassword = document.querySelector('.toggle-password');
 
-        function updatePasswordStrength() {
-            const password = passwordInput.value;
-            let strength = 0;
-            let meetsAllRequirements = true;
-
-            const requirements = {
-                length: { regex: /.{8,}/, text: 'At least 8 characters' },
-                uppercase: { regex: /[A-Z]/, text: 'One uppercase letter' },
-                lowercase: { regex: /[a-z]/, text: 'One lowercase letter' },
-                number: { regex: /\d/, text: 'One number' },
-                special: { regex: /[!@#$%^&*(),.?":{}|<>]/, text: 'One special character' }
-            };
-
-            Object.entries(requirements).forEach(([key, requirement]) => {
-                const requirementElement = passwordFeedback.querySelector(`[data-requirement="${key}"]`);
-                const isMet = requirement.regex.test(password);
-                
-                if (isMet) {
-                    requirementElement.classList.add('met');
-                    strength += 20;
-                } else {
-                    requirementElement.classList.remove('met');
-                    meetsAllRequirements = false;
-                }
-            });
-
-            strengthMeter.style.width = strength + '%';
-            strengthMeter.className = 'strength-meter-fill ' + getStrengthClass(strength);
-
-            return meetsAllRequirements;
-        }
-
-        function getStrengthClass(strength) {
-            if (strength < 40) return 'weak';
-            if (strength < 80) return 'medium';
-            return 'strong';
-        }
-
-        function checkPasswordsMatch() {
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-
-            // Clear previous state
-            passwordMatchDiv.className = 'password-match show';
-
-            if (confirmPassword.length === 0) {
-                passwordMatchDiv.className = 'password-match';
-                passwordMatchDiv.textContent = '';
-                return;
-            }
-
-            // Show checking state
-            passwordMatchDiv.className = 'password-match show checking';
-            passwordMatchDiv.textContent = 'Checking...';
-
-            // Clear previous timeout
-            clearTimeout(checkTimeout);
-
-            // Set new timeout for checking
-            checkTimeout = setTimeout(() => {
-                if (password === confirmPassword) {
-                    passwordMatchDiv.className = 'password-match show match';
-                    passwordMatchDiv.textContent = 'Passwords match!';
-                } else {
-                    passwordMatchDiv.className = 'password-match show error';
-                    passwordMatchDiv.textContent = 'Passwords do not match';
-                }
-            }, 300);
-        }
-
-        passwordInput.addEventListener('input', updatePasswordStrength);
-        confirmPasswordInput.addEventListener('input', checkPasswordsMatch);
-        passwordInput.addEventListener('input', () => {
-            if (confirmPasswordInput.value) {
-                checkPasswordsMatch();
-            }
-        });
-
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!updatePasswordStrength()) {
-                const flashMessage = document.createElement('div');
-                flashMessage.textContent = 'Please ensure your password meets all requirements.';
-                flashMessage.className = 'flash-message error';
-                document.body.appendChild(flashMessage);
-                setTimeout(() => flashMessage.remove(), 5000);
-                return;
-            }
-
-            if (passwordMatchDiv.className.includes('error')) {
-                const flashMessage = document.createElement('div');
-                flashMessage.textContent = 'Passwords do not match.';
-                flashMessage.className = 'flash-message error';
-                document.body.appendChild(flashMessage);
-                setTimeout(() => flashMessage.remove(), 5000);
-                return;
-            }
-
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                password: passwordInput.value
-            };
-
-            try {
-                const response = await fetch('/api/signup', {
+            passwordInput.addEventListener('input', async function() {
+                const response = await fetch('/api/check-password', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({ password: this.value })
                 });
 
                 const data = await response.json();
-                
-                const flashMessage = document.createElement('div');
-                flashMessage.textContent = data.message;
-                flashMessage.className = `flash-message ${response.ok ? 'success' : 'error'}`;
-                document.body.appendChild(flashMessage);
+                const score = data.score;
+                const maxScore = 5;
+                const percentage = (score / maxScore) * 100;
 
-                if (response.ok) {
-                    signupForm.reset();
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 2000);
+                strengthBar.style.width = percentage + '%';
+                strengthBar.className = 'strength-bar';
+                strengthBar.classList.add(`strength-${score}`);
+
+                feedbackDiv.innerHTML = '';
+                if (data.feedback.length > 0) {
+                    const ul = document.createElement('ul');
+                    data.feedback.forEach(feedback => {
+                        const li = document.createElement('li');
+                        li.textContent = feedback;
+                        ul.appendChild(li);
+                    });
+                    feedbackDiv.appendChild(ul);
                 }
+            });
 
-                setTimeout(() => flashMessage.remove(), 5000);
-            } catch (error) {
-                console.error('Signup error:', error);
-                
-                const flashMessage = document.createElement('div');
-                flashMessage.textContent = 'An error occurred. Please try again later.';
-                flashMessage.className = 'flash-message error';
-                document.body.appendChild(flashMessage);
-                
-                setTimeout(() => flashMessage.remove(), 5000);
-            }
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+            });
         });
     </script>
 </body>

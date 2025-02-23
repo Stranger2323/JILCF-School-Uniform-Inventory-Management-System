@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_cors import CORS
-import sqlite3
-import hashlib
 import re
 import os
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
@@ -14,7 +12,11 @@ app.secret_key = os.urandom(24)
 CORS(app)
 
 # Database initialization
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+if os.environ.get('FLASK_ENV') == 'production':
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+    
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -41,6 +43,8 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     return render_template('index.html')
 
 @app.route('/home')
@@ -69,164 +73,117 @@ def login():
             return redirect(next_page if next_page else url_for('home'))
         
         flash('Invalid email or password')
+        return redirect(url_for('index'))
     
-    return render_template('login.html')
+    return redirect(url_for('index'))
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    remember = data.get('remember', False)
     
     if not email or not password:
-        return jsonify({
-            "message": "Email and password are required"
-        }), 400
+        return jsonify({"message": "Email and password are required"}), 400
     
-    try:
-        with sqlite3.connect('users.db') as conn:
-            c = conn.cursor()
-            c.execute('SELECT id, name, password FROM users WHERE email = ?', (email,))
-            user = c.fetchone()
-            
-            if user and user[2] == hash_password(password):
-                return jsonify({
-                    "message": "Login successful",
-                    "name": user[1]
-                })
-            else:
-                return jsonify({
-                    "message": "Invalid email or password"
-                }), 401
-                
-    except Exception as e:
-        print(f"Login error: {e}")
-        return jsonify({
-            "message": "An error occurred during login"
-        }), 500
-
-@app.route('/forgot-password')
-def forgot_password():
-    return render_template('forgot-password.html')
-
-@app.route('/api/reset-password', methods=['POST'])
-def reset_password():
-    data = request.get_json()
-    email = data.get('email')
+    user = User.query.filter_by(email=email).first()
     
-    if not email:
+    if user and check_password_hash(user.password, password):
         return jsonify({
-            "message": "Email is required"
-        }), 400
-    
-    try:
-        with sqlite3.connect('users.db') as conn:
-            c = conn.cursor()
-            c.execute('SELECT id FROM users WHERE email = ?', (email,))
-            user = c.fetchone()
-            
-            if user:
-                # In a real application, send a password reset email
-                return jsonify({
-                    "message": "Password reset instructions have been sent to your email"
-                })
-            else:
-                return jsonify({
-                    "message": "No account found with this email address"
-                }), 404
-                
-    except Exception as e:
-        print(f"Reset password error: {e}")
-        return jsonify({
-            "message": "An error occurred while processing your request"
-        }), 500
+            "message": "Login successful",
+            "name": user.username
+        })
+    return jsonify({"message": "Invalid email or password"}), 401
 
-@app.route('/signup')
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+        
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered')
+            return redirect(url_for('signup'))
+        
+        hashed_password = generate_password_hash(password)
+        user = User(username=username, email=email, password=hashed_password)
+        
+        try:
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+            return redirect(url_for('home'))
+        except:
+            db.session.rollback()
+            flash('Error creating account')
+            return redirect(url_for('signup'))
+            
     return render_template('signup.html')
 
 @app.route('/api/signup', methods=['POST'])
 def signup_api():
     data = request.get_json()
-    name = data.get('name')
+    username = data.get('username')
     email = data.get('email')
     password = data.get('password')
     
-    if not all([name, email, password]):
-        return jsonify({
-            "message": "All fields are required"
-        }), 400
+    if not all([username, email, password]):
+        return jsonify({"message": "All fields are required"}), 400
+        
+    if User.query.filter_by(email=email).first():
+        return jsonify({"message": "Email already registered"}), 400
     
-    # Check password strength
-    strength_check = check_password_strength(password)
-    if strength_check['score'] < 3:
-        return jsonify({
-            "message": "Please choose a stronger password",
-            "feedback": strength_check['feedback']
-        }), 400
+    hashed_password = generate_password_hash(password)
+    user = User(username=username, email=email, password=hashed_password)
     
     try:
-        with sqlite3.connect('users.db') as conn:
-            c = conn.cursor()
-            c.execute('INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-                     (name, email, hash_password(password)))
-            conn.commit()
-            
-            return jsonify({
-                "message": "Account created successfully"
-            })
-            
-    except sqlite3.IntegrityError:
-        return jsonify({
-            "message": "An account with this email already exists"
-        }), 409
-        
-    except Exception as e:
-        print(f"Signup error: {e}")
-        return jsonify({
-            "message": "An error occurred while creating your account"
-        }), 500
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({"message": "Account created successfully"})
+    except:
+        db.session.rollback()
+        return jsonify({"message": "Error creating account"}), 500
 
-@app.route('/api/check-password-strength', methods=['POST'])
+@app.route('/api/check-password', methods=['POST'])
 def check_strength():
     data = request.get_json()
     password = data.get('password')
     return jsonify(check_password_strength(password))
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
 def check_password_strength(password):
-    # Initialize score and feedback
     score = 0
     feedback = []
     
-    # Length check
     if len(password) >= 8:
         score += 1
     else:
         feedback.append("Password should be at least 8 characters long")
     
-    # Check for uppercase
     if re.search(r"[A-Z]", password):
         score += 1
     else:
         feedback.append("Include at least one uppercase letter")
     
-    # Check for lowercase
     if re.search(r"[a-z]", password):
         score += 1
     else:
         feedback.append("Include at least one lowercase letter")
     
-    # Check for numbers
     if re.search(r"\d", password):
         score += 1
     else:
         feedback.append("Include at least one number")
     
-    # Check for special characters
     if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
         score += 1
     else:

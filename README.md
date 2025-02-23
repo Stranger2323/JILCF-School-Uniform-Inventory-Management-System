@@ -1,29 +1,54 @@
-# JILCF School Uniform Inventory Management System
+# Feather Login
 
-A web-based inventory management system for school uniforms with secure login functionality.
+A modern, secure authentication system with a beautiful UI built with Flask.
 
 ## Features
-- User authentication (Login/Signup)
+
+- Modern and responsive UI design
+- Secure user authentication
 - Password strength validation
-- Responsive design (works on mobile/tablet/desktop)
-- Modern and clean user interface
+- Social login options (UI ready)
+- Beautiful animations and transitions
+- Flash messages for user feedback
+- SQLAlchemy database integration
 
 ## Tech Stack
-- Backend: Python Flask
-- Frontend: HTML, CSS, JavaScript
-- Database: SQLite
 
-## Setup
-1. Clone the repository
+- Backend: Flask
+- Database: SQLAlchemy with SQLite
+- Frontend: HTML, CSS, JavaScript
+- Deployment: Render-ready
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/feather-login.git
+cd feather-login
+```
+
 2. Install dependencies:
 ```bash
-pip install flask flask-cors
+pip install -r requirements.txt
 ```
+
 3. Run the application:
 ```bash
 python app.py
 ```
-4. Access the application at `http://localhost:8080`
 
-## Development
-This project is currently under development. More features coming soon!
+The application will be available at `http://localhost:8080`
+
+## Deployment
+
+This application is configured for deployment on Render. Simply connect your GitHub repository to Render and it will automatically deploy using the configuration in `render.yaml`.
+
+## Environment Variables
+
+For production deployment, set the following environment variables:
+- `FLASK_ENV`: Set to 'production'
+- `DATABASE_URL`: Your database URL (optional, defaults to SQLite)
+
+## License
+
+MIT License

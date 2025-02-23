@@ -48,7 +48,7 @@
                     <span>or continue with email</span>
                 </div>
                 
-                <form class="login-form" id="loginForm">
+                <form class="login-form" id="loginForm" action="{{ url_for('login') }}" method="POST">
                     <div class="form-group">
                         <label for="email">Email</label>
                         <div class="input-group">
