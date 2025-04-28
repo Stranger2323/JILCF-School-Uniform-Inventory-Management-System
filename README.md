@@ -31,4 +31,4 @@ A system for managing the inventory of uniforms for JILCF (Jesus Is Lord Christi
 - Python
 - Flask
 - SQLite
-- HTML/CSS/JavaScript 
+- HTML/CSS/JavaScript
