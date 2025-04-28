@@ -1,0 +1,4948 @@
+{% extends "home.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --base-font-size: 16px;
+        --primary-blue: #1e6cff; /* More saturated blue */
+        --primary-blue-light: #e6f0ff;
+    }
+    
+    /* Container Styles */
+    .admin-inventory-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        font-size: var(--base-font-size);
+    }
+    
+    /* Admin Inventory Styles - Updated to match db_inventory design */
+    body {
+        background-color: #f0f6ff; /* Light blue background */
+        font-size: var(--base-font-size);
+        line-height: 1.6;
+        transition: background-color 0.3s ease;
+    }
+
+    .admin-inventory-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Header styling to match db_inventory */
+    .admin-header {
+        background: #1a73e8; /* Updated to match Pre-School Items button color */
+        padding: 15px 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);  /* Updated shadow color to match */
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+    }
+
+    .admin-header h1 {
+        margin: 0;
+        color: white;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .admin-header h1 i {
+        margin-right: 12px;
+        color: white;
+    }
+    
+    .admin-tabs {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    /* Admin navigation - updated for modern look */
+    .admin-nav {
+        background: #e6f0ff; /* Light blue background */
+        padding: 15px 20px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(30, 108, 255, 0.1);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .admin-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .admin-btn {
+        padding: 12px 20px;
+        background: #ffffff;
+        border: none;
+        border-radius: 10px;
+        color: var(--primary-blue);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0 2px 5px rgba(30, 108, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        border-left: 3px solid transparent;
+        width: 200px;
+        text-align: center;
+    }
+
+    .admin-btn::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        background-color: var(--primary-blue);
+        transition: width 0.3s ease;
+    }
+
+    .admin-btn i {
+        margin-right: 10px;
+        font-size: 18px;
+        transition: transform 0.3s ease;
+    }
+
+    .admin-btn:hover {
+        background: var(--primary-blue-light);
+        color: var(--primary-blue);
+        box-shadow: 0 4px 8px rgba(30, 108, 255, 0.15);
+        transform: translateY(-2px);
+        border-left: 3px solid var(--primary-blue);
+    }
+    
+    .admin-btn:hover::before {
+        width: 100%;
+    }
+    
+    .admin-btn:hover i {
+        transform: scale(1.2);
+    }
+
+    .admin-btn.active {
+        background: linear-gradient(135deg, var(--primary-blue), #368aff);
+        color: white;
+        box-shadow: 0 4px 10px rgba(30, 108, 255, 0.3);
+    }
+    
+    .admin-btn.active::before {
+        width: 100%;
+        background-color: white;
+    }
+    
+    .admin-btn.active:hover {
+        background: linear-gradient(135deg, #1a61e6, #3180ed);
+        transform: translateY(-2px);
+    }
+    
+    /* Admin content */
+    .admin-content {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(30, 108, 255, 0.08);
+        padding: 20px;
+        min-height: 500px;
+        border-top: 3px solid var(--primary-blue);
+    }
+
+    .admin-view {
+        display: none;
+    }
+
+    .admin-view.active {
+        display: block;
+    }
+
+    .admin-view h2 {
+        margin-top: 0;
+        color: #2c3e50;
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+    
+    .admin-view p {
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    .placeholder-text {
+        text-align: center;
+        color: #999;
+        padding: 50px 0;
+        font-style: italic;
+    }
+
+    /* Stock items styling */
+    .stock-items-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #d9e6ff;
+    }
+
+    .stock-items-header h3 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 20px;
+    }
+
+    /* Enhanced styling for stock-items-header h3 in light mode with 3D effects */
+    .stock-items-header h3 {
+        color: #1e6cff;
+        text-shadow: 0 2px 4px rgba(30, 108, 255, 0.15);
+        font-size: 22px;
+        font-weight: 600;
+        position: relative;
+        padding-left: 15px;
+        letter-spacing: 0.5px;
+        transform: translateZ(0);
+        background: linear-gradient(135deg, #1e6cff, #368aff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+    
+    .stock-items-header h3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 24px;
+        width: 4px;
+        background: linear-gradient(to bottom, #1e6cff, #368aff);
+        border-radius: 2px;
+        box-shadow: 0 0 8px rgba(30, 108, 255, 0.4);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .action-btn {
+        padding: 8px 15px;
+        background-color: var(--primary-blue-light);
+        border: 1px solid #d9e6ff;
+        border-radius: 6px;
+        color: var(--primary-blue);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .action-btn i {
+        margin-right: 6px;
+    }
+
+    .action-btn:hover {
+        background-color: var(--primary-blue);
+        color: white;
+        box-shadow: 0 4px 8px rgba(30, 108, 255, 0.25);
+    }
+
+    /* Stock items table - Modern Update */
+    .stock-items-table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(30, 108, 255, 0.12);
+        background: white;
+        transition: all 0.3s ease;
+        border: 1px solid #d9e6ff;
+    }
+
+    .stock-items-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .stock-items-table th {
+        padding: 16px;
+        text-align: center;
+        background: linear-gradient(135deg, var(--primary-blue), #368aff);
+        color: white;
+        font-weight: 600;
+        white-space: nowrap;
+        position: relative;
+        transition: all 0.2s ease;
+    }
+
+    .stock-items-table th:first-child {
+        border-top-left-radius: 12px;
+    }
+    
+    .stock-items-table th:last-child {
+        border-top-right-radius: 12px;
+    }
+
+    .stock-items-table td {
+        padding: 14px 16px;
+        text-align: center;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.2s ease;
+    }
+
+    .stock-items-table tr {
+        transition: all 0.2s ease;
+    }
+
+    .stock-items-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .stock-items-table tr:last-child td:first-child {
+        border-bottom-left-radius: 12px;
+    }
+    
+    .stock-items-table tr:last-child td:last-child {
+        border-bottom-right-radius: 12px;
+    }
+
+    .stock-items-table tr:hover {
+        background-color: #f0f6ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(30, 108, 255, 0.08);
+    }
+
+    .stock-items-table th.sortable {
+        cursor: pointer;
+    }
+
+    .stock-items-table th.sortable:hover {
+        background: linear-gradient(135deg, #1a61e6, #3180ed);
+    }
+
+    .stock-items-table th.sortable i {
+        display: inline-block;
+        margin-left: 5px;
+        transition: transform 0.2s ease;
+    }
+
+    .stock-items-table th.sortable.sorted-asc i {
+        transform: rotate(180deg);
+    }
+
+    .stock-status {
+        padding: 8px 12px;
+        border-radius: 30px;
+        font-size: 0.9em;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .status-in-stock {
+        background-color: #e6f5ff;
+        color: #0087e0;
+        border: 1px solid #cce5ff;
+    }
+
+    .status-low-stock {
+        background-color: #fff8e6;
+        color: #e67e22;
+        border: 1px solid #ffecb5;
+    }
+
+    .status-out-of-stock {
+        background-color: #ffe6e6;
+        color: #e74c3c;
+        border: 1px solid #ffcccc;
+    }
+
+    /* Level badges */
+    .level-badge {
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.9em;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(30, 108, 255, 0.1);
+    }
+
+    .level-preschool {
+        background-color: #e6f0ff;
+        color: var(--primary-blue);
+        border-left: 3px solid var(--primary-blue);
+    }
+
+    .level-elementary {
+        background-color: #e8f6ff;
+        color: #0086db;
+        border-left: 3px solid #0086db;
+    }
+
+    .level-juniorhigh {
+        background-color: #e6f5ff;
+        color: #0066cc;
+        border-left: 3px solid #0066cc;
+    }
+
+    .level-seniorhigh {
+        background-color: #e6eaff;
+        color: #304ffd;
+        border-left: 3px solid #304ffd;
+    }
+
+    .stock-action-btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: none;
+        background-color: #e3f2fd;
+        color: #1976d2;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        font-weight: 500;
+    }
+
+    .stock-action-btn.edit-btn {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .stock-action-btn.edit-btn:hover {
+        background-color: #1976d2;
+        color: white;
+        box-shadow: 0 4px 8px rgba(25, 118, 210, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .stock-action-btn.reduce-btn {
+        background-color: #ffebee;
+        color: #d32f2f;
+        margin-top: 5px;
+        padding: 8px 14px;
+    }
+
+    .stock-action-btn.reduce-btn:hover {
+        background-color: #d32f2f;
+        color: white;
+        box-shadow: 0 4px 8px rgba(211, 47, 47, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .stock-action-btn.icon-only {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stock-action-btn.icon-only i {
+        margin: 0;
+        font-size: 16px;
+        transition: transform 0.3s ease;
+    }
+    
+    .stock-action-btn.icon-only:hover i {
+        transform: scale(1.2);
+    }
+    
+    body.dark-mode .stock-action-btn.reduce-btn {
+        background-color: rgba(211, 47, 47, 0.2);
+        color: #ef5350;
+    }
+    
+    body.dark-mode .stock-action-btn.reduce-btn:hover {
+        background-color: #d32f2f;
+        color: white;
+        box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+    }
+
+    .stock-action-btn i {
+        margin-right: 6px;
+        font-size: 14px;
+        transition: transform 0.2s ease;
+    }
+
+    .stock-action-btn:hover i {
+        transform: translateX(2px);
+    }
+
+    /* Dark mode overrides */
+    body.dark-mode .stock-items-table-container {
+        background-color: #152238;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        border: 1px solid #2a3c5c;
+    }
+    
+    body.dark-mode .stock-items-table {
+        background-color: #152238;
+    }
+
+    body.dark-mode .stock-items-table th {
+        background-color: var(--primary-blue);
+        color: #ffffff;
+        border-bottom: none;
+    }
+
+    body.dark-mode .stock-items-table td {
+        border-bottom: 1px solid #2a3a50;
+        color: #e3e3e3;
+    }
+
+    body.dark-mode .stock-items-table tr:hover {
+        background-color: #1f293d;
+    }
+
+    body.dark-mode .stock-items-table th.sortable:hover {
+        background: linear-gradient(135deg, #1a61e6, #3180ed);
+    }
+
+    body.dark-mode .level-badge {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .level-preschool {
+        background-color: rgba(48, 133, 244, 0.2);
+        color: #80c0ff;
+    }
+
+    body.dark-mode .level-elementary {
+        background-color: rgba(56, 142, 60, 0.2);
+        color: #81c784;
+    }
+
+    body.dark-mode .level-juniorhigh {
+        background-color: rgba(245, 124, 0, 0.2);
+        color: #ffb74d;
+    }
+
+    body.dark-mode .level-seniorhigh {
+        background-color: rgba(211, 47, 47, 0.2);
+        color: #e57373;
+    }
+
+    body.dark-mode .stock-action-btn {
+        background-color: #1f293d;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .stock-action-btn.edit-btn {
+        background-color: rgba(48, 133, 244, 0.2);
+        color: #80c0ff;
+    }
+
+    body.dark-mode .stock-action-btn.edit-btn:hover {
+        background-color: var(--primary-blue);
+        color: white;
+        box-shadow: 0 4px 12px rgba(48, 133, 244, 0.4);
+    }
+    
+    body.dark-mode .stock-action-btn.reduce-btn {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #ffca28;
+    }
+    
+    body.dark-mode .stock-action-btn.reduce-btn:hover {
+        background-color: #ffc107;
+        color: white;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+    }
+
+    body.dark-mode .status-in-stock {
+        background-color: rgba(13, 146, 75, 0.2);
+        color: #4caf50;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .status-low-stock {
+        background-color: rgba(230, 126, 34, 0.2);
+        color: #ffa726;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .status-out-of-stock {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #ef5350;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #4a6cf7;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 2s linear infinite;
+        margin: 10px auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Dark mode overrides */
+    body.dark-mode {
+        background-color: #0d1b30;
+        color: #e3e3e3;
+    }
+    
+    body.dark-mode .admin-header {
+        background-color: #1a73e8; /* Updated to match Pre-School Items button color */
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+    }
+    
+    body.dark-mode .admin-content {
+        background-color: #16213e;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .admin-nav {
+        background-color: #152238;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .admin-header h1,
+    body.dark-mode .admin-view h2 {
+        color: #e3e3e3;
+    }
+    
+    body.dark-mode .admin-btn {
+        background: #1f293d;
+        color: #64b5f6;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .admin-btn::before {
+        background-color: #64b5f6;
+    }
+
+    body.dark-mode .admin-btn:hover {
+        background: #2a3a50;
+        color: #90caf9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode .admin-btn.active {
+        background: #1976d2;
+        color: white;
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+    }
+    
+    body.dark-mode .admin-btn.active:hover {
+        background: #1565c0;
+    }
+    
+    body.dark-mode .admin-view p,
+    body.dark-mode .placeholder-text {
+        color: #aaa;
+    }
+
+    body.dark-mode .stock-items-table th {
+        background-color: #1f293d;
+        color: #e3e3e3;
+    }
+
+    body.dark-mode .stock-items-table td {
+        border-bottom: 1px solid #2a3a50;
+    }
+
+    body.dark-mode .stock-items-table tr:hover {
+        background-color: #1f293d;
+    }
+
+    body.dark-mode .stock-action-btn {
+        background-color: #2a3a50;
+        color: #e3e3e3;
+    }
+
+    body.dark-mode .stock-action-btn.edit-btn {
+        background-color: #0d47a1;
+        color: #e3e3e3;
+    }
+
+    body.dark-mode .action-btn {
+        background-color: #2a3a50;
+        border-color: #16213e;
+        color: #e3e3e3;
+    }
+    
+    /* Notification styles */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: -300px;
+        width: auto;
+        max-width: 240px;
+        height: auto;
+        min-height: auto;
+        max-height: fit-content;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        overflow: hidden;
+        opacity: 1;
+        transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        transform: translateZ(0);
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+    }
+    
+    .notification.show {
+        right: 20px;
+    }
+    
+    .notification.fade-out {
+        opacity: 0;
+        right: -300px;
+    }
+    
+    .notification-content {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 8px 10px;
+        background-color: transparent;
+        height: auto;
+        width: 100%;
+    }
+    
+    .notification-icon {
+        margin-right: 8px;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    /* Remove icon animations that are no longer used */
+    .notification.info .notification-icon {
+        color: #1890ff;
+    }
+
+    .notification.success .notification-icon {
+        color: #52c41a;
+    }
+
+    .notification.warning .notification-icon {
+        color: #faad14;
+    }
+
+    .notification.error .notification-icon {
+        color: #ff4d4f;
+    }
+    
+    .notification-content span {
+        font-size: 12px;
+        line-height: 1.3;
+        max-width: 180px;
+        font-weight: 400;
+        white-space: normal;
+        overflow: hidden;
+        flex-grow: 1;
+    }
+    
+    /* Progress bar for notification timing */
+    .notification-progress {
+        height: 3px;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.05);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        flex-shrink: 0;
+        border-top: none;
+    }
+
+    .notification-progress-bar {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        animation: progress-shrink 1.5s linear forwards;
+        opacity: 0.5;
+    }
+
+    @keyframes progress-shrink {
+        0% { width: 100%; }
+        100% { width: 0%; }
+    }
+
+    .notification.info {
+        background-color: #f0f7ff;
+        border-left: none;
+        border-top: 2px solid var(--primary-blue);
+    }
+
+    .notification.info .notification-icon {
+        color: var(--primary-blue);
+    }
+
+    .notification.info .notification-progress-bar {
+        background-color: var(--primary-blue);
+        opacity: 0.5;
+    }
+
+    .notification.success {
+        background-color: #f0f9ff;
+        border-left: none;
+        border-top: 2px solid #36a3ff;
+    }
+
+    .notification.success .notification-icon {
+        color: #36a3ff;
+    }
+
+    .notification.success .notification-progress-bar {
+        background-color: #36a3ff;
+        opacity: 0.5;
+    }
+
+    .notification.warning {
+        background-color: #fffcf0;
+        border-left: none;
+        border-top: 2px solid #faad14;
+    }
+
+    .notification.warning .notification-icon {
+        color: #faad14;
+    }
+
+    .notification.warning .notification-progress-bar {
+        background-color: #faad14;
+        opacity: 0.5;
+    }
+
+    .notification.error {
+        background-color: #fff7f6;
+        border-left: none;
+        border-top: 2px solid #ff4d4f;
+    }
+
+    .notification.error .notification-icon {
+        color: #ff4d4f;
+    }
+
+    .notification.error .notification-progress-bar {
+        background-color: #ff4d4f;
+        opacity: 0.5;
+    }
+
+    .close-notification {
+        background: transparent;
+        border: none;
+        font-size: 12px;
+        cursor: pointer;
+        padding: 0;
+        margin-left: 6px;
+        color: #999;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s ease;
+    }
+    
+    .close-notification:hover {
+        color: #666;
+    }
+
+    /* Font size controls */
+    .font-size-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 15px;
+    }
+    
+    .font-size-btn {
+        background: rgba(255, 255, 255, 0.25);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        color: white;
+        font-size: 15px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .font-size-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+        pointer-events: none;
+    }
+
+    .font-size-btn:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    body.dark-mode .font-size-btn {
+        background: rgba(30, 30, 50, 0.6);
+        border-color: rgba(100, 150, 255, 0.6);
+        color: white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 0 0 15px rgba(100, 150, 255, 0.2);
+    }
+    
+    body.dark-mode .font-size-btn::after {
+        background: linear-gradient(to bottom, rgba(100, 150, 255, 0.1), transparent);
+    }
+    
+    body.dark-mode .font-size-btn:hover {
+        background: rgba(74, 108, 247, 0.3);
+        border-color: #4a6cf7;
+        color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 0 20px rgba(74, 108, 247, 0.3);
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow: auto;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 50px auto;
+        max-width: 600px;
+        width: 90%;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        animation: modalFadeIn 0.3s;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--primary-blue), #368aff);
+        color: white;
+        padding: 15px 20px;
+        position: relative;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: white;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .close-modal {
+        font-size: 24px;
+        font-weight: bold;
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .close-modal:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 20px;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-btn {
+        padding: 12px 22px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    }
+
+    .modal-btn.primary {
+        background: linear-gradient(135deg, var(--primary-blue), #368aff);
+        color: white;
+        box-shadow: 0 4px 10px rgba(30, 108, 255, 0.25);
+    }
+    
+    .modal-btn.primary:hover {
+        background: linear-gradient(135deg, #1a61e6, #3180ed);
+        box-shadow: 0 6px 16px rgba(30, 108, 255, 0.35);
+        transform: translateY(-2px);
+    }
+
+    .modal-btn.secondary {
+        background-color: #f1f3f5;
+        color: #495057;
+    }
+
+    .modal-btn.secondary:hover {
+        background-color: #e9ecef;
+    }
+
+    /* Form styles */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .form-input, 
+    .form-select {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #c8d0d9;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+        border-color: #4a6cf7;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(30, 108, 255, 0.25);
+    }
+
+    /* Read-only field styles */
+    .form-input[readonly],
+    .form-select[disabled] {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        cursor: not-allowed;
+        border-color: #dee2e6;
+    }
+
+    /* Dark mode modal overrides */
+    body.dark-mode .modal-content {
+        background-color: #192734;
+        color: #e3e3e3;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-mode .modal-header,
+    body.dark-mode .modal-footer {
+        border-color: #2a3a50;
+    }
+
+    body.dark-mode .modal-header h3 {
+        color: white;
+    }
+
+    body.dark-mode .close-modal {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    body.dark-mode .close-modal:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    body.dark-mode .modal-body {
+        background-color: #192734;
+    }
+
+    body.dark-mode .modal-btn.secondary {
+        background-color: #2a3a50;
+        color: #e3e3e3;
+    }
+    
+    body.dark-mode .modal-btn.secondary:hover {
+        background-color: #354658;
+    }
+
+    /* Custom Select Styling */
+    .modern-select-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .modern-select-button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 14px 18px;
+        background-color: #1a73e8;
+        color: white;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
+        transition: all 0.3s ease;
+        font-size: 15px;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .modern-select-button::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
+        pointer-events: none;
+    }
+
+    .modern-select-button:hover {
+        background-color: #1765cc;
+        box-shadow: 0 6px 16px rgba(26, 115, 232, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .modern-select-button .icon {
+        font-size: 18px;
+        margin-right: 10px;
+        transition: transform 0.3s ease;
+        color: white; /* Ensuring icon is white */
+    }
+
+    .modern-select-button .label {
+        color: white; /* Ensuring text is white */
+    }
+
+    .modern-select-button:hover .icon {
+        transform: scale(1.2);
+    }
+
+    .modern-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        width: 100%;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(30, 108, 255, 0.15);
+        z-index: 100;
+        overflow: hidden;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        border: 1px solid rgba(30, 108, 255, 0.1);
+    }
+
+    .modern-dropdown.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .modern-dropdown-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .modern-dropdown-item:hover {
+        background-color: var(--primary-blue-light);
+        color: var(--primary-blue);
+        border-left-color: var(--primary-blue);
+    }
+
+    .modern-dropdown-item.selected {
+        background-color: var(--primary-blue-light);
+        color: var(--primary-blue);
+        font-weight: 500;
+        border-left-color: var(--primary-blue);
+    }
+
+    /* Hide the item dropdown container initially */
+    .modern-select-container.item-container {
+        display: none; /* Initially hidden */
+    }
+
+    /* Filter section styling - modernized */
+    .stock-filters {
+        background-color: #ffffff;
+        border: 1px solid rgba(30, 136, 229, 0.1);
+        padding: 25px;
+        margin-bottom: 30px;
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .filter-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        justify-content: center;
+    }
+    
+    .filter-header h3 {
+        margin: 0;
+        color: #1e88e5;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+    }
+    
+    .filter-header i {
+        color: #1e88e5;
+        margin-right: 10px;
+        font-size: 20px;
+    }
+    
+    .filters-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 25px;
+    }
+    
+    .filters-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        width: 100%;
+        max-width: 900px;
+    }
+    
+    /* Updated modern select button */
+    .modern-select-button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 14px 18px;
+        background-color: #1a73e8;
+        color: white;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
+        transition: all 0.3s ease;
+        font-size: 15px;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .modern-select-button::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
+        pointer-events: none;
+    }
+    
+    .modern-select-button:hover {
+        background-color: #1765cc;
+        box-shadow: 0 6px 16px rgba(26, 115, 232, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .modern-select-button .icon {
+        font-size: 18px;
+        margin-right: 10px;
+        transition: transform 0.3s ease;
+        color: white; /* Ensuring icon is white */
+    }
+    
+    .modern-select-button .label {
+        color: white; /* Ensuring text is white */
+    }
+    
+    .modern-select-button:hover .icon {
+        transform: scale(1.2);
+    }
+    
+    .modern-select-button.open {
+        background-color: #1565c0;
+        box-shadow: 0 6px 20px rgba(21, 101, 192, 0.4);
+    }
+    
+    /* Updated dropdown styling */
+    .modern-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        width: 100%;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(30, 108, 255, 0.15);
+        z-index: 100;
+        overflow: hidden;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        border: 1px solid rgba(30, 108, 255, 0.1);
+    }
+    
+    .modern-dropdown.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .modern-dropdown-item {
+        padding: 12px 18px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        display: flex;
+        align-items: center;
+    }
+    
+    .modern-dropdown-item:hover {
+        background-color: #e3f2fd;
+        color: #1565c0;
+        border-left-color: #1e88e5;
+    }
+    
+    .modern-dropdown-item.selected {
+        background-color: #e3f2fd;
+        color: #1565c0;
+        font-weight: 500;
+        border-left-color: #1e88e5;
+    }
+    
+    .modern-dropdown-item i {
+        margin-right: 10px;
+        font-size: 16px;
+        color: #1e88e5;
+    }
+    
+    /* Reset button */
+    #reset-filters {
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        font-weight: 600;
+        max-width: 200px;
+        transition: all 0.3s ease;
+    }
+    
+    #reset-filters:hover {
+        background-color: #1976d2;
+        color: white;
+        box-shadow: 0 6px 12px rgba(30, 136, 229, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    #reset-filters i {
+        margin-right: 8px;
+        transition: transform 0.3s ease;
+        color: white;
+    }
+    
+    #reset-filters:hover i {
+        transform: rotate(180deg);
+    }
+    
+    /* Dark mode filters */
+    body.dark-mode .stock-filters {
+        background-color: #1f293d;
+        border-color: rgba(100, 181, 246, 0.2);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .filter-header h3 {
+        color: #64b5f6;
+    }
+    
+    body.dark-mode .filter-header i {
+        color: #64b5f6;
+    }
+    
+    body.dark-mode .modern-select-button {
+        background-color: #1565c0;
+        box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+    }
+    
+    body.dark-mode .modern-select-button::after {
+        background: linear-gradient(to bottom, rgba(100, 181, 246, 0.15), transparent);
+    }
+    
+    body.dark-mode .modern-select-button:hover {
+        background-color: #0d47a1;
+        box-shadow: 0 6px 16px rgba(13, 71, 161, 0.4);
+    }
+    
+    body.dark-mode .modern-select-button.open {
+        background-color: #0d47a1;
+        box-shadow: 0 6px 20px rgba(13, 71, 161, 0.5);
+    }
+    
+    body.dark-mode .modern-dropdown {
+        background-color: #0d1b30;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        border: 1px solid #2a3c5c;
+    }
+    
+    body.dark-mode .modern-dropdown-item {
+        color: #e3e3e3;
+        border-left-color: transparent;
+    }
+    
+    body.dark-mode .modern-dropdown-item:hover {
+        background-color: #1c2c4e;
+        color: #80b5ff;
+        border-left-color: #80b5ff;
+    }
+    
+    body.dark-mode .modern-dropdown-item.selected {
+        background-color: #1c2c4e;
+        color: #80b5ff;
+        border-left-color: #80b5ff;
+    }
+    
+    body.dark-mode .modern-dropdown-item i {
+        color: #80b5ff;
+    }
+    
+    body.dark-mode #reset-filters {
+        background-color: #2a3a50;
+        color: #64b5f6;
+        border-color: #374a64;
+    }
+    
+    body.dark-mode #reset-filters:hover {
+        background-color: #374a64;
+        color: #90caf9;
+        box-shadow: 0 6px 12px rgba(13, 71, 161, 0.3);
+    }
+
+    .form-input:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(30, 108, 255, 0.2);
+    }
+    
+    .form-value {
+        padding: 10px;
+        margin: 0;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+        font-weight: 500;
+    }
+    
+    body.dark-mode .form-value {
+        background-color: #1f293d;
+        border-color: #374a64;
+        color: #e3e3e3;
+    }
+
+    body.dark-mode .close-modal:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    body.dark-mode .modal-body {
+        background-color: #192734;
+    }
+
+    body.dark-mode .form-group label {
+        color: #ccc;
+    }
+
+    body.dark-mode .form-input,
+    body.dark-mode .form-select {
+        background-color: #1f293d;
+        border-color: #2a3a50;
+        color: #e3e3e3;
+    }
+    
+    body.dark-mode .form-input:focus,
+    body.dark-mode .form-select:focus {
+        border-color: #1e88e5;
+    }
+
+    body.dark-mode .form-input[readonly],
+    body.dark-mode .form-select[disabled] {
+        background-color: #1f293d;
+        color: #adb5bd;
+        border-color: #2a3a50;
+    }
+
+    /* Transactions Styles */
+    .transactions-container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .transactions-filters {
+        background-color: #f9fafc;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .transactions-table-container {
+        overflow-x: auto;
+        margin-top: 15px;
+    }
+    
+    .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .transactions-table th,
+    .transactions-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .transactions-table tbody tr {
+        background-color: white;
+    }
+    
+    /* Keep the light blue background for date header rows */
+    .transactions-table tbody tr.date-header-row {
+        background-color: rgba(30, 108, 255, 0.05);
+    }
+    
+    /* Ensure transaction rows maintain white background */
+    .transactions-table tbody tr.transaction-row {
+        background-color: white;
+    }
+    
+    .date-time-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .date-display {
+        font-weight: 500;
+    }
+
+    .time-display {
+        color: #666;
+        margin-top: 4px;
+        font-size: 0.9em;
+    }
+
+    body.dark-mode .time-display {
+        color: #aaa;
+    }
+    
+    .transactions-table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        font-size: 0.85em;
+    }
+    
+    .transactions-table tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .transaction-type {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        font-weight: 500;
+    }
+    
+    .transaction-sell {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .transaction-reduce {
+        background-color: #ffebee;
+        color: #d32f2f;
+    }
+    
+    .transaction-adjustment {
+        background-color: #ede7f6;
+        color: #7b1fa2;
+    }
+    
+    /* Styles for date headers in transactions tables */
+    .date-header-row {
+        background-color: rgba(30, 108, 255, 0.05);
+    }
+    
+    .date-header {
+        padding: 10px 15px !important;
+        background-color: rgba(30, 108, 255, 0.05) !important;
+        border-left: 4px solid var(--primary-blue) !important;
+    }
+    
+    .date-header-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .date-label {
+        font-weight: 600;
+        margin-right: 10px;
+    }
+    
+    .transaction-count {
+        color: #666;
+        font-size: 0.9em;
+    }
+    
+    body.dark-mode .transaction-count {
+        color: #aaa;
+    }
+    
+    .today-badge {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.75em;
+        margin-left: 10px;
+    }
+    
+    .date-collapse-btn {
+        background: none;
+        border: none;
+        color: var(--primary-blue);
+        cursor: pointer;
+        padding: 2px 8px;
+        margin-right: 10px;
+        font-size: 0.85em;
+        border-radius: 3px;
+        transition: background-color 0.2s;
+    }
+    
+    .date-collapse-btn:hover {
+        background-color: rgba(30, 108, 255, 0.1);
+    }
+    
+    .transaction-row.collapsed {
+        display: none;
+    }
+    
+    /* Add style for stock adjustments in reports */
+    .stock-adjustment {
+        background-color: #e3f2fd;
+        color: var(--primary-blue);
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        font-weight: 500;
+    }
+    
+    .notes-display {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-style: italic;
+        color: #666;
+    }
+    
+    body.dark-mode .notes-display {
+        color: #aaa;
+    }
+    
+    .receipt-number {
+        font-family: monospace;
+        background-color: #f1f3f5;
+        padding: 5px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        white-space: nowrap;
+        display: block;
+        margin: 2px 0;
+        overflow: visible;
+        min-width: 160px;
+        text-align: center;
+    }
+    
+    body.dark-mode .receipt-number {
+        background-color: #2a3a50;
+        color: #ccc;
+    }
+    
+    .negative {
+        color: #d32f2f;
+        font-weight: 500;
+    }
+    
+    .positive {
+        color: #388e3c;
+        font-weight: 500;
+    }
+    
+    /* Dark mode styles for transactions */
+    body.dark-mode .transactions-container {
+        background-color: #192734;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .transactions-filters {
+        background-color: #1f293d;
+        border-color: #374a64;
+    }
+    
+    body.dark-mode .transactions-table th {
+        background-color: #1f293d;
+        color: #ccc;
+    }
+    
+    body.dark-mode .transactions-table td {
+        border-bottom-color: #2a3a50;
+        color: #e3e3e3;
+    }
+    
+    body.dark-mode .transactions-table tbody tr:hover {
+        background-color: #202d3d;
+    }
+    
+    body.dark-mode .transaction-sell {
+        background-color: rgba(25, 118, 210, 0.2);
+        color: #64b5f6;
+    }
+    
+    body.dark-mode .transaction-reduce {
+        background-color: rgba(211, 47, 47, 0.2);
+        color: #ef5350;
+    }
+    
+    body.dark-mode .transaction-adjustment {
+        background-color: rgba(123, 31, 162, 0.2);
+        color: #ce93d8;
+    }
+    
+    body.dark-mode .receipt-number {
+        background-color: #2a3a50;
+        color: #ccc;
+    }
+    
+    /* Loading Spinner */
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        margin: 10px auto;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary-blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    body.dark-mode .loading-spinner {
+        border: 3px solid #2a3a50;
+        border-top: 3px solid #64b5f6;
+    }
+    
+    /* Section description styling for dark mode */
+    body.dark-mode .section-description {
+        background: linear-gradient(to right, rgba(66, 133, 244, 0.1), rgba(66, 133, 244, 0.02));
+        border-left-color: #3b82f6;
+        color: #ddd;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .section-description i {
+        color: #3b82f6;
+    }
+
+    body.dark-mode .time-display {
+        color: #aaa;
+    }
+    
+    /* Date header styles */
+    .date-header-row {
+        background-color: #f5f8ff;
+    }
+    
+    .date-header {
+        padding: 0 !important;
+        border-bottom: 2px solid #dee2e6 !important;
+    }
+    
+    .date-header-content {
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .date-collapse-btn {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(30, 108, 255, 0.3);
+        transition: all 0.2s ease;
+    }
+    
+    .date-collapse-btn:hover {
+        background-color: #0d65ea;
+        transform: scale(1.1);
+    }
+    
+    .date-label {
+        font-weight: 600;
+        font-size: 15px;
+        color: #333;
+    }
+    
+    .transaction-count {
+        margin-left: 8px;
+        color: #6c757d;
+        font-size: 13px;
+    }
+    
+    .today-badge {
+        margin-left: 10px;
+        background-color: var(--primary-blue);
+        color: white;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 8px;
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Collapsed rows */
+    .transaction-row.collapsed {
+        display: none;
+    }
+    
+    /* Dark mode styles for date headers */
+    body.dark-mode .date-header-row {
+        background-color: #1a2740;
+    }
+    
+    body.dark-mode .date-header {
+        border-bottom-color: #2d3a50 !important;
+    }
+    
+    body.dark-mode .date-label {
+        color: #e3e3e3;
+    }
+    
+    body.dark-mode .transaction-count {
+        color: #a0a0a0;
+    }
+    
+    body.dark-mode .date-collapse-btn {
+        background-color: #3b82f6;
+        box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+    }
+    
+    body.dark-mode .date-collapse-btn:hover {
+        background-color: #2563eb;
+    }
+
+    /* Stock Reports Table Styles */
+    .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .date-header-row {
+        background-color: #f8f9fa;
+    }
+    
+    .date-header {
+        padding: 0 !important;
+    }
+    
+    .date-header-content {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        font-weight: 600;
+        gap: 15px;
+    }
+    
+    .date-collapse-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: rgba(30, 108, 255, 0.1);
+        color: var(--primary-blue);
+        transition: all 0.2s ease;
+    }
+    
+    .date-collapse-btn:hover {
+        background-color: rgba(30, 108, 255, 0.2);
+    }
+    
+    .date-label {
+        font-size: 1.05em;
+        color: #444;
+    }
+    
+    .transaction-count {
+        font-size: 0.85em;
+        color: #666;
+        font-weight: normal;
+    }
+    
+    .today-badge {
+        background-color: var(--primary-blue);
+        color: white;
+        font-size: 0.7em;
+        padding: 3px 8px;
+        border-radius: 12px;
+        margin-left: 10px;
+    }
+    
+    .transaction-header-row {
+        background-color: #f0f4ff;
+        color: #333;
+        font-size: 0.9em;
+        text-transform: uppercase;
+    }
+    
+    .transaction-header-row th {
+        padding: 10px 15px;
+        font-weight: 600;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .transaction-row td {
+        padding: 10px 15px;
+        border-bottom: 1px solid #edf2f7;
+        font-size: 0.95em;
+    }
+    
+    .transaction-row:hover {
+        background-color: #f8faff;
+    }
+    
+    .time-display {
+        color: #666;
+        font-size: 0.9em;
+    }
+    
+    .positive {
+        color: #38a169;
+        font-weight: 600;
+    }
+    
+    .negative {
+        color: #e53e3e;
+        font-weight: 600;
+    }
+    
+    .notes-display {
+        display: inline-block;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: help;
+    }
+
+    /* ... existing styles ... */
+    /* Transaction and Report Header Styling */
+    .transaction-header-row {
+        background-color: #f0f4ff;
+        color: #333;
+        font-size: 0.9em;
+        text-transform: uppercase;
+    }
+    
+    .transaction-header-row th {
+        padding: 10px 15px;
+        font-weight: 600;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    /* Dark mode for transaction headers */
+    body.dark-mode .transaction-header-row {
+        background-color: #1c2c4e;
+    }
+    
+    body.dark-mode .transaction-header-row th {
+        color: #adbdff;
+        border-bottom-color: #2a3c5c;
+    }
+    
+    /* Date header styles for collapsed/expanded indicators */
+    .date-collapse-btn i {
+        transition: transform 0.3s ease;
+    }
+    
+    .date-collapse-btn:focus {
+        outline: none;
+    }
+    
+    /* Hidden row styles */
+    .transaction-row.collapsed,
+    tr.collapsed {
+        display: none;
+    }
+    
+    /* Additional styles to ensure proper display */
+    .transaction-header-row[style*="display: none"],
+    .transaction-row[style*="display: none"] {
+        display: none !important;
+    }
+    
+    /* Ensure consistent styling for collapse buttons */
+    .date-collapse-btn {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    .date-collapse-btn:hover {
+        transform: scale(1.1);
+    }
+    
+    .date-collapse-btn i {
+        transition: all 0.3s ease;
+    }
+
+    /* Additional styles for collapse functionality */
+    .date-header-content {
+        position: relative; /* Ensure proper positioning of elements */
+    }
+
+    .date-collapse-btn {
+        cursor: pointer;
+        z-index: 5; /* Ensure button is clickable */
+        padding: 5px; /* Increase clickable area */
+    }
+
+    .date-collapse-btn i {
+        pointer-events: none; /* Ensure clicks pass through to the button */
+    }
+
+    /* Better visibility for collapsed/expanded state */
+    .date-collapse-btn i.fa-plus {
+        color: #1976d2; /* Distinct color for collapsed state */
+    }
+
+    .date-collapse-btn i.fa-minus {
+        color: #1565c0; /* Distinct color for expanded state */
+    }
+
+    /* Fix for display issues */
+    .transaction-row[style*="display: none"],
+    .transaction-header-row[style*="display: none"] {
+        display: none !important; /* Force display:none to override any other styles */
+    }
+
+    .transaction-row[style*="display: table-row"],
+    .transaction-header-row[style*="display: table-row"] {
+        display: table-row !important; /* Force display:table-row to override any other styles */
+    }
+
+    body.dark-mode .date-header-row {
+        background-color: #1a2740;
+    }
+
+    body.dark-mode .date-header {
+        border-bottom-color: #2d3a50 !important;
+        border-left: 4px solid #3b82f6 !important;
+    }
+
+    body.dark-mode .date-label {
+        color: #e3e3e3;
+    }
+
+    body.dark-mode .transaction-count {
+        color: #a0a0a0;
+    }
+
+    body.dark-mode .date-collapse-btn {
+        background-color: #3b82f6;
+        box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+    }
+
+    body.dark-mode .date-collapse-btn:hover {
+        background-color: #2563eb;
+    }
+
+    /* Improved dark mode styles for stock reports */
+    body.dark-mode .transactions-table {
+        border-color: #2d3a50;
+        background-color: #192734;
+    }
+
+    body.dark-mode .transactions-table tbody tr {
+        background-color: #192734;
+    }
+
+    body.dark-mode .transactions-table tbody tr.date-header-row {
+        background-color: #1a2740;
+    }
+
+    body.dark-mode .transactions-table tbody tr.transaction-row {
+        background-color: #192734;
+        border-bottom: 1px solid #2d3a50;
+    }
+
+    body.dark-mode .transactions-table tbody tr.transaction-row:hover {
+        background-color: #202d3d;
+    }
+
+    body.dark-mode .positive {
+        color: #48bb78;
+    }
+
+    body.dark-mode .negative {
+        color: #f56565;
+    }
+
+    body.dark-mode .time-display {
+        color: #a0a0a0;
+    }
+
+    body.dark-mode .date-collapse-btn i.fa-plus,
+    body.dark-mode .date-collapse-btn i.fa-minus {
+        color: #e3e3e3;
+    }
+
+    /* Universal improved styles for collapse buttons with better contrast */
+    .date-collapse-btn {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(30, 108, 255, 0.3);
+        transition: all 0.2s ease;
+    }
+
+    .date-collapse-btn:hover {
+        background-color: #0d65ea;
+        transform: scale(1.1);
+    }
+
+    .date-collapse-btn i {
+        color: white;
+        font-size: 12px;
+    }
+
+    /* Better visibility for collapsed/expanded state */
+    .date-collapse-btn i.fa-plus,
+    .date-collapse-btn i.fa-minus {
+        color: white;
+    }
+
+    body.dark-mode .date-collapse-btn i.fa-plus,
+    body.dark-mode .date-collapse-btn i.fa-minus {
+        color: white;
+    }
+
+    /* Consistent styling for stock adjustments across themes */
+    .stock-adjustment {
+        background-color: #e3f2fd;
+        color: var(--primary-blue);
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        font-weight: 500;
+    }
+
+    body.dark-mode .stock-adjustment {
+        background-color: rgba(30, 108, 255, 0.2);
+        color: #64b5f6;
+    }
+
+    /* Improved transaction row styling for dark mode */
+    body.dark-mode .transaction-row td {
+        border-bottom: 1px solid #2d3a50;
+    }
+
+    /* Consistent styling for notes display across themes */
+    body.dark-mode .notes-display {
+        color: #a0a0a0;
+    }
+
+    /* Improved loading spinner for dark mode */
+    body.dark-mode .loading-spinner {
+        border: 3px solid #2a3a50;
+        border-top: 3px solid #3b82f6;
+    }
+
+    /* Improved no results message for dark mode */
+    body.dark-mode .no-stock-reports,
+    body.dark-mode .no-transactions {
+        background-color: #1a2740;
+        color: #e3e3e3;
+        border: 1px solid #2d3a50;
+    }
+
+    body.dark-mode .no-stock-reports i,
+    body.dark-mode .no-transactions i {
+        color: #64b5f6;
+    }
+
+    /* Improve stock reports container in dark mode */
+    body.dark-mode .transactions-table-container {
+        background-color: #192734;
+        border: 1px solid #2d3a50;
+    }
+
+    /* Mute toggle button styles */
+    #mute-toggle {
+        margin-left: 5px;
+    }
+    
+    #mute-toggle.muted i {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    #mute-toggle:hover i {
+        animation: pulse 1s ease infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Styling for stock-items-header in dark mode with 3D effects */
+    body.dark-mode .stock-items-header {
+        border-bottom: 2px solid #2a3c5c;
+    }
+    
+    body.dark-mode .stock-items-header h3 {
+        color: #64b5f6;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 22px;
+        font-weight: 600;
+        position: relative;
+        padding-left: 15px;
+        letter-spacing: 0.5px;
+        transform: translateZ(0);
+        background: linear-gradient(135deg, #2196f3, #64b5f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+    
+    body.dark-mode .stock-items-header h3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 24px;
+        width: 4px;
+        background: linear-gradient(to bottom, #2196f3, #64b5f6);
+        border-radius: 2px;
+        box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
+    }
+
+    body.dark-mode .time-display {
+        color: #aaa;
+    }
+    
+    /* Enhanced 3D styling for section descriptions with dashboard-inspired design */
+    .section-description {
+        position: relative;
+        background: linear-gradient(135deg, rgba(0, 112, 240, 0.1) 0%, rgba(35, 148, 255, 0.2) 100%);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        transform-style: preserve-3d;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .section-description:hover {
+        box-shadow: 0 10px 20px rgba(0, 118, 255, 0.15);
+    }
+
+    .section-description span {
+        color: #333;
+        flex: 1;
+        line-height: 1.6;
+        z-index: 1;
+        transition: color 0.3s ease;
+        position: relative;
+        margin-left: 15px;
+    }
+
+    .icon-container {
+        background: linear-gradient(135deg, #0070f0, #2394ff);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0, 112, 240, 0.2);
+        margin-right: 5px;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+    }
+
+    .section-description:hover .icon-container {
+        transform: translateZ(15px) scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 112, 240, 0.25);
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(0, 112, 240, 0.2) 0%, rgba(35, 148, 255, 0.4) 100%);
+        transition: all 0.3s ease;
+        z-index: 0;
+    }
+
+    .shape-1 {
+        width: 80px;
+        height: 80px;
+        top: -20px;
+        right: -20px;
+        opacity: 0.5;
+    }
+
+    .shape-2 {
+        width: 60px;
+        height: 60px;
+        bottom: -15px;
+        left: 30%;
+        opacity: 0.4;
+    }
+
+    .section-description:hover .shape-1 {
+        transform: translateZ(5px) translateX(-5px) translateY(5px);
+    }
+
+    .section-description:hover .shape-2 {
+        transform: translateZ(10px) translateX(5px) translateY(-5px);
+    }
+
+    /* Dark mode compatibility */
+    body.dark-mode .section-description {
+        background: linear-gradient(135deg, rgba(30, 108, 255, 0.15) 0%, rgba(35, 148, 255, 0.25) 100%);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .section-description:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    body.dark-mode .section-description span {
+        color: #e0e0e0;
+    }
+
+    body.dark-mode .icon-container {
+        background: linear-gradient(135deg, #1e60c7, #3d7ecc);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode .icon-container i {
+        color: white;
+    }
+
+    body.dark-mode .section-description:hover .icon-container {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    body.dark-mode .shape {
+        background: linear-gradient(135deg, rgba(30, 108, 255, 0.25) 0%, rgba(35, 148, 255, 0.45) 100%);
+    }
+</style>
+
+<div class="admin-inventory-container">
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <h1><i class="fas fa-database"></i> Inventory Administration</h1>
+        <div class="admin-tabs">
+        <div class="font-size-controls">
+                <button class="font-size-btn" onclick="decreaseFontSize()">A-</button>
+                <button class="font-size-btn" onclick="resetFontSize()">A</button>
+                <button class="font-size-btn" onclick="increaseFontSize()">A+</button>
+                <button id="mute-toggle" class="font-size-btn" onclick="toggleMute()" title="Toggle Sound">
+                    <i class="fas fa-volume-up" id="sound-icon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="admin-nav">
+        <div class="admin-buttons" style="display: flex; justify-content: center; gap: 15px;">
+            <button class="admin-btn active" data-view="stock-management" style="width: 200px; text-align: center; justify-content: center;">
+                <i class="fas fa-boxes"></i> Stock Management
+            </button>
+            <button class="admin-btn" data-view="transactions" style="width: 200px; text-align: center; justify-content: center;">
+                <i class="fas fa-shopping-bag"></i> Orders History
+            </button>
+            <button class="admin-btn" data-view="reports" style="width: 200px; text-align: center; justify-content: center;">
+                <i class="fas fa-chart-bar"></i> Stock Reports
+            </button>
+            <a href="{{ url_for('inventory') }}" class="admin-btn" style="width: 200px; text-align: center; justify-content: center;">
+                <i class="fas fa-arrow-left"></i> Back to Inventory
+            </a>
+        </div>
+    </div>
+    
+    <!-- Admin Content -->
+    <div class="admin-content">
+        <!-- Stock Management View -->
+        <div class="admin-view active" id="stock-management-view">
+            <!-- Stock items container -->
+            <div class="stock-items">
+                <div class="stock-items-header">
+                    <h3>Inventory Items</h3>
+                    <div class="header-actions">
+                        <button id="export-btn" class="action-btn"><i class="fas fa-file-export"></i> Export</button>
+                        <button id="print-btn" class="action-btn"><i class="fas fa-print"></i> Print</button>
+                    </div>
+                </div>
+                
+                <!-- Filters Section -->
+                <div class="stock-filters">
+                    <div class="filter-header">
+                        <h3>
+                            <i class="fas fa-filter"></i> Filter Inventory Items
+                        </h3>
+                    </div>
+                    
+                    <div class="filters-container">
+                        <div class="filters-row">
+                            
+                            <!-- Item Filter - Modern Style - Initially hidden -->
+                            <div class="modern-select-container item-container" style="flex: 1; min-width: 220px; max-width: 220px;">
+                                <button id="item-button" class="modern-select-button">
+                                    <span class="icon"><i class="fas fa-tshirt"></i></span>
+                                    <span class="label">Item</span>
+                                </button>
+                                <div id="item-dropdown" class="modern-dropdown">
+                                    <div class="modern-dropdown-item selected" data-value="all">
+                                        <i class="fas fa-list"></i>All Items
+                    </div>
+                                    <!-- Item options will be populated dynamically -->
+                    </div>
+                            </div>
+                            
+                            <!-- Category Filter - Modern Style -->
+                            <div class="modern-select-container" style="flex: 1; min-width: 220px;">
+                                <button id="category-button" class="modern-select-button">
+                                    <span class="icon"><i class="fas fa-cubes"></i></span>
+                                    <span class="label">All Categories</span>
+                                </button>
+                                <div id="category-dropdown" class="modern-dropdown">
+                                    <div class="modern-dropdown-item selected" data-value="all">
+                                        <i class="fas fa-list"></i>All Categories
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="preschool">
+                                        <i class="fas fa-child"></i>Pre-School Items
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="elementary">
+                                        <i class="fas fa-book"></i>Elementary Items
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="juniorhigh">
+                                        <i class="fas fa-graduation-cap"></i>Junior High Items
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="seniorhigh">
+                                        <i class="fas fa-user-graduate"></i>Senior High Items
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Gender Filter - Modern Style -->
+                            <div class="modern-select-container" style="flex: 1; min-width: 220px;">
+                                <button id="gender-button" class="modern-select-button">
+                                    <span class="icon"><i class="fas fa-venus-mars"></i></span>
+                                    <span class="label">All Genders</span>
+                                </button>
+                                <div id="gender-dropdown" class="modern-dropdown">
+                                    <div class="modern-dropdown-item selected" data-value="all">
+                                        <i class="fas fa-list"></i>All Genders
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="male">
+                                        <i class="fas fa-mars"></i>Male
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="female">
+                                        <i class="fas fa-venus"></i>Female
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="unisex">
+                                        <i class="fas fa-venus-mars"></i>Unisex
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Filter - Modern Style -->
+                            <div class="modern-select-container" style="flex: 1; min-width: 220px;">
+                                <button id="status-button" class="modern-select-button">
+                                    <span class="icon"><i class="fas fa-tag"></i></span>
+                                    <span class="label">All Status</span>
+                                </button>
+                                <div id="status-dropdown" class="modern-dropdown">
+                                    <div class="modern-dropdown-item selected" data-value="all">
+                                        <i class="fas fa-list"></i>All Status
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="in_stock">
+                                        <i class="fas fa-check-circle"></i>In Stock
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="low_stock">
+                                        <i class="fas fa-exclamation-circle"></i>Low Stock
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="out_of_stock">
+                                        <i class="fas fa-times-circle"></i>Out of Stock
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Size Filter - Modern Style -->
+                            <div class="modern-select-container" style="flex: 1; min-width: 220px;">
+                                <button id="size-button" class="modern-select-button">
+                                    <span class="icon"><i class="fas fa-ruler"></i></span>
+                                    <span class="label">Size</span>
+                                </button>
+                                <div id="size-dropdown" class="modern-dropdown">
+                                    <div class="modern-dropdown-item selected" data-value="none">
+                                        <i class="fas fa-ban"></i>No Sorting
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="asc">
+                                        <i class="fas fa-sort-amount-up-alt"></i>Ascending
+                                    </div>
+                                    <div class="modern-dropdown-item" data-value="desc">
+                                        <i class="fas fa-sort-amount-down"></i>Descending
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                            <button id="reset-filters" class="modern-select-button">
+                                <i class="fas fa-redo"></i>Reset Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stock items table -->
+                <div class="stock-items-table-container">
+                    <table class="stock-items-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="name">ITEM</th>
+                                <th class="sortable" data-sort="category">CATEGORY</th>
+                                <th class="sortable" data-sort="gender">GENDER</th>
+                                <th class="sortable" data-sort="size">SIZE</th>
+                                <th class="sortable" data-sort="quantity">CURRENT STOCK</th>
+                                <th class="sortable" data-sort="price">PRICE (₱)</th>
+                                <th class="sortable" data-sort="status">STATUS</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-items-body">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading inventory items...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Modal -->
+        <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                    <h3>Edit Inventory Item</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                    <form id="edit-form">
+                        <input type="hidden" id="edit-stock-id">
+                        <input type="hidden" id="edit-item-id">
+                        
+                <div class="form-group">
+                            <label for="edit-name">Item Name</label>
+                            <input type="text" id="edit-name" class="form-input" readonly>
+                </div>
+                        
+                        <div class="form-row">
+                <div class="form-group">
+                                <label for="edit-category">Category</label>
+                                <select id="edit-category" class="form-select" disabled>
+                                    <option value="preschool">Pre-School</option>
+                                    <option value="elementary">Elementary</option>
+                                    <option value="juniorhigh">Junior High</option>
+                                    <option value="seniorhigh">Senior High</option>
+                                </select>
+                </div>
+                            
+                <div class="form-group">
+                                <label for="edit-gender">Gender</label>
+                                <select id="edit-gender" class="form-select" disabled>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="unisex">Unisex</option>
+                                </select>
+                </div>
+                        </div>
+                        
+                        <div class="form-row">
+                <div class="form-group">
+                                <label for="edit-size">Size</label>
+                                <input type="text" id="edit-size" class="form-input" readonly>
+                </div>
+                            
+                <div class="form-group">
+                                <label for="edit-quantity">Quantity</label>
+                                <input type="number" id="edit-quantity" class="form-input" min="0" required>
+                </div>
+                        </div>
+                        
+                        <div class="form-row">
+                <div class="form-group">
+                                <label for="edit-price">Price (₱)</label>
+                                <input type="number" id="edit-price" class="form-input" min="0" step="0.01" required>
+                </div>
+                            
+                <div class="form-group">
+                                <label for="edit-threshold">Low Stock Threshold</label>
+                                <input type="number" id="edit-threshold" class="form-input" min="0" required>
+                </div>
+                        </div>
+                    </form>
+            </div>
+            <div class="modal-footer">
+                    <button id="cancel-edit" class="modal-btn secondary">Cancel</button>
+                    <button id="save-edit" class="modal-btn primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- Reduce Modal -->
+        <div id="reduce-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                    <h3>Reduce Stock</h3>
+                    <span class="close-modal" onclick="closeReduceModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                    <input type="hidden" id="reduce-stock-id">
+                    
+                    <div class="form-group">
+                        <label>Receipt Number (Auto-Generated)</label>
+                        <div class="form-row" style="margin-bottom: 10px;">
+                            <input type="text" id="receipt-number" class="form-input" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reduce-amount">Reduce Quantity</label>
+                        <input type="number" id="reduce-amount" class="form-input" min="1" value="1" required>
+                        <p id="reduce-current-quantity" class="form-value" style="display: none;"></p>
+                        <p id="reduce-new-quantity" class="form-value" style="display: none;"></p>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                    <button id="cancel-reduce" class="modal-btn secondary" onclick="closeReduceModal()">Cancel</button>
+                    <button id="confirm-reduce" class="modal-btn primary">Confirm Reduction</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- Transaction History View -->
+        <div class="admin-view" id="transactions-view">
+            <h2>Orders History</h2>
+            <div class="transactions-container">
+                <div class="section-description" onmousemove="rotateInfoCard(event)" onmouseleave="resetInfoCard(event)">
+                    <div class="icon-container">
+                        <i class="fas fa-info-circle" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <span>This section displays a comprehensive record of all uniform transactions, including sales and stock reductions. Each entry shows the date, item details, quantity changes, and who performed the transaction.</span>
+                    <div class="shape shape-1"></div>
+                    <div class="shape shape-2"></div>
+                </div>
+                <div class="transactions-table-container">
+                    <table class="transactions-table">
+                        <tbody id="transactions-body">
+                            <tr>
+                                <td colspan="9" style="text-align: center; padding: 30px;">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading transaction history...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="no-transactions" style="display: none; text-align: center; padding: 30px;">
+                    <i class="fas fa-info-circle" style="font-size: 24px; color: #6c757d;"></i>
+                    <p>No transactions found.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reports View -->
+        <div class="admin-view" id="reports-view">
+            <h2>Stock Additions</h2>
+            <div class="reports-container">
+                <div class="section-description" onmousemove="rotateInfoCard(event)" onmouseleave="resetInfoCard(event)">
+                    <div class="icon-container">
+                        <i class="fas fa-info-circle" style="font-size: 1.8rem;"></i>
+                    </div>
+                    <span>This section displays a record of stock additions, showing when items were added to inventory. Each entry includes the date, item details, quantity changes, and who performed the addition.</span>
+                    <div class="shape shape-1"></div>
+                    <div class="shape shape-2"></div>
+                </div>
+                
+                <!-- Filter controls for stock reports -->
+                <!-- STOCK REPORTS title removed -->
+
+                <div class="transactions-table-container">
+                    <table class="transactions-table">
+                        <tbody id="stock-reports-body">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading stock reports...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="no-stock-reports" style="display: none; text-align: center; padding: 30px;">
+                    <i class="fas fa-info-circle" style="font-size: 24px; color: #6c757d;"></i>
+                    <p>No stock additions found.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div class="admin-view" id="settings-view">
+            <h2>Inventory Settings</h2>
+            <p>Configure inventory management settings</p>
+            <div class="settings-container">
+                <!-- Settings content will be added here -->
+                <p class="placeholder-text">Settings feature coming soon.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variable to store all loaded stock items
+    let allStockItems = [];
+
+    // Font size controls
+    let currentFontSize = parseInt(localStorage.getItem('fontSize')) || 16;
+
+    function increaseFontSize() {
+        if (currentFontSize < 24) {
+            currentFontSize += 1;
+            document.documentElement.style.setProperty('--base-font-size', `${currentFontSize}px`);
+            localStorage.setItem('fontSize', currentFontSize);
+        }
+    }
+
+    function decreaseFontSize() {
+        if (currentFontSize > 12) {
+            currentFontSize -= 1;
+            document.documentElement.style.setProperty('--base-font-size', `${currentFontSize}px`);
+            localStorage.setItem('fontSize', currentFontSize);
+        }
+    }
+
+    function resetFontSize() {
+        currentFontSize = 16;
+        document.documentElement.style.setProperty('--base-font-size', `${currentFontSize}px`);
+        localStorage.setItem('fontSize', currentFontSize);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Apply saved font size on page load
+        document.documentElement.style.setProperty('--base-font-size', `${currentFontSize}px`);
+        
+        // Tab switching
+        const adminBtns = document.querySelectorAll('.admin-btn[data-view]');
+        const adminViews = document.querySelectorAll('.admin-view');
+        
+        adminBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const viewName = this.getAttribute('data-view');
+                
+                // Save active tab to localStorage
+                localStorage.setItem('activeAdminTab', viewName);
+                
+                // Update active button
+                adminBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show active view
+                adminViews.forEach(view => {
+                    view.classList.remove('active');
+                    if (view.id === viewName + '-view') {
+                        view.classList.add('active');
+                    }
+                });
+                
+                // Load data for specific views when they become active
+                if (viewName === 'stock-management') {
+                    // Already loaded on page init
+                } else if (viewName === 'transactions') {
+                    loadTransactions();
+                } else if (viewName === 'reports') {
+                    loadStockReports();
+                }
+            });
+        });
+        
+        // Restore active tab from localStorage if available
+        const savedTab = localStorage.getItem('activeAdminTab');
+        if (savedTab) {
+            const savedTabBtn = document.querySelector(`.admin-btn[data-view="${savedTab}"]`);
+            if (savedTabBtn) {
+                savedTabBtn.click(); // This will trigger the click event and all associated logic
+            }
+        }
+        
+        // Initialize modern dropdowns
+        initializeModernDropdowns();
+        
+        // Initialize filter buttons
+        document.getElementById('reset-filters').addEventListener('click', function() {
+            resetFilters();
+        });
+        
+        // Add real-time filtering when dropdowns change
+        document.getElementById('category-button').addEventListener('click', function() {
+            if (allStockItems.length === 0) {
+                showNotification('Please wait for data to load before filtering', 'warning');
+            }
+        });
+        
+        document.getElementById('gender-button').addEventListener('click', function() {
+            if (allStockItems.length === 0) {
+                showNotification('Please wait for data to load before filtering', 'warning');
+            }
+        });
+        
+        document.getElementById('status-button').addEventListener('click', function() {
+            if (allStockItems.length === 0) {
+                showNotification('Please wait for data to load before filtering', 'warning');
+            }
+        });
+
+        // Initialize export button
+        document.getElementById('export-btn').addEventListener('click', function() {
+            exportToCSV();
+        });
+
+        // Initialize print button
+        document.getElementById('print-btn').addEventListener('click', function() {
+            printInventory();
+        });
+
+        // Load inventory items when the page loads
+        loadInventoryItems();
+        
+        // For debugging - log to console when items are loaded
+        console.log("DOM Content Loaded - Loading inventory items...");
+    });
+    
+    function loadInventoryItems() {
+        // Show loading state
+        document.getElementById('stock-items-body').innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 30px;">
+                    <div class="loading-spinner"></div>
+                    <p>Loading inventory items...</p>
+                </td>
+            </tr>
+        `;
+        
+        console.log("Fetching items from API...");
+        
+        // Fetch items from API
+        fetch('/api/items')
+            .then(response => {
+                console.log("API Response status:", response.status);
+                return response.json();
+            })
+            .then(items => {
+                console.log("Items received:", items.length);
+                
+                // Convert items to stock item format
+                let stockItems = [];
+                
+                // Convert items to stock item format
+                items.forEach(item => {
+                    item.stocks.forEach(stock => {
+                        // Create the stock item with standard data
+                        const stockItem = {
+                            id: stock.id,
+                            item_id: item.id,
+                            name: item.name,
+                            category: item.category,
+                            gender: item.gender,
+                            size: stock.size,
+                            quantity: stock.quantity,
+                            price: stock.price,
+                            threshold: stock.threshold,
+                            status: stock.status
+                        };
+
+                        // Apply specific rules for certain items
+                        // Set Patch to only appear in Elementary and make it Unisex
+                        if (stockItem.name === 'Patch') {
+                            stockItem.gender = 'unisex';
+                            // Only include if category is elementary or preschool
+                            if (stockItem.category.toLowerCase() !== 'juniorhigh' && 
+                                stockItem.category.toLowerCase() !== 'seniorhigh') {
+                                stockItems.push(stockItem);
+                            }
+                        } 
+                        // Set Blouse w/ Patch to Female
+                        else if (stockItem.name === 'Blouse w/ Patch') {
+                            stockItem.gender = 'female';
+                            stockItems.push(stockItem);
+                        }
+                        // Set Polo Shirt w/ Patch to Male
+                        else if (stockItem.name === 'Polo Shirt w/ Patch') {
+                            stockItem.gender = 'male';
+                            stockItems.push(stockItem);
+                        }
+                        // Include all other items normally
+                        else {
+                            stockItems.push(stockItem);
+                        }
+                    });
+                });
+                
+                console.log("Processed stock items:", stockItems.length);
+                
+                // Store all items globally
+                allStockItems = [...stockItems];
+                
+                // Display all items by default
+                displayStockItems(stockItems);
+                
+                // Hide item dropdown initially - will be shown when a category is selected
+                document.querySelector('.modern-select-container.item-container').style.display = 'none';
+                
+                // Enable filter dropdowns after data is loaded
+                document.getElementById('item-button').disabled = false;
+                document.getElementById('category-button').disabled = false;
+                document.getElementById('gender-button').disabled = false;
+                document.getElementById('status-button').disabled = false;
+                document.getElementById('size-button').disabled = false;
+            })
+            .catch(error => {
+                console.error('Error loading inventory items:', error);
+                document.getElementById('stock-items-body').innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 30px; color: #d9534f;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                            <p>Error loading inventory items. Please try again later.</p>
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+    
+    // Function to display stock items
+    function displayStockItems(stockItems) {
+        const tbody = document.getElementById('stock-items-body');
+        
+        // Clear loading state
+        tbody.innerHTML = '';
+        
+        // Display results
+        if (stockItems.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 30px;">
+                        No inventory items found with the selected filters.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Sort by status priority (out_of_stock, low_stock, in_stock)
+        const statusPriority = {
+            'out_of_stock': 0,
+            'low_stock': 1,
+            'in_stock': 2
+        };
+        
+        stockItems.sort((a, b) => {
+            return statusPriority[a.status] - statusPriority[b.status];
+        });
+        
+        // Generate HTML for each stock item
+        stockItems.forEach(stock => {
+            const statusClass = 
+                stock.status === 'out_of_stock' ? 'status-out-of-stock' :
+                stock.status === 'low_stock' ? 'status-low-stock' : 
+                'status-in-stock';
+            
+            const statusText = 
+                stock.status === 'out_of_stock' ? 'Out of Stock' :
+                stock.status === 'low_stock' ? 'Low Stock' : 
+                'In Stock';
+            
+            // Add level badge
+            const levelBadge = `<span class="level-badge level-${stock.category}">${formatCategory(stock.category)}</span>`;
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${stock.name}</td>
+                <td>${levelBadge}</td>
+                <td>${formatGender(stock.gender)}</td>
+                <td>${stock.size}</td>
+                <td>${stock.quantity}</td>
+                <td>${stock.price.toFixed(2)}</td>
+                <td><span class="stock-status ${statusClass}">${statusText}</span></td>
+                <td>
+                    <div class="stock-actions">
+                        <button class="stock-action-btn edit-btn icon-only" onclick="editStockItem(${stock.id})" title="Edit Item">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="stock-action-btn reduce-btn icon-only" onclick="reduceStockItem(${stock.id})" title="Reduce Stock">
+                            <i class="fas fa-minus-circle"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+    
+    // Function to apply filters
+    function applyFilters() {
+        // Get filtered items
+        const filteredItems = getFilteredItems();
+        
+        // Apply sorting if needed
+        const sortedItems = applySorting(filteredItems);
+        
+        // Display the filtered and sorted items
+        displayStockItems(sortedItems);
+        
+        // Show notification
+        showNotification('Filters applied successfully', 'success');
+    }
+    
+    // Function to apply sorting based on size filter only
+    function applySorting(items) {
+        const sizeSort = document.getElementById('size-button').value;
+        
+        let sortedItems = [...items];
+        
+        // Apply size sorting if selected
+        if (sizeSort !== 'none') {
+            sortedItems.sort((a, b) => {
+                // Try to parse sizes numerically when possible
+                const sizeA = a.size;
+                const sizeB = b.size;
+                
+                if (sizeSort === 'asc') {
+                    return sizeA.localeCompare(sizeB, undefined, {numeric: true});
+                } else {
+                    return sizeB.localeCompare(sizeA, undefined, {numeric: true});
+                }
+            });
+        }
+        
+        return sortedItems;
+    }
+    
+    // Function to export to CSV
+    function exportToCSV() {
+        // Get current filtered/sorted items
+        const rows = Array.from(document.getElementById('stock-items-body').querySelectorAll('tr'));
+        
+        if (rows.length === 0 || (rows.length === 1 && rows[0].classList.contains('loading-row'))) {
+            showNotification('No data to export', 'error');
+            return;
+        }
+        
+        // Build CSV content
+        let csvContent = 'Item,Category,Gender,Size,Current Stock,Price,Status\n';
+        
+        rows.forEach(row => {
+            // Skip loading or empty rows
+            if (row.classList.contains('loading-row') || row.cells.length < 7) {
+                return;
+            }
+            
+            // Extract text content
+            const item = row.cells[0].textContent.trim();
+            const category = row.cells[1].textContent.trim();
+            const gender = row.cells[2].textContent.trim();
+            const size = row.cells[3].textContent.trim();
+            const stock = row.cells[4].textContent.trim();
+            const price = row.cells[5].textContent.trim();
+            
+            // Get status with class
+            const statusElement = row.cells[6].querySelector('.stock-status');
+            const status = statusElement.textContent.trim();
+            const statusClass = statusElement.classList[1];
+            
+            // Add to CSV (escape commas in fields)
+            csvContent += `"${item}","${category}","${gender}","${size}","${stock}","${price}","${status}"\n`;
+        });
+        
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `inventory_export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.display = 'none';
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification('Inventory exported to CSV', 'success');
+    }
+    
+    // Function to print inventory
+    function printInventory() {
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank');
+        
+        // Get current date and time
+        const now = new Date();
+        const dateTimeStr = now.toLocaleString();
+        
+        // Generate print content
+        const rows = Array.from(document.getElementById('stock-items-body').querySelectorAll('tr'));
+        
+        if (rows.length === 0 || (rows.length === 1 && rows[0].classList.contains('loading-row'))) {
+            showNotification('No data to print', 'error');
+            return;
+        }
+        
+        // Create HTML content
+        let printContent = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Inventory Report - ${dateTimeStr}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    h1 { text-align: center; color: #333; }
+                    .report-date { text-align: center; color: #666; margin-bottom: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    tr:nth-child(even) { background-color: #f9f9f9; }
+                    .status-in-stock { color: green; }
+                    .status-low-stock { color: orange; }
+                    .status-out-of-stock { color: red; }
+                    @media print {
+                        body { margin: 0; }
+                        h1 { margin-top: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>Inventory Report</h1>
+                <div class="report-date">Generated on: ${dateTimeStr}</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Category</th>
+                            <th>Gender</th>
+                            <th>Size</th>
+                            <th>Current Stock</th>
+                            <th>Price (₱)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        rows.forEach(row => {
+            // Skip loading or empty rows
+            if (row.classList.contains('loading-row') || row.cells.length < 7) {
+                return;
+            }
+            
+            // Extract text content
+            const item = row.cells[0].textContent.trim();
+            const category = row.cells[1].textContent.trim();
+            const gender = row.cells[2].textContent.trim();
+            const size = row.cells[3].textContent.trim();
+            const stock = row.cells[4].textContent.trim();
+            const price = row.cells[5].textContent.trim();
+            
+            // Get status with class
+            const statusElement = row.cells[6].querySelector('.stock-status');
+            const status = statusElement.textContent.trim();
+            const statusClass = statusElement.classList[1];
+            
+            printContent += `
+                <tr>
+                    <td>${item}</td>
+                    <td>${category}</td>
+                    <td>${gender}</td>
+                    <td>${size}</td>
+                    <td>${stock}</td>
+                    <td>${price}</td>
+                    <td class="${statusClass}">${status}</td>
+                </tr>
+            `;
+        });
+        
+        printContent += `
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+        
+        // Write to the print window
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        
+        // Trigger print
+        printWindow.onload = function() {
+            printWindow.print();
+        };
+    }
+    
+    // Helper function to format category names
+    function formatCategory(category) {
+        switch(category) {
+            case 'preschool': return 'Pre-School';
+            case 'elementary': return 'Elementary';
+            case 'juniorhigh': return 'Junior High';
+            case 'seniorhigh': return 'Senior High';
+            default: return category.charAt(0).toUpperCase() + category.slice(1);
+        }
+    }
+    
+    // Helper function to format gender
+    function formatGender(gender) {
+        switch(gender) {
+            case 'male': return 'Male';
+            case 'female': return 'Female';
+            case 'unisex': return 'Unisex';
+            default: return gender.charAt(0).toUpperCase() + gender.slice(1);
+        }
+    }
+    
+    // Function to edit a stock item
+    function editStockItem(stockId) {
+        // Find the stock item
+        const stockItem = allStockItems.find(item => item.id === stockId);
+        
+        if (!stockItem) {
+            showNotification('Stock item not found', 'error');
+            return;
+        }
+        
+        // Show loading notification
+        showNotification('Loading item details...', 'info');
+        
+        // Populate the edit form
+        document.getElementById('edit-stock-id').value = stockItem.id;
+        document.getElementById('edit-item-id').value = stockItem.item_id;
+        document.getElementById('edit-name').value = stockItem.name;
+        document.getElementById('edit-category').value = stockItem.category;
+        document.getElementById('edit-gender').value = stockItem.gender;
+        document.getElementById('edit-size').value = stockItem.size;
+        document.getElementById('edit-quantity').value = stockItem.quantity;
+        document.getElementById('edit-price').value = stockItem.price;
+        document.getElementById('edit-threshold').value = stockItem.threshold;
+        
+        // Show the modal
+        const modal = document.getElementById('edit-modal');
+        modal.style.display = 'block';
+        
+        // Handle cancel button
+        document.getElementById('cancel-edit').onclick = function() {
+            modal.style.display = 'none';
+        };
+        
+        // Handle close button
+        document.querySelector('.close-modal').onclick = function() {
+            modal.style.display = 'none';
+        };
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+        
+        // Handle save button
+        document.getElementById('save-edit').onclick = function() {
+            saveStockChanges();
+        };
+    }
+    
+    // Function to reduce stock quantity
+    function reduceStockItem(stockId) {
+        // Find the stock item
+        const stockItem = allStockItems.find(item => item.id === stockId);
+        
+        if (!stockItem) {
+            showNotification('Stock item not found', 'error');
+            return;
+        }
+        
+        // Check if there's stock to reduce
+        if (stockItem.quantity <= 0) {
+            showNotification('Cannot reduce stock: Item is already out of stock', 'error');
+            return;
+        }
+        
+        // Populate the reduce modal
+        document.getElementById('reduce-stock-id').value = stockItem.id;
+        document.getElementById('reduce-current-quantity').textContent = stockItem.quantity;
+        
+        // Generate a random receipt number automatically
+        generateReceiptNumber();
+        
+        // Set default reduce amount to 1
+        const reduceAmountInput = document.getElementById('reduce-amount');
+        reduceAmountInput.value = 1;
+        reduceAmountInput.max = stockItem.quantity; // Can't reduce more than current quantity
+        
+        // Show the modal
+        const modal = document.getElementById('reduce-modal');
+        modal.style.display = 'block';
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                closeReduceModal();
+            }
+        };
+        
+        // Handle confirm button
+        document.getElementById('confirm-reduce').onclick = function() {
+            confirmReduceStock();
+        };
+    }
+    
+    // Function to generate a random receipt number
+    function generateReceiptNumber() {
+        const prefix = 'RCT';
+        const timestamp = new Date().getTime().toString().slice(-6);
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        const receiptNumber = `${prefix}-${timestamp}-${random}`;
+        
+        document.getElementById('receipt-number').value = receiptNumber;
+    }
+    
+    // Function to update the new quantity display in the reduce modal
+    function updateNewQuantity() {
+        const currentQuantity = parseInt(document.getElementById('reduce-current-quantity').textContent);
+        const reduceAmount = parseInt(document.getElementById('reduce-amount').value) || 0;
+        const newQuantity = Math.max(0, currentQuantity - reduceAmount);
+        
+        document.getElementById('reduce-new-quantity').textContent = newQuantity;
+    }
+    
+    // Function to close reduce modal
+    function closeReduceModal() {
+        const modal = document.getElementById('reduce-modal');
+        modal.style.display = 'none';
+    }
+    
+    // Function to confirm stock reduction
+    function confirmReduceStock() {
+        const stockId = document.getElementById('reduce-stock-id').value;
+        const amount = parseInt(document.getElementById('reduce-amount').value);
+        
+        if (isNaN(amount) || amount <= 0) {
+            showNotification('Please enter a valid quantity', 'error');
+            return;
+        }
+        
+        // Find the stock item
+        const stockItem = allStockItems.find(item => item.id === parseInt(stockId));
+        
+        if (!stockItem) {
+            showNotification('Stock item not found', 'error');
+            return;
+        }
+        
+        if (stockItem.quantity < amount) {
+            showNotification('Not enough stock available', 'error');
+            return;
+        }
+        
+        // Show loading notification
+        showNotification('Processing reduction...', 'info');
+        
+        // Update locally first (optimistic update)
+        const originalQuantity = stockItem.quantity;
+        stockItem.quantity -= amount;
+        
+        // Update status
+        if (stockItem.quantity <= 0) {
+            stockItem.status = 'out_of_stock';
+        } else if (stockItem.quantity <= stockItem.threshold) {
+            stockItem.status = 'low_stock';
+        }
+        
+        // Update display
+        applyFilters();
+        
+        // Close modal
+        closeReduceModal();
+        
+        // Submit to server
+        fetch(`/api/stock/${stockId}/reduce`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                quantity: amount
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to reduce stock');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Reduce response:', data);
+            
+            // Play transaction sound
+            playTransactionSound();
+            
+            // Show success notification with receipt number
+            showNotification(`Stock reduced successfully. Receipt: ${data.receipt_number}`, 'success');
+        })
+        .catch(error => {
+            console.error('Error reducing stock:', error);
+            
+            // Revert local change
+            stockItem.quantity = originalQuantity;
+            
+            // Update status again
+            if (stockItem.quantity <= 0) {
+                stockItem.status = 'out_of_stock';
+            } else if (stockItem.quantity <= stockItem.threshold) {
+                stockItem.status = 'low_stock';
+            } else {
+                stockItem.status = 'in_stock';
+            }
+            
+            // Update display
+            applyFilters();
+            
+            // Show error
+            showNotification('Error: ' + error.message, 'error');
+        });
+    }
+    
+    // Function to save stock changes
+    function saveStockChanges() {
+        // Get form data
+        const stockId = document.getElementById('edit-stock-id').value;
+        const itemId = document.getElementById('edit-item-id').value;
+        const quantity = parseInt(document.getElementById('edit-quantity').value);
+        const price = parseFloat(document.getElementById('edit-price').value);
+        const threshold = parseInt(document.getElementById('edit-threshold').value);
+        
+        // Validate data
+        if (isNaN(quantity) || isNaN(price) || isNaN(threshold)) {
+            showNotification('Please fill all fields with valid values', 'error');
+            return;
+        }
+        
+        // Determine stock status based on quantity and threshold
+        let status;
+        if (quantity <= 0) {
+            status = 'out_of_stock';
+        } else if (quantity <= threshold) {
+            status = 'low_stock';
+        } else {
+            status = 'in_stock';
+        }
+        
+        // Create update data for API call
+        const updateData = {
+            quantity: quantity,
+            price: price,
+            threshold: threshold,
+            status: status
+        };
+        
+        console.log('Sending update with data:', updateData);
+        console.log('To endpoint:', `/api/stock/${stockId}`);
+        
+        // Show loading notification
+        showNotification('Saving changes...', 'info');
+        
+        // Update the item locally first (optimistic update)
+        const index = allStockItems.findIndex(item => item.id === parseInt(stockId));
+        if (index !== -1) {
+            // Store original values in case we need to revert
+            const originalValues = {
+                quantity: allStockItems[index].quantity,
+                price: allStockItems[index].price,
+                threshold: allStockItems[index].threshold,
+                status: allStockItems[index].status
+            };
+            
+            // Apply the update locally
+            allStockItems[index].quantity = quantity;
+            allStockItems[index].price = price;
+            allStockItems[index].threshold = threshold;
+            allStockItems[index].status = status;
+            
+            // Refresh display with current filters
+            applyFilters();
+            
+            // Close modal
+            document.getElementById('edit-modal').style.display = 'none';
+            
+            // Play save changes sound
+            playSaveChangesSound();
+            
+            // Show temporary success notification
+            showNotification('Item updated in view (saving to database...)', 'info');
+            
+            // Try to save to database
+        fetch(`/api/stock/${stockId}`, {
+            method: 'PUT',
+            headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    // If there's an error message in the response, try to extract it
+                    return response.text().then(text => {
+                        try {
+                            // Try to parse as JSON to get structured error
+                            const data = JSON.parse(text);
+                            throw new Error(data.message || data.error || 'Failed to update item');
+                        } catch (e) {
+                            // If not JSON or no structured error, use the text or a generic message
+                            throw new Error(text || 'Failed to update item');
+                        }
+                    });
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success response:', data);
+                // Show success notification
+                showNotification('Item successfully saved to database', 'success');
+        })
+        .catch(error => {
+                console.error('Error updating item:', error);
+                
+                // Show error notification
+                showNotification(`Error: ${error.message || 'Failed to save to database. Changes only applied locally.'}`, 'error');
+                
+                // Option to revert local changes
+                const revertOption = document.createElement('div');
+                revertOption.className = 'notification warning';
+                revertOption.innerHTML = `
+                    <div class="notification-content">
+                        <span>Would you like to revert the local changes?</span>
+                        <button id="revert-changes" class="modal-btn secondary" style="margin-left: 10px;">Revert</button>
+                        <button class="close-notification">&times;</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(revertOption);
+                
+                // Add revert functionality
+                document.getElementById('revert-changes').addEventListener('click', function() {
+                    // Revert to original values
+                    allStockItems[index].quantity = originalValues.quantity;
+                    allStockItems[index].price = originalValues.price;
+                    allStockItems[index].threshold = originalValues.threshold;
+                    allStockItems[index].status = originalValues.status;
+                    
+                    // Refresh display
+                    applyFilters();
+                    
+                    // Show notification
+                    showNotification('Changes reverted', 'info');
+                    
+                    // Remove the revert option
+                    revertOption.remove();
+                });
+                
+                // Add close button functionality
+                revertOption.querySelector('.close-notification').addEventListener('click', function() {
+                    revertOption.classList.add('fade-out');
+        setTimeout(() => {
+                        revertOption.remove();
+                    }, 500);
+                });
+            });
+        }
+    }
+
+    // Helper function to show notifications
+    function showNotification(message, type = 'info') {
+        // Remove any existing notifications first
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(n => n.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        
+        // Get the appropriate SVG icon based on notification type
+        let icon = '';
+        switch(type) {
+            case 'success':
+                icon = `<svg class="notification-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M7.5 12L10.5 15L16.5 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>`;
+                break;
+            case 'error':
+                icon = `<svg class="notification-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M15 9L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M9 9L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>`;
+                break;
+            case 'warning':
+                icon = `<svg class="notification-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 9V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 17.5V18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>`;
+                break;
+            case 'info':
+            default:
+                icon = `<svg class="notification-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M12 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7V7.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>`;
+                break;
+        }
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                ${icon}
+                <span>${message}</span>
+                <button class="close-notification">&times;</button>
+            </div>
+            <div class="notification-progress">
+                <div class="notification-progress-bar"></div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Trigger slide-in animation (needs to be done after adding to DOM)
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        // Auto-remove after 1.5 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 1500);
+        
+        // Add close button functionality
+        notification.querySelector('.close-notification').addEventListener('click', function() {
+            notification.classList.remove('show');
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        });
+        
+        return notification;
+    }
+
+    // Initialize modern dropdowns
+    function initializeModernDropdowns() {
+        // Item dropdown
+        setupModernDropdown('item-button', 'item-dropdown');
+        
+        // Category dropdown
+        setupModernDropdown('category-button', 'category-dropdown');
+        
+        // Gender dropdown
+        setupModernDropdown('gender-button', 'gender-dropdown');
+        
+        // Status dropdown
+        setupModernDropdown('status-button', 'status-dropdown');
+        
+        // Size dropdown
+        setupModernDropdown('size-button', 'size-dropdown');
+    }
+    
+    // Helper function to set up a modern dropdown
+    function setupModernDropdown(buttonId, dropdownId) {
+        const button = document.getElementById(buttonId);
+        const dropdown = document.getElementById(dropdownId);
+        
+        // Remove existing click listener to prevent duplicates
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        // Get the new button and label element references
+        const updatedButton = document.getElementById(buttonId);
+        const labelElement = updatedButton.querySelector('.label');
+        
+        // Set button value property to track current selection
+        updatedButton.value = 'all';
+        
+        // Toggle dropdown when button is clicked
+        updatedButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Close any other open dropdowns first
+            document.querySelectorAll('.modern-dropdown.open').forEach(openDropdown => {
+                if (openDropdown.id !== dropdownId) {
+                    openDropdown.classList.remove('open');
+                    document.getElementById(openDropdown.id.replace('dropdown', 'button')).classList.remove('open');
+                }
+            });
+            
+            // Toggle this dropdown
+            dropdown.classList.toggle('open');
+            updatedButton.classList.toggle('open');
+        });
+        
+        // Set up item selection
+        const items = dropdown.querySelectorAll('.modern-dropdown-item');
+        items.forEach(item => {
+            item.addEventListener('click', function() {
+                // Update button value and label
+                const value = this.getAttribute('data-value');
+                updatedButton.value = value;
+                
+                // Update the label
+                labelElement.textContent = this.textContent.trim();
+                
+                // Update selected state
+                items.forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // Close dropdown
+                dropdown.classList.remove('open');
+                updatedButton.classList.remove('open');
+                
+                // Special handling for category dropdown - update item dropdown when category changes
+                if (buttonId === 'category-button') {
+                    populateItemDropdown(value);
+                    
+                    // Reset item filter when category changes
+                    const itemButton = document.getElementById('item-button');
+                    if (itemButton) {
+                        itemButton.value = 'all';
+                        itemButton.querySelector('.label').textContent = 'Item';
+                        document.querySelectorAll('#item-dropdown .modern-dropdown-item').forEach(item => {
+                            item.classList.remove('selected');
+                            if (item.getAttribute('data-value') === 'all') {
+                                item.classList.add('selected');
+                            }
+                        });
+                    }
+                }
+                
+                // Special handling for gender dropdown - update item dropdown when gender changes
+                if (buttonId === 'gender-button') {
+                    const categoryValue = document.getElementById('category-button').value;
+                    if (categoryValue !== 'all') {
+                        populateItemDropdown(categoryValue);
+                        
+                        // Reset item filter when gender changes
+                        const itemButton = document.getElementById('item-button');
+                        if (itemButton) {
+                            itemButton.value = 'all';
+                            itemButton.querySelector('.label').textContent = 'Item';
+                            document.querySelectorAll('#item-dropdown .modern-dropdown-item').forEach(item => {
+                                item.classList.remove('selected');
+                                if (item.getAttribute('data-value') === 'all') {
+                                    item.classList.add('selected');
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                // Trigger filtering
+                applyFilters();
+            });
+        });
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.modern-select-container')) {
+            document.querySelectorAll('.modern-dropdown.open').forEach(dropdown => {
+                dropdown.classList.remove('open');
+                document.getElementById(dropdown.id.replace('dropdown', 'button')).classList.remove('open');
+            });
+        }
+    });
+    
+    // Helper function to get filtered items based on current filter settings
+    function getFilteredItems() {
+        const itemFilter = document.getElementById('item-button').value;
+        const categoryFilter = document.getElementById('category-button').value;
+        const genderFilter = document.getElementById('gender-button').value;
+        const statusFilter = document.getElementById('status-button').value;
+        
+        let filteredItems = [...allStockItems];
+        
+        if (itemFilter !== 'all') {
+            filteredItems = filteredItems.filter(item => {
+                // Exact name matching for item names
+                return item.name === itemFilter;
+            });
+        }
+        
+        if (categoryFilter !== 'all') {
+            filteredItems = filteredItems.filter(item => {
+                // Case-insensitive matching
+                return item.category.toLowerCase() === categoryFilter.toLowerCase();
+            });
+        }
+        
+        if (genderFilter !== 'all') {
+            filteredItems = filteredItems.filter(item => {
+                // Case-insensitive matching
+                return item.gender.toLowerCase() === genderFilter.toLowerCase();
+            });
+        }
+        
+        if (statusFilter !== 'all') {
+            filteredItems = filteredItems.filter(item => {
+                return item.status === statusFilter;
+            });
+        }
+        
+        return filteredItems;
+    }
+    
+    // Function to handle the filter reset
+    function resetFilters() {
+        // Hide the item dropdown
+        document.querySelector('.modern-select-container.item-container').style.display = 'none';
+
+        // Reset item dropdown
+        const itemButton = document.getElementById('item-button');
+        itemButton.value = 'all';
+        itemButton.querySelector('.label').textContent = 'Item';
+        document.querySelectorAll('#item-dropdown .modern-dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+            if (item.getAttribute('data-value') === 'all') {
+                item.classList.add('selected');
+            }
+        });
+        
+        // Reset category dropdown
+        const categoryButton = document.getElementById('category-button');
+        categoryButton.value = 'all';
+        categoryButton.querySelector('.label').textContent = 'All Categories';
+        document.querySelectorAll('#category-dropdown .modern-dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+            if (item.getAttribute('data-value') === 'all') {
+                item.classList.add('selected');
+            }
+        });
+        
+        // Reset gender dropdown
+        const genderButton = document.getElementById('gender-button');
+        genderButton.value = 'all';
+        genderButton.querySelector('.label').textContent = 'All Genders';
+        document.querySelectorAll('#gender-dropdown .modern-dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+            if (item.getAttribute('data-value') === 'all') {
+                item.classList.add('selected');
+            }
+        });
+        
+        // Reset status dropdown
+        const statusButton = document.getElementById('status-button');
+        statusButton.value = 'all';
+        statusButton.querySelector('.label').textContent = 'All Status';
+        document.querySelectorAll('#status-dropdown .modern-dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+            if (item.getAttribute('data-value') === 'all') {
+                item.classList.add('selected');
+            }
+        });
+        
+        // Reset size sorting
+        const sizeButton = document.getElementById('size-button');
+        sizeButton.value = 'none';
+        sizeButton.querySelector('.label').textContent = 'Size';
+        document.querySelectorAll('#size-dropdown .modern-dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+            if (item.getAttribute('data-value') === 'none') {
+                item.classList.add('selected');
+            }
+        });
+        
+        // Display all stock items
+        displayInventoryItems(allStockItems);
+        
+        showNotification('Filters reset successfully', 'success');
+    }
+
+    // Function to play confirmation sound
+    function playConfirmationSound() {
+        // Check if audio is muted
+        if (localStorage.getItem('soundMuted') === 'true') {
+            console.log('Sound muted, not playing confirmation sound');
+            return;
+        }
+        
+        // Create an audio element
+        const audio = new Audio('/static/sounds/confirm.mp3');
+        
+        // Play the sound
+        audio.play().catch(error => {
+            console.log('Error playing sound:', error);
+        });
+    }
+
+    // Function to play save changes sound
+    function playSaveChangesSound() {
+        // Check if audio is muted
+        if (localStorage.getItem('soundMuted') === 'true') {
+            console.log('Sound muted, not playing save changes sound');
+            return;
+        }
+        
+        // Create an audio element
+        const audio = new Audio('/static/sounds/savechanges.mp3');
+        
+        // Play the sound
+        audio.play().catch(error => {
+            console.log('Error playing sound:', error);
+        });
+    }
+
+    // Function to play transaction sound
+    function playTransactionSound() {
+        // Check if audio is muted
+        if (localStorage.getItem('soundMuted') === 'true') {
+            console.log('Sound muted, not playing transaction sound');
+            return;
+        }
+        
+        // Create an audio element
+        const audio = new Audio('/static/sounds/transaction.mp3');
+        
+        // Play the sound
+        audio.play().catch(error => {
+            console.log('Error playing sound:', error);
+        });
+    }
+
+    // Function to load transactions
+    function loadTransactions() {
+        console.log("Loading transaction history...");
+        
+        // Show loading state
+        document.getElementById('transactions-body').innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 30px;">
+                    <div class="loading-spinner"></div>
+                    <p>Loading transaction history...</p>
+                </td>
+            </tr>
+        `;
+        
+        // Hide no results message
+        document.getElementById('no-transactions').style.display = 'none';
+        
+        // Fetch all transactions
+        let url = '/api/transactions';
+        
+        // Fetch transactions from API
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                displayTransactions(data);
+                
+                // Initialize the collapse functionality
+                initializeTransactionCollapseFunctionality();
+            })
+            .catch(error => {
+                console.error('Error loading transactions:', error);
+                document.getElementById('transactions-body').innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 30px; color: #d9534f;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                            <p>Error loading transactions. Please try again.</p>
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+    
+    // Function to display transactions
+    function displayTransactions(transactions) {
+        const tbody = document.getElementById('transactions-body');
+        
+        // Filter out adjustment transactions
+        const filteredTransactions = transactions.filter(transaction => transaction.transaction_type !== 'adjustment');
+        
+        // Show no results message if no transactions
+        if (filteredTransactions.length === 0) {
+            tbody.innerHTML = '';
+            document.getElementById('no-transactions').style.display = 'block';
+            return;
+        }
+        
+        // Hide no results message
+        document.getElementById('no-transactions').style.display = 'none';
+        
+        // Group transactions by date
+        const groupedByDate = {};
+        
+        // Get today's date in Philippine time
+        const phtDateFormatter = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            timeZone: 'Asia/Manila'
+        });
+        
+        const today = phtDateFormatter.format(new Date());
+        
+        filteredTransactions.forEach(transaction => {
+            // Parse the ISO string carefully
+            let dateTime;
+            try {
+                // Log the raw timestamp for debugging
+                console.log('Raw timestamp:', transaction.created_at);
+                
+                // Ensure we have a valid ISO string
+                dateTime = new Date(transaction.created_at);
+                
+                // Check if date is valid
+                if (isNaN(dateTime.getTime())) {
+                    console.error('Invalid date created from:', transaction.created_at);
+                    // Fallback to current date if invalid
+                    dateTime = new Date();
+                }
+            } catch (e) {
+                console.error('Error parsing date:', e);
+                dateTime = new Date();
+            }
+            
+            // Format date in Philippine time
+            const formattedDate = phtDateFormatter.format(dateTime);
+            
+            if (!groupedByDate[formattedDate]) {
+                groupedByDate[formattedDate] = [];
+            }
+            
+            groupedByDate[formattedDate].push(transaction);
+        });
+        
+        // Generate HTML
+        let html = '';
+        
+        // Sort dates in descending order (newest first)
+        const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
+            return new Date(b) - new Date(a);
+        });
+        
+        sortedDates.forEach(date => {
+            const transactions = groupedByDate[date];
+            const isToday = date === today;
+            
+            // Instead of checking for a specific date, set all to collapsed by default
+            // const isMarch22 = date === "03/22/2025";
+            const isMarch22 = true; // This makes all dates collapsed by default
+            
+            // Create date header row
+            html += `
+                <tr class="date-header-row">
+                    <td colspan="9" class="date-header">
+                        <div class="date-header-content">
+                            <button class="date-collapse-btn" data-date="${date}">
+                                <i class="fas ${isMarch22 ? 'fa-plus' : 'fa-minus'}"></i>
+                            </button>
+                            <span class="date-label">${date}</span>
+                            <span class="transaction-count">(${transactions.length} transactions)</span>
+                            ${isToday ? '<span class="today-badge">TODAY</span>' : ''}
+                        </div>
+                    </td>
+                </tr>
+                <tr class="transaction-header-row ${isMarch22 ? 'collapsed' : ''}" data-date="${date}" style="${isMarch22 ? 'display: none;' : ''}">
+                    <th>TIME</th>
+                    <th>ITEM</th>
+                    <th>CATEGORY</th>
+                    <th>SIZE</th>
+                    <th>QUANTITY</th>
+                    <th>RECEIPT</th>
+                </tr>
+            `;
+            
+            // Transaction rows for this date (initially hidden for March 22)
+            const transactionsHtml = transactions.map(transaction => {
+                // Parse the ISO string carefully
+                let dateTime;
+                try {
+                    // Ensure we have a valid ISO string
+                    dateTime = new Date(transaction.created_at);
+                    
+                    // Check if date is valid
+                    if (isNaN(dateTime.getTime())) {
+                        console.error('Invalid date created from:', transaction.created_at);
+                        // Fallback to current date if invalid
+                        dateTime = new Date();
+                    }
+                } catch (e) {
+                    console.error('Error parsing date:', e);
+                    dateTime = new Date();
+                }
+                
+                // Manually adjust to Philippine time (UTC+8)
+                // First create a formatter that specifies the timezone
+                let phtFormatter = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Manila'
+                });
+                
+                // Format the time using the Philippines timezone
+                const formattedTime = phtFormatter.format(dateTime);
+                
+                // Log for debugging
+                console.log(`Original time: ${dateTime.toISOString()}, PHT: ${formattedTime}`);
+                
+            // Format category name
+            const categoryFormatted = formatCategory(transaction.category);
+                
+                // Format price - Calculate total price (price * quantity_change)
+                const totalPrice = transaction.price * Math.abs(transaction.quantity_change);
+                const formattedPrice = `₱${totalPrice.toFixed(2)}`;
+            
+            // Format transaction type
+            let typeLabel = '';
+            let typeClass = '';
+            
+            switch(transaction.transaction_type) {
+                case 'sell':
+                    typeLabel = 'Sale';
+                    typeClass = 'transaction-sell';
+                    break;
+                case 'reduce':
+                    typeLabel = 'Reduction';
+                    typeClass = 'transaction-reduce';
+                    break;
+                default:
+                    typeLabel = transaction.transaction_type;
+                    typeClass = '';
+            }
+            
+            // Format quantity (show as positive number with sign)
+            const quantityFormatted = transaction.quantity_change < 0 
+                ? `<span class="negative">-${Math.abs(transaction.quantity_change)}</span>` 
+                : `<span class="positive">+${transaction.quantity_change}</span>`;
+            
+            // Receipt display
+            const receiptDisplay = transaction.receipt_number 
+                ? `<span class="receipt-number">${transaction.receipt_number}</span>` 
+                : '-';
+            
+                return `
+                    <tr class="transaction-row ${isMarch22 ? 'collapsed' : ''}" data-date="${date}" style="${isMarch22 ? 'display: none;' : ''}">
+                        <td>
+                            <div class="time-display">${formattedTime}</div>
+                        </td>
+                        <td>${transaction.item_name}</td>
+                        <td>${categoryFormatted}</td>
+                        <td>${transaction.size}</td>
+                        <td>${formattedPrice}</td>
+                        <td>${quantityFormatted}</td>
+                        <td>${receiptDisplay}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            html += transactionsHtml;
+        });
+        
+        tbody.innerHTML = html;
+    }
+
+    // Function to load stock reports
+    function loadStockReports() {
+        console.log("Loading stock reports...");
+        
+        // Show loading state
+        document.getElementById('stock-reports-body').innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 30px;">
+                    <div class="loading-spinner"></div>
+                    <p>Loading stock reports...</p>
+                </td>
+            </tr>
+        `;
+        
+        // Hide no results message
+        document.getElementById('no-stock-reports').style.display = 'none';
+        
+        // Fetch stock transactions from API
+        fetch('/api/transactions')
+            .then(response => response.json())
+            .then(transactions => {
+                console.log(`Received ${transactions.length} transactions`);
+                
+                // Store globally for filtering
+                allStockReports = [...transactions];
+                
+                // Display the transactions
+                displayStockReports(transactions);
+                
+                // Initialize the collapse functionality
+                initializeReportCollapseFunctionality();
+                
+                // Remove search functionality - no longer needed
+                // setupStockReportSearch();
+            })
+            .catch(error => {
+                console.error('Error loading stock reports:', error);
+                document.getElementById('stock-reports-body').innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 30px; color: #d9534f;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                            <p>Error loading stock reports. Please try again.</p>
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+    
+    // Global variable to store all loaded stock reports
+    let allStockReports = [];
+    
+    // Function to display stock reports
+    function displayStockReports(transactions) {
+        const tbody = document.getElementById('stock-reports-body');
+        
+        // Filter to keep only adjustment transactions with positive quantity changes (additions) only
+        const filteredTransactions = transactions.filter(transaction => 
+            transaction.transaction_type === 'adjustment' && transaction.quantity_change > 0
+        );
+        
+        // Show no results message if no transactions
+        if (filteredTransactions.length === 0) {
+            tbody.innerHTML = '';
+            document.getElementById('no-stock-reports').style.display = 'block';
+            return;
+        }
+        
+        // Hide no results message
+        document.getElementById('no-stock-reports').style.display = 'none';
+        
+        // Group transactions by date
+        const groupedByDate = {};
+        
+        // Get today's date in Philippine time
+        const phtDateFormatter = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            timeZone: 'Asia/Manila'
+        });
+        
+        const today = phtDateFormatter.format(new Date());
+        
+        filteredTransactions.forEach(transaction => {
+            // Parse the ISO string carefully
+            let dateTime;
+            try {
+                // Ensure we have a valid ISO string
+                dateTime = new Date(transaction.created_at);
+                
+                // Check if date is valid
+                if (isNaN(dateTime.getTime())) {
+                    console.error('Invalid date created from:', transaction.created_at);
+                    // Fallback to current date if invalid
+                    dateTime = new Date();
+                }
+            } catch (e) {
+                console.error('Error parsing date:', e);
+                dateTime = new Date();
+            }
+            
+            // Format date in Philippine time
+            const formattedDate = phtDateFormatter.format(dateTime);
+            
+            if (!groupedByDate[formattedDate]) {
+                groupedByDate[formattedDate] = [];
+            }
+            
+            groupedByDate[formattedDate].push(transaction);
+        });
+        
+        // Generate HTML
+        let html = '';
+        
+        // Sort dates in descending order (newest first)
+        const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
+            return new Date(b) - new Date(a);
+        });
+        
+        sortedDates.forEach(date => {
+            const transactions = groupedByDate[date];
+            const isToday = date === today;
+            
+            // Create date header row with collapsed state by default
+            html += `
+                <tr class="date-header-row">
+                    <td colspan="8" class="date-header">
+                        <div class="date-header-content">
+                            <button class="date-collapse-btn" data-date="${date}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <span class="date-label">${date}</span>
+                            <span class="transaction-count">(${transactions.length} additions)</span>
+                            ${isToday ? '<span class="today-badge">TODAY</span>' : ''}
+                        </div>
+                    </td>
+                </tr>
+                <tr class="transaction-header-row collapsed" data-date="${date}" style="display: none;">
+                    <th>TIME</th>
+                    <th>ITEM</th>
+                    <th>CATEGORY</th>
+                    <th>SIZE</th>
+                    <th>QUANTITY</th>
+                </tr>
+            `;
+            
+            // Transaction rows for this date (start collapsed)
+            const transactionsHtml = transactions.map(transaction => {
+                // Parse the ISO string carefully
+                let dateTime;
+                try {
+                    // Ensure we have a valid ISO string
+                    dateTime = new Date(transaction.created_at);
+                    
+                    // Check if date is valid
+                    if (isNaN(dateTime.getTime())) {
+                        console.error('Invalid date created from:', transaction.created_at);
+                        // Fallback to current date if invalid
+                        dateTime = new Date();
+                    }
+                } catch (e) {
+                    console.error('Error parsing date:', e);
+                    dateTime = new Date();
+                }
+                
+                // Manually adjust to Philippine time (UTC+8)
+                // First create a formatter that specifies the timezone
+                let phtFormatter = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Manila'
+                });
+                
+                // Format the time using the Philippines timezone
+                const formattedTime = phtFormatter.format(dateTime);
+                
+                // Format category name
+                const categoryFormatted = formatCategory(transaction.category);
+                
+                // Format price
+                const formattedPrice = `₱${transaction.price.toFixed(2)}`;
+                
+                // Format quantity (show as positive number with sign)
+                const quantityFormatted = transaction.quantity_change < 0 
+                    ? `<span class="negative">-${Math.abs(transaction.quantity_change)}</span>` 
+                    : `<span class="positive">+${transaction.quantity_change}</span>`;
+                
+                // Notes display
+                const notesDisplay = transaction.notes 
+                    ? `<span class="notes-display" title="${transaction.notes}">${transaction.notes}</span>` 
+                    : '-';
+                
+                return `
+                    <tr class="transaction-row collapsed" data-date="${date}" style="display: none;">
+                        <td>
+                            <div class="time-display">${formattedTime}</div>
+                        </td>
+                        <td>${transaction.item_name}</td>
+                        <td>${categoryFormatted}</td>
+                        <td>${transaction.size}</td>
+                        <td>${formattedPrice}</td>
+                        <td>${quantityFormatted}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            html += transactionsHtml;
+        });
+        
+        tbody.innerHTML = html;
+    }
+    
+    // Function to setup stock report filters
+    function setupStockReportFilters() {
+        // Search functionality
+        const searchInput = document.getElementById('stock-report-search');
+        const searchBtn = document.getElementById('stock-report-search-btn');
+        
+        searchBtn.addEventListener('click', function() {
+            filterStockReports();
+        });
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterStockReports();
+            }
+        });
+    }
+    
+    // Function to filter stock reports based on search
+    function filterStockReports() {
+        const searchTerm = document.getElementById('stock-report-search').value.toLowerCase().trim();
+        
+        // Store the search term in localStorage to persist between tab changes
+        localStorage.setItem('stockReportSearchTerm', searchTerm);
+        
+        let filteredReports = [...allStockReports];
+        
+        // Apply search filter if search term exists
+        if (searchTerm) {
+            filteredReports = filteredReports.filter(report => 
+                report.item_name.toLowerCase().includes(searchTerm) || 
+                report.category.toLowerCase().includes(searchTerm) ||
+                report.size.toString().toLowerCase().includes(searchTerm) ||
+                (report.notes && report.notes.toLowerCase().includes(searchTerm))
+            );
+            
+            // Show feedback notification
+            if (filteredReports.length === 0) {
+                showNotification(`No results found for "${searchTerm}"`, 'info');
+            } else {
+                showNotification(`Found ${filteredReports.length} result(s) for "${searchTerm}"`, 'success');
+            }
+        } else {
+            // If search is cleared, just show all reports
+            showNotification('Showing all stock reports', 'info');
+        }
+        
+        // Display filtered reports
+        displayStockReports(filteredReports);
+    }
+    
+    // Setup debounce function for search to avoid excessive filtering
+    let searchTimeout = null;
+    function setupStockReportSearch() {
+        const searchInput = document.getElementById('stock-report-search');
+        const searchBtn = document.getElementById('stock-report-search-btn');
+        const clearBtn = document.getElementById('stock-report-search-clear');
+        
+        // Restore previous search term if exists
+        const savedSearchTerm = localStorage.getItem('stockReportSearchTerm') || '';
+        if (savedSearchTerm) {
+            searchInput.value = savedSearchTerm;
+            clearBtn.style.display = 'block';
+            searchInput.style.borderColor = 'var(--primary-blue)';
+            // Apply the filter with the saved term
+            filterStockReports();
+        }
+        
+        // Show/hide clear button based on input content
+        searchInput.addEventListener('input', function() {
+            clearBtn.style.display = this.value.length > 0 ? 'block' : 'none';
+            
+            // Add blue border when typing
+            this.style.borderColor = this.value.length > 0 ? 'var(--primary-blue)' : '#ccc';
+            
+            // Debounce the search for better performance
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterStockReports();
+            }, 300); // Wait 300ms before applying filter
+        });
+        
+        // Clear search when X button is clicked
+        clearBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            searchInput.style.borderColor = '#ccc';
+            clearBtn.style.display = 'none';
+            filterStockReports(); // Reset search results
+            searchInput.focus(); // Keep focus on the input
+        });
+        
+        searchBtn.addEventListener('click', function() {
+            filterStockReports();
+        });
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterStockReports();
+            }
+        });
+    }
+    
+    // Function to reset stock report filters
+    function resetStockReportFilters() {
+        // Display all stock reports
+        displayStockReports(allStockReports);
+        
+        showNotification('Filters reset successfully', 'success');
+    }
+
+    // Initialize collapse buttons functionality
+    function initializeReportCollapseFunctionality() {
+        console.log("Initializing report collapse functionality");
+        
+        // First, remove any existing event listeners
+        const oldElement = document.getElementById('stock-reports-body');
+        const newElement = oldElement.cloneNode(true);
+        oldElement.parentNode.replaceChild(newElement, oldElement);
+        
+        // Event delegation for collapse buttons
+        document.getElementById('stock-reports-body').addEventListener('click', function(e) {
+            // Check if the clicked element is a collapse button or its icon
+            let button = e.target.closest('.date-collapse-btn');
+            
+            // If target is the icon itself, get the parent button
+            if (!button && e.target.tagName === 'I' && e.target.parentElement.classList.contains('date-collapse-btn')) {
+                button = e.target.parentElement;
+            }
+            
+            if (!button) return;
+            
+            console.log("Collapse button clicked");
+            const date = button.getAttribute('data-date');
+            const icon = button.querySelector('i');
+            const isCollapsed = icon.classList.contains('fa-plus');
+            
+            console.log(`Toggle rows for date ${date}, currently collapsed: ${!isCollapsed}`);
+            
+            // Toggle icon
+            if (isCollapsed) {
+                icon.classList.replace('fa-plus', 'fa-minus');
+            } else {
+                icon.classList.replace('fa-minus', 'fa-plus');
+            }
+            
+            // Toggle visibility of all transaction rows and header row for this date
+            const rows = document.querySelectorAll(`#stock-reports-body .transaction-row[data-date="${date}"], #stock-reports-body .transaction-header-row[data-date="${date}"]`);
+            console.log(`Found ${rows.length} rows to toggle`);
+            
+            rows.forEach(row => {
+                if (isCollapsed) {
+                    // Expanding - show row
+                    row.style.display = 'table-row';
+                    row.classList.remove('collapsed');
+                } else {
+                    // Collapsing - hide row
+                    row.style.display = 'none';
+                    row.classList.add('collapsed');
+                }
+            });
+        });
+    }
+    
+    // Function to load stock reports
+    function loadStockReports() {
+        // ... existing code ...
+        
+        // Fetch stock transactions from API
+        fetch('/api/transactions')
+            .then(response => response.json())
+            .then(transactions => {
+                // Store globally for filtering
+                allStockReports = [...transactions];
+                
+                // Display the transactions
+                displayStockReports(transactions);
+                
+                // Initialize the collapse functionality after reports are displayed
+                initializeReportCollapseFunctionality();
+                
+                // ... existing code ...
+            })
+            .catch(error => {
+                // ... existing code ...
+            });
+    }
+
+    // Remove the duplicate event listener
+    // After document is loaded, add event listeners for date header collapse/expand
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... existing code ...
+        // DELETE THE DUPLICATE EVENT LISTENER WE ADDED HERE
+    });
+
+    // Initialize collapse buttons functionality for transactions
+    function initializeTransactionCollapseFunctionality() {
+        console.log("Initializing transaction collapse functionality");
+        
+        // First, remove any existing event listeners
+        const oldElement = document.getElementById('transactions-body');
+        const newElement = oldElement.cloneNode(true);
+        oldElement.parentNode.replaceChild(newElement, oldElement);
+        
+        // Event delegation for collapse buttons
+        document.getElementById('transactions-body').addEventListener('click', function(e) {
+            // Check if the clicked element is a collapse button or its icon
+            let button = e.target.closest('.date-collapse-btn');
+            
+            // If target is the icon itself, get the parent button
+            if (!button && e.target.tagName === 'I' && e.target.parentElement.classList.contains('date-collapse-btn')) {
+                button = e.target.parentElement;
+            }
+            
+            if (!button) return;
+            
+            console.log("Transaction collapse button clicked");
+            const date = button.getAttribute('data-date');
+            const icon = button.querySelector('i');
+            const isCollapsed = icon.classList.contains('fa-plus');
+            
+            // Toggle icon
+            if (isCollapsed) {
+                icon.classList.replace('fa-plus', 'fa-minus');
+            } else {
+                icon.classList.replace('fa-minus', 'fa-plus');
+            }
+            
+            // Toggle visibility of all transaction rows and header row for this date
+            const rows = document.querySelectorAll(`#transactions-body .transaction-row[data-date="${date}"], #transactions-body .transaction-header-row[data-date="${date}"]`);
+            
+            rows.forEach(row => {
+                if (isCollapsed) {
+                    // Expanding - show row
+                    row.style.display = 'table-row';
+                    row.classList.remove('collapsed');
+                } else {
+                    // Collapsing - hide row
+                    row.style.display = 'none';
+                    row.classList.add('collapsed');
+                }
+            });
+        });
+    }
+
+    // Function to populate item dropdown based on selected category and gender
+    function populateItemDropdown(categoryValue) {
+        // Show item dropdown container when a specific category is selected
+        const itemContainer = document.querySelector('.modern-select-container.item-container');
+        const itemDropdown = document.getElementById('item-dropdown');
+        const itemButton = document.getElementById('item-button');
+        const genderFilter = document.getElementById('gender-button').value;
+        
+        // Clear current items
+        itemDropdown.innerHTML = '';
+        
+        // Always add the "All Items" option first
+        const allItemsOption = document.createElement('div');
+        allItemsOption.className = 'modern-dropdown-item selected';
+        allItemsOption.setAttribute('data-value', 'all');
+        allItemsOption.innerHTML = '<i class="fas fa-list"></i>All Items';
+        itemDropdown.appendChild(allItemsOption);
+        
+        // Reset button label
+        itemButton.querySelector('.label').textContent = 'Item';
+        itemButton.value = 'all';
+        
+        // If "All Categories" is selected, hide the item dropdown
+        if (categoryValue === 'all') {
+            itemContainer.style.display = 'none';
+            return;
+        }
+        
+        // Otherwise, show the item dropdown
+        itemContainer.style.display = 'block';
+        
+        // Filter items by selected category and gender (if specified)
+        let filteredItems = allStockItems.filter(item => 
+            item.category.toLowerCase() === categoryValue.toLowerCase() &&
+            (genderFilter === 'all' || item.gender.toLowerCase() === genderFilter.toLowerCase())
+        );
+        
+        // Get unique item names
+        const uniqueItemNames = [...new Set(filteredItems.map(item => item.name))];
+        
+        // Sort alphabetically
+        uniqueItemNames.sort();
+        
+        // Add item options to dropdown
+        uniqueItemNames.forEach(itemName => {
+            const option = document.createElement('div');
+            option.className = 'modern-dropdown-item';
+            option.setAttribute('data-value', itemName);
+            option.innerHTML = `<i class="fas fa-tshirt"></i>${itemName}`;
+            itemDropdown.appendChild(option);
+            
+            // Add click handler for this new item
+            option.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                
+                // Update button value and label
+                itemButton.value = value;
+                itemButton.querySelector('.label').textContent = this.textContent.trim();
+                
+                // Update selected state
+                itemDropdown.querySelectorAll('.modern-dropdown-item').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // Close dropdown
+                itemDropdown.classList.remove('open');
+                itemButton.classList.remove('open');
+                
+                // Apply filters
+                applyFilters();
+            });
+        });
+    }
+
+    // Function to toggle sound mute
+    function toggleMute() {
+        const muteToggle = document.getElementById('mute-toggle');
+        const soundIcon = document.getElementById('sound-icon');
+        
+        // Check current state
+        const isMuted = localStorage.getItem('soundMuted') === 'true';
+        
+        if (isMuted) {
+            // Unmute
+            localStorage.setItem('soundMuted', 'false');
+            muteToggle.classList.remove('muted');
+            soundIcon.className = 'fas fa-volume-up';
+            showNotification('Sound notifications enabled', 'info');
+        } else {
+            // Mute
+            localStorage.setItem('soundMuted', 'true');
+            muteToggle.classList.add('muted');
+            soundIcon.className = 'fas fa-volume-mute';
+            showNotification('Sound notifications muted', 'info');
+        }
+    }
+    
+    // Initialize mute button state on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const muteToggle = document.getElementById('mute-toggle');
+        const soundIcon = document.getElementById('sound-icon');
+        
+        // Check if mute preference is saved
+        const isMuted = localStorage.getItem('soundMuted') === 'true';
+        
+        if (isMuted) {
+            muteToggle.classList.add('muted');
+            soundIcon.className = 'fas fa-volume-mute';
+        } else {
+            muteToggle.classList.remove('muted');
+            soundIcon.className = 'fas fa-volume-up';
+        }
+    });
+
+    // 3D card rotation effect for info cards
+    function rotateInfoCard(e) {
+        const card = e.currentTarget;
+        const cardRect = card.getBoundingClientRect();
+        const cardCenterX = cardRect.left + cardRect.width / 2;
+        const cardCenterY = cardRect.top + cardRect.height / 2;
+        
+        // Calculate distance from mouse to center of card
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        const distanceX = mouseX - cardCenterX;
+        const distanceY = mouseY - cardCenterY;
+        
+        // Calculate rotation angle (max 2 degrees)
+        const rotateY = -2 * distanceX / (cardRect.width / 2);
+        const rotateX = 2 * distanceY / (cardRect.height / 2);
+        
+        // Apply transform to the card
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+        
+        // Move icon slightly in response to mouse movement
+        const icon = card.querySelector('.icon-container');
+        if (icon) {
+            const moveX = distanceX * 0.01; // Reduced movement by half
+            const moveY = distanceY * 0.01; // Reduced movement by half
+            icon.style.transform = `translateZ(15px) translateX(${moveX}px) translateY(${moveY}px) scale(1.05)`;
+        }
+        
+        // Animate shapes
+        const shapes = card.querySelectorAll('.shape');
+        if (shapes.length > 0) {
+            const shape1 = shapes[0];
+            const shape2 = shapes.length > 1 ? shapes[1] : null;
+            
+            // Move shapes in opposite directions based on mouse position
+            const shapeMove1X = distanceX * -0.015; // Reduced movement by half
+            const shapeMove1Y = distanceY * -0.015; // Reduced movement by half
+            shape1.style.transform = `translateZ(5px) translateX(${shapeMove1X}px) translateY(${shapeMove1Y}px)`;
+            
+            if (shape2) {
+                const shapeMove2X = distanceX * 0.01; // Reduced movement by half
+                const shapeMove2Y = distanceY * 0.01; // Reduced movement by half
+                shape2.style.transform = `translateZ(10px) translateX(${shapeMove2X}px) translateY(${shapeMove2Y}px)`;
+            }
+        }
+    }
+
+    function resetInfoCard(e) {
+        const card = e.currentTarget;
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+        
+        // Reset icon position
+        const icon = card.querySelector('.icon-container');
+        if (icon) {
+            icon.style.transform = 'translateZ(0) translateX(0) translateY(0)';
+        }
+        
+        // Reset shapes
+        const shapes = card.querySelectorAll('.shape');
+        shapes.forEach(shape => {
+            shape.style.transform = 'translateZ(0) translateX(0) translateY(0)';
+        });
+    }
+</script>
+{% endblock %} 

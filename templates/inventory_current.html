@@ -1,0 +1,1118 @@
+{% extends "home.html" %}
+
+{% block content %}
+<div class="inventory-container">
+    <!-- Header Section -->
+    <div class="inventory-header">
+        <h1>Uniform Inventory Management</h1>
+        <p>Manage and track uniform stocks across different educational levels. Select a category below to view and manage specific uniform items.</p>
+        <div class="font-size-controls">
+            <button class="font-control-btn" onclick="decreaseFontSize()">A-</button>
+            <button class="font-control-btn" onclick="resetFontSize()">Reset</button>
+            <button class="font-control-btn" onclick="increaseFontSize()">A+</button>
+            </div>
+        {% if is_admin %}
+        <div class="admin-access">
+            <a href="{{ url_for('admin_inventory') }}" class="admin-link">
+                <i class="fas fa-cog"></i> Admin Panel
+            </a>
+        </div>
+        {% endif %}
+    </div>
+        
+    <!-- Category Navigation -->
+    <div class="category-nav">
+        <div class="category-buttons">
+            <!-- Pre-School Dropdown -->
+            <div class="category-dropdown">
+                <button class="category-btn" data-category="preschool" onclick="toggleDropdown('preschool-dropdown')">
+                    <i class="fas fa-child"></i>
+                    Pre-School Items
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+            </button>
+                <div class="dropdown-menu" id="preschool-dropdown">
+                    <button class="dropdown-item" onclick="selectGender('preschool', 'male')">
+                        <i class="fas fa-male"></i> Male Items
+                    </button>
+                    <button class="dropdown-item" onclick="selectGender('preschool', 'female')">
+                        <i class="fas fa-female"></i> Female Items
+                    </button>
+                    <button class="dropdown-item" onclick="selectGender('preschool', 'both')">
+                        <i class="fas fa-venus-mars"></i> Both Gender
+                    </button>
+                </div>
+    </div>
+
+            <!-- Elementary Dropdown -->
+            <div class="category-dropdown">
+                <button class="category-btn" data-category="elementary" onclick="toggleDropdown('elementary-dropdown')">
+                    <i class="fas fa-school"></i>
+                    Elementary Items
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </button>
+                <div class="dropdown-menu" id="elementary-dropdown">
+                    <button class="dropdown-item" onclick="selectGender('elementary', 'male')">
+                        <i class="fas fa-male"></i> Male Items
+                            </button>
+                    <button class="dropdown-item" onclick="selectGender('elementary', 'female')">
+                        <i class="fas fa-female"></i> Female Items
+                            </button>
+                    <button class="dropdown-item" onclick="selectGender('elementary', 'both')">
+                        <i class="fas fa-venus-mars"></i> Both Gender
+                    </button>
+                    </div>
+                </div>
+                
+            <!-- Junior High Dropdown -->
+            <div class="category-dropdown">
+                <button class="category-btn" data-category="juniorhigh" onclick="toggleDropdown('juniorhigh-dropdown')">
+                    <i class="fas fa-book-reader"></i>
+                    Junior High Items
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </button>
+                <div class="dropdown-menu" id="juniorhigh-dropdown">
+                    <button class="dropdown-item" onclick="selectGender('juniorhigh', 'male')">
+                        <i class="fas fa-male"></i> Male Items
+                            </button>
+                    <button class="dropdown-item" onclick="selectGender('juniorhigh', 'female')">
+                        <i class="fas fa-female"></i> Female Items
+                            </button>
+                    <button class="dropdown-item" onclick="selectGender('juniorhigh', 'both')">
+                        <i class="fas fa-venus-mars"></i> Both Gender
+                    </button>
+                    </div>
+                </div>
+                
+            <!-- Senior High Dropdown -->
+            <div class="category-dropdown">
+                <button class="category-btn" data-category="seniorhigh" onclick="toggleDropdown('seniorhigh-dropdown')">
+                    <i class="fas fa-graduation-cap"></i>
+                    Senior High Items
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </button>
+                <div class="dropdown-menu" id="seniorhigh-dropdown">
+                    <button class="dropdown-item" onclick="selectGender('seniorhigh', 'male')">
+                        <i class="fas fa-male"></i> Male Items
+                            </button>
+                    <button class="dropdown-item" onclick="selectGender('seniorhigh', 'female')">
+                        <i class="fas fa-female"></i> Female Items
+                            </button>
+                    <button class="dropdown-item" onclick="selectGender('seniorhigh', 'both')">
+                        <i class="fas fa-venus-mars"></i> Both Gender
+                    </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+    <!-- Category Content Sections -->
+    <div class="category-content">
+        <!-- Pre-School Section -->
+        <div class="category-section" id="preschool-section">
+            <h2>Pre-School Uniforms</h2>
+            <div class="inventory-grid">
+                <!-- Pre-School inventory items will go here -->
+                </div>
+            </div>
+
+        <!-- Elementary Section -->
+        <div class="category-section" id="elementary-section">
+            <h2>Elementary Uniforms</h2>
+            <div class="inventory-grid">
+                <!-- Elementary inventory items will go here -->
+                    </div>
+                </div>
+                
+        <!-- Junior High Section -->
+        <div class="category-section" id="juniorhigh-section">
+            <h2>Junior High Uniforms</h2>
+            <div class="inventory-grid">
+                <!-- Junior High inventory items will go here -->
+                    </div>
+                </div>
+                
+        <!-- Senior High Section -->
+        <div class="category-section" id="seniorhigh-section">
+            <h2>Senior High Uniforms</h2>
+            <div class="inventory-grid">
+                <!-- Senior High inventory items will go here -->
+                </div>
+            </div>
+                    </div>
+                </div>
+                
+<style>
+    :root {
+        --base-font-size: 16px;
+        --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+        --font-family-headings: 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, sans-serif;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: var(--font-family-base);
+    }
+
+    body {
+        font-size: var(--base-font-size);
+        line-height: 1.6;
+        -webkit-text-size-adjust: 100%;
+        font-family: var(--font-family-base);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-family-headings);
+}
+
+.inventory-container {
+        padding: 25px;
+        max-width: 1300px;
+    margin: 0 auto;
+    }
+
+    /* Header Styles */
+    .inventory-header {
+        text-align: center;
+        margin-bottom: 35px;
+        padding: 35px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .inventory-header h1 {
+        font-family: var(--font-family-headings);
+        font-size: 2.5em;
+        color: #1a1a1a;
+        margin-bottom: 20px;
+    font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .inventory-header p {
+        font-size: 1.2em;
+        color: #333;
+        max-width: 900px;
+        margin: 0 auto 20px;
+        line-height: 1.8;
+        font-weight: 500;
+    }
+
+    /* Font Size Controls */
+    .font-size-controls {
+        margin-top: 20px;
+    display: flex;
+    justify-content: center;
+        gap: 10px;
+    }
+
+    .font-control-btn {
+        padding: 8px 15px;
+        font-size: 1.1em;
+        background: #f0f2f5;
+        border: 2px solid #1a73e8;
+        border-radius: 8px;
+    cursor: pointer;
+        color: #1a73e8;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    }
+
+    .font-control-btn:hover {
+        background: #1a73e8;
+    color: white;
+    }
+
+    .category-nav {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 35px;
+    }
+
+    .category-buttons {
+    display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    align-items: center;
+    }
+
+    .category-btn {
+    display: flex;
+    align-items: center;
+        gap: 12px;
+        padding: 20px 35px;
+    border: none;
+        border-radius: 12px;
+        background: #f5f7fa;
+        color: #1a1a1a;
+        font-size: 1.2em;
+        font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+        min-width: 250px;
+    justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-btn i {
+        font-size: 1.4em;
+        color: #1a73e8;
+    }
+
+    .category-btn:hover {
+        background: #e8f0fe;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-btn.active {
+        background: #1a73e8;
+    color: white;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.4);
+    }
+
+    .category-btn.active i {
+    color: white;
+    }
+
+    .category-section {
+    display: none;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-section.active {
+        display: block;
+        animation: fadeIn 0.6s ease;
+    }
+
+    .category-section h2 {
+        font-family: var(--font-family-headings);
+        font-size: 2em;
+        color: #1a1a1a;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #e8f0fe;
+    text-align: center;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .inventory-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        padding: 25px 0;
+    }
+
+    /* Dark Mode Styles */
+    .dark-mode .inventory-header,
+    .dark-mode .category-nav,
+    .dark-mode .category-section {
+        background: #2d2d2d;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark-mode .inventory-header h1 {
+        color: #ffffff;
+    }
+
+    .dark-mode .inventory-header p {
+        color: #e0e0e0;
+    }
+
+    .dark-mode .font-control-btn {
+        background: #333;
+        border-color: #1a73e8;
+        color: #fff;
+    }
+
+    .dark-mode .font-control-btn:hover {
+        background: #1a73e8;
+    }
+
+    .dark-mode .category-btn {
+        background: #333;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .dark-mode .category-btn:hover {
+        background: #404040;
+    }
+
+    .dark-mode .category-btn.active {
+        background: #1a73e8;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+    }
+
+    .dark-mode .category-section h2 {
+        color: #fff;
+        border-bottom-color: #404040;
+    }
+
+    /* High Contrast Mode */
+    @media (prefers-contrast: high) {
+        .category-btn {
+            border: 2px solid #000;
+        }
+        .dark-mode .category-btn {
+            border: 2px solid #fff;
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .inventory-header {
+            padding: 25px;
+        }
+
+        .inventory-header h1 {
+            font-size: 2em;
+        }
+
+        .inventory-header p {
+            font-size: 1.1em;
+        }
+
+        .category-buttons {
+    flex-direction: column;
+        }
+
+        .category-btn {
+    width: 100%;
+    justify-content: center;
+            padding: 15px 25px;
+            font-size: 1.1em;
+        }
+
+        .inventory-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Dropdown Styles */
+    .category-dropdown {
+    position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-menu {
+        display: none;
+    position: absolute;
+        top: 100%;
+    left: 0;
+    width: 100%;
+        background: white;
+    border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-top: 8px;
+        z-index: 1000;
+    overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    .dropdown-item {
+    display: flex;
+    align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 15px 20px;
+        border: none;
+        background: none;
+        color: #333;
+        font-size: 1.1em;
+        font-weight: 500;
+    cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+        background: #e8f0fe;
+        color: #1a73e8;
+    }
+
+    .dropdown-item i {
+        font-size: 1.2em;
+        width: 24px;
+        text-align: center;
+    }
+
+    .dropdown-icon {
+        margin-left: 8px;
+        transition: transform 0.3s ease;
+    }
+
+    .category-btn.active .dropdown-icon {
+        transform: rotate(180deg);
+    }
+
+    @keyframes slideDown {
+        from {
+    opacity: 0;
+            transform: translateY(-10px);
+}
+        to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    }
+
+    /* Dark Mode Dropdown Styles */
+    .dark-mode .dropdown-menu {
+        background: #2d2d2d;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark-mode .dropdown-item {
+        color: #fff;
+    }
+
+    .dark-mode .dropdown-item:hover {
+        background: #404040;
+        color: #1a73e8;
+    }
+
+    /* Mobile Responsive Dropdown */
+@media (max-width: 768px) {
+        .category-dropdown {
+    width: 100%;
+        }
+
+        .dropdown-menu {
+    position: relative;
+            margin-top: 4px;
+        }
+}
+
+/* Inventory Item Styles */
+.inventory-item {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    padding: 25px;
+    margin-bottom: 25px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+.inventory-item:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.inventory-item:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: #1a73e8;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+
+.item-header {
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f5f5f5;
+    position: relative;
+}
+
+.item-header h3 {
+    font-size: 1.5em;
+    color: #333;
+    font-weight: 700;
+    margin: 0;
+}
+
+.size-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.size-group {
+    margin-bottom: 15px;
+}
+
+.size-label {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.size-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+}
+
+.size-btn {
+    padding: 8px;
+    border: 2px solid #1a73e8;
+    border-radius: 8px;
+    background: white;
+    color: #1a73e8;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.size-btn:hover {
+    background: #e8f0fe;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.size-btn.selected {
+    background: #1a73e8;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(26, 115, 232, 0.3);
+}
+
+.size-btn.selected:after {
+    content: '✓';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #4CAF50;
+    color: white;
+    font-size: 10px;
+    width: 20px;
+    height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    transform: scale(0.7);
+    opacity: 0.9;
+}
+
+.price-display {
+        text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f5f7fa;
+    border-radius: 8px;
+    font-size: 1.2em;
+        font-weight: 600;
+    color: #1a1a1a;
+        transition: all 0.3s ease;
+}
+
+.price-display.price-updated {
+    background: #e6f4ea;
+    color: #137333;
+    transform: scale(1.05);
+}
+
+/* Dark Mode Styles */
+.dark-mode .inventory-item {
+    background-color: #222;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: #333;
+}
+
+.dark-mode .inventory-item:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.dark-mode .inventory-item:before {
+    background: #3b7edd;
+}
+
+.dark-mode .item-header {
+    border-bottom-color: #333;
+}
+
+.dark-mode .item-header h3 {
+    color: #e6e6e6;
+}
+
+.dark-mode .size-btn {
+    background: #2d2d2d;
+    border-color: #5c92e8;
+    color: #5c92e8;
+}
+
+.dark-mode .size-btn:hover {
+    background: #404040;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .size-btn.selected {
+    background: #1a73e8;
+    color: white;
+    box-shadow: 0 3px 8px rgba(26, 115, 232, 0.2);
+}
+
+.dark-mode .price-display {
+    background: #333;
+    color: white;
+}
+
+.dark-mode .price-display.price-updated {
+    background: #1e3329;
+    color: #7ccdaa;
+}
+
+.dark-mode .size-label {
+    color: #aaa;
+    border-bottom-color: #444;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    width: 100%;
+    grid-column: 1 / -1;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(26, 115, 232, 0.2);
+    border-radius: 50%;
+    border-top-color: #1a73e8;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.dark-mode .loading-spinner {
+    border-color: rgba(59, 126, 221, 0.2);
+    border-top-color: #3b7edd;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-access {
+    margin-top: 20px;
+}
+
+.admin-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #1a73e8;
+        color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
+}
+
+.admin-link:hover {
+    background: #1557b0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(26, 115, 232, 0.4);
+}
+
+.dark-mode .admin-link {
+    background: #3b7edd;
+}
+
+.dark-mode .admin-link:hover {
+    background: #2d62b8;
+}
+
+/* Stock status indicators */
+.stock-status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.stock-status.available {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+.stock-status.low {
+    background-color: #fcf8e3;
+    color: #8a6d3b;
+}
+
+.stock-status.out {
+    background-color: #f2dede;
+    color: #a94442;
+}
+
+.quantity {
+    font-size: 0.85rem;
+    color: #666;
+    margin-left: 5px;
+}
+
+.size-btn.out-of-stock {
+    background-color: #f2dede;
+    color: #a94442;
+    border-color: #ebccd1;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.size-btn.low-stock {
+    background-color: #fcf8e3;
+    color: #8a6d3b;
+    border-color: #faebcc;
+}
+
+/* Dark mode adjustments */
+.dark-mode .stock-status.available {
+    background-color: #1d3a1d;
+    color: #8fff8f;
+}
+
+.dark-mode .stock-status.low {
+    background-color: #3a331d;
+    color: #ffd98a;
+}
+
+.dark-mode .stock-status.out {
+    background-color: #3a1d1d;
+    color: #ff8f8f;
+}
+
+.dark-mode .quantity {
+    color: #aaa;
+}
+
+.dark-mode .size-btn.out-of-stock {
+    background-color: #3a1d1d;
+    color: #ff8f8f;
+    border-color: #5a2d2d;
+}
+
+.dark-mode .size-btn.low-stock {
+    background-color: #3a331d;
+    color: #ffd98a;
+    border-color: #5a4d2d;
+}
+</style>
+
+<script>
+// Pass the database data to JavaScript
+const inventoryData = JSON.parse('{{ categories|tojson|safe }}');
+
+function getStockStatus(statusCode) {
+    switch(statusCode) {
+        case 'low':
+            return '<span class="stock-status low">Low Stock</span>';
+        case 'out':
+            return '<span class="stock-status out">Out of Stock</span>';
+        case 'available':
+            return '<span class="stock-status available">In Stock</span>';
+        default:
+            return '';
+    }
+}
+
+function selectSize(itemId, size) {
+    // Remove selected class from all size buttons in the item
+    const itemContainer = document.getElementById(itemId);
+    const sizeButtons = itemContainer.querySelectorAll('.size-btn');
+    sizeButtons.forEach(btn => btn.classList.remove('selected'));
+    
+    // Add selected class to clicked button
+    const selectedButton = itemContainer.querySelector(`[data-size="${size}"]`);
+    if (selectedButton) {
+        selectedButton.classList.add('selected');
+        
+        // Update price display
+        const [category, gender, itemType] = itemId.split('-');
+        const priceInfo = inventoryData[category][gender][itemType].sizes[size];
+        const priceDisplay = itemContainer.querySelector('.price-display');
+        
+        // Show price and stock status
+        priceDisplay.innerHTML = `
+            ₱${priceInfo.price} 
+            ${getStockStatus(priceInfo.status)}
+            <span class="quantity">(${priceInfo.quantity} available)</span>
+        `;
+        
+        priceDisplay.classList.add('price-updated');
+        
+        // Add animation
+        setTimeout(function() {
+            priceDisplay.classList.remove('price-updated');
+        }, 1000);
+    }
+}
+
+function updateInventoryItems(category, gender) {
+    const section = document.getElementById(`${category}-section`);
+    const grid = section.querySelector('.inventory-grid');
+    
+    // Clear existing items
+    grid.innerHTML = '';
+    
+    // Initialize HTML content as an empty string
+    let htmlContent = '';
+    
+    // Function to separate numeric and letter sizes
+    function separateSizes(sizes) {
+        const numericSizes = sizes.filter(size => !isNaN(parseInt(size)));
+        const letterSizes = sizes.filter(size => isNaN(parseInt(size)));
+        return { numericSizes, letterSizes };
+    }
+    
+    // Function to create size buttons with separated numeric and letter sizes
+    function createSizeButtons(itemId, sizesData) {
+        const sizes = Object.keys(sizesData);
+        const { numericSizes, letterSizes } = separateSizes(sizes);
+        
+        let buttonsHtml = '';
+        
+        // Add numeric sizes if any
+        if (numericSizes.length > 0) {
+            buttonsHtml += '<div class="size-group">';
+            buttonsHtml += '<p class="size-label">Number Sizes</p>';
+            buttonsHtml += '<div class="size-buttons">';
+            buttonsHtml += numericSizes.map(size => {
+                const sizeData = sizesData[size];
+                let buttonClass = "size-btn";
+                
+                // Add status-based classes
+                if (sizeData.status === 'out') {
+                    buttonClass += ' out-of-stock';
+                } else if (sizeData.status === 'low') {
+                    buttonClass += ' low-stock';
+                }
+                
+                return `<button class="${buttonClass}" data-size="${size}" data-quantity="${sizeData.quantity}" onclick="selectSize('${itemId}', '${size}')">${size}</button>`;
+            }).join('');
+            buttonsHtml += '</div></div>';
+        }
+        
+        // Add letter sizes if any
+        if (letterSizes.length > 0) {
+            buttonsHtml += '<div class="size-group">';
+            buttonsHtml += '<p class="size-label">Letter Sizes</p>';
+            buttonsHtml += '<div class="size-buttons">';
+            buttonsHtml += letterSizes.map(size => {
+                const sizeData = sizesData[size];
+                let buttonClass = "size-btn";
+                
+                // Add status-based classes
+                if (sizeData.status === 'out') {
+                    buttonClass += ' out-of-stock';
+                } else if (sizeData.status === 'low') {
+                    buttonClass += ' low-stock';
+                }
+                
+                return `<button class="${buttonClass}" data-size="${size}" data-quantity="${sizeData.quantity}" onclick="selectSize('${itemId}', '${size}')">${size}</button>`;
+            }).join('');
+            buttonsHtml += '</div></div>';
+        }
+        
+        return buttonsHtml;
+    }
+    
+    // Check if we have data for this category and gender
+    if (!inventoryData[category] || !inventoryData[category][gender]) {
+        grid.innerHTML = '<p class="no-items">No items available for this selection.</p>';
+        return;
+    }
+    
+    // Generate HTML for each item in the category and gender
+    const items = inventoryData[category][gender];
+    for (const [itemType, itemData] of Object.entries(items)) {
+        const itemHtml = `
+            <div class="inventory-item" id="${category}-${gender}-${itemType}">
+                <div class="item-header">
+                    <h3>${itemData.name}</h3>
+                </div>
+                <div class="size-grid">
+                    ${createSizeButtons(`${category}-${gender}-${itemType}`, itemData.sizes)}
+                </div>
+                <div class="price-display">Select a size</div>
+            </div>
+        `;
+        htmlContent += itemHtml;
+    }
+    
+    // Add PE items which are common
+    if (inventoryData[category] && inventoryData[category]['unisex']) {
+        const peItems = inventoryData[category]['unisex'];
+        
+        for (const [itemType, itemData] of Object.entries(peItems)) {
+            const itemHtml = `
+                <div class="inventory-item" id="${category}-unisex-${itemType}">
+                    <div class="item-header">
+                        <h3>${itemData.name}</h3>
+        </div>
+                    <div class="size-grid">
+                        ${createSizeButtons(`${category}-unisex-${itemType}`, itemData.sizes)}
+            </div>
+                    <div class="price-display">Select a size</div>
+                </div>
+            `;
+            htmlContent += itemHtml;
+        }
+    }
+    
+    // Update grid with all items
+    grid.innerHTML = htmlContent || '<p class="no-items">No items available for this selection.</p>';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    const categorySections = document.querySelectorAll('.category-section');
+
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+            categorySections.forEach(section => section.classList.remove('active'));
+            button.classList.add('active');
+            const category = button.dataset.category;
+            document.getElementById(`${category}-section`).classList.add('active');
+    });
+});
+    });
+
+// Font size control functions
+let currentFontSize = 16; // Base font size in pixels
+const minFontSize = 14;
+const maxFontSize = 24;
+
+function updateFontSize() {
+    document.documentElement.style.setProperty('--base-font-size', `${currentFontSize}px`);
+}
+
+function increaseFontSize() {
+    if (currentFontSize < maxFontSize) {
+        currentFontSize += 2;
+        updateFontSize();
+    }
+}
+
+function decreaseFontSize() {
+    if (currentFontSize > minFontSize) {
+        currentFontSize -= 2;
+        updateFontSize();
+    }
+}
+
+function resetFontSize() {
+    currentFontSize = 16;
+    updateFontSize();
+}
+
+// Dropdown functionality
+function toggleDropdown(dropdownId) {
+    // Close all other dropdowns first
+    const allDropdowns = document.querySelectorAll('.dropdown-menu');
+    allDropdowns.forEach(dropdown => {
+        if (dropdown.id !== dropdownId) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    // Toggle the clicked dropdown
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.classList.toggle('show');
+
+    // Update button active state
+    const button = dropdown.previousElementSibling;
+    button.classList.toggle('active');
+}
+
+// Update the selectGender function
+function selectGender(category, gender) {
+    // Close the dropdown
+    const dropdown = document.getElementById(`${category}-dropdown`);
+    dropdown.classList.remove('show');
+
+    // Update the section content based on category and gender
+    const section = document.getElementById(`${category}-section`);
+    section.querySelector('h2').textContent = `${capitalizeFirst(category)} ${gender === 'male' ? "Boys'" : "Girls'"} Uniforms`;
+
+    // Get the inventory grid
+    const inventoryGrid = section.querySelector('.inventory-grid');
+    
+    // Clear current grid and show centered loading animation
+    inventoryGrid.style.display = "flex";
+    inventoryGrid.style.justifyContent = "center";
+    inventoryGrid.style.alignItems = "center";
+    
+    // Show loading animation
+    inventoryGrid.innerHTML = `
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+        </div>
+    `;
+    
+    // Small delay to show loading animation
+    setTimeout(() => {
+        // Reset grid display properties
+        inventoryGrid.style.display = "";
+        inventoryGrid.style.justifyContent = "";
+        inventoryGrid.style.alignItems = "";
+        
+        // Update inventory items
+        updateInventoryItems(category, gender);
+    }, 500);
+}
+
+function capitalizeFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.category-dropdown')) {
+        const allDropdowns = document.querySelectorAll('.dropdown-menu');
+        allDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+        const allButtons = document.querySelectorAll('.category-btn');
+        allButtons.forEach(button => {
+            button.classList.remove('active');
+        });
+    }
+});
+</script>
+{% endblock %} 

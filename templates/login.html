@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JILCF Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/transitions.css') }}">
+    
+    <!-- Early dark mode initialization to prevent flash -->
+    <script>
+        // Check for dark mode preference immediately
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'enabled') {
+            document.documentElement.classList.add('dark-mode');
+            document.documentElement.style.backgroundColor = '#1a1a1a';
+        }
+    </script>
+    
+    <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-blue-light: #4285f4;
+            --primary-blue-dark: #1557b0;
+            --primary-yellow: #ffd700;
+            --primary-yellow-light: #ffe44d;
+            --primary-yellow-dark: #ccac00;
+            --white: #FFFFFF;
+            --white-soft: #f8f9fa;
+            --shadow-light: rgba(255, 255, 255, 0.8);
+            --shadow-dark: rgba(0, 0, 0, 0.1);
+            --text-dark: #333333;
+            --text-medium: #666666;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+            --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+            --font-family-headings: 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, sans-serif;
+        }
+
+        /* Dark mode variables */
+        .dark-mode {
+            --white: #1a1a1a;
+            --white-soft: #2d2d2d;
+            --shadow-light: rgba(255, 255, 255, 0.05);
+            --shadow-dark: rgba(0, 0, 0, 0.3);
+            --text-dark: #ffffff;
+            --text-medium: #a0a0a0;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family-base);
+        }
+
+        html {
+            font-size: 62.5%;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--background);
+            overflow: hidden;
+            transition: background-color var(--transition-speed);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: var(--font-family-base);
+        }
+
+        .split-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: var(--primary-blue);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 4rem;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        .right-panel {
+            flex: 1;
+            background: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            position: relative;
+            animation: slideInRight 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .welcome-content {
+            text-align: center;
+            color: var(--text-dark);
+            z-index: 2;
+        }
+
+        .logo-container {
+            margin-bottom: 2rem;
+            animation: float-icon 6s ease-in-out infinite;
+        }
+
+        .logo-container img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            filter: drop-shadow(0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.2));
+        }
+
+        .welcome-content h1 {
+            font-size: 3.6rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
+        }
+
+        .welcome-content p {
+            font-size: 1.8rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .geometric-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.1;
+        }
+
+        .shape {
+            position: absolute;
+            background: var(--primary-yellow);
+        }
+
+        .shape-1 {
+            width: 30rem;
+            height: 30rem;
+            border-radius: 50%;
+            top: -15rem;
+            right: -15rem;
+        }
+
+        .shape-2 {
+            width: 20rem;
+            height: 20rem;
+            border-radius: 50%;
+            bottom: -10rem;
+            left: -10rem;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 40rem;
+            padding: 4rem;
+            border-radius: 2rem;
+            background: var(--card-bg);
+            box-shadow: 0.8rem 0.8rem 1.4rem var(--shadow-dark), 
+                       -0.2rem -0.2rem 1.8rem var(--shadow-light);
+            transform: translateY(0);
+            transition: all var(--transition-speed);
+        }
+
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 1.2rem 1.2rem 1.8rem var(--shadow-dark), 
+                        -0.3rem -0.3rem 2rem var(--shadow-light);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .form-header h2 {
+            font-size: 2.8rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            font-size: 1.4rem;
+            color: var(--text-medium);
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 1.4rem;
+            color: var(--text-medium);
+            margin-bottom: 0.8rem;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 1.5rem;
+            top: calc(50% + 1rem);
+            transform: translateY(-50%);
+            font-size: 1.6rem;
+            color: var(--primary-blue);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        .input-group input {
+            width: 100%;
+            height: 4.8rem;
+            border: 1px solid transparent;
+            border-radius: 1rem;
+            font-size: 1.4rem;
+            padding: 0 1.5rem 0 4.5rem;
+            background: var(--white-soft);
+            color: var(--text-dark);
+            box-shadow: inset 0.2rem 0.2rem 0.5rem var(--shadow-dark), 
+                        inset -0.2rem -0.2rem 0.5rem var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-blue-light);
+            background: var(--card-bg);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1),
+                        inset 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.05), 
+                        inset -0.2rem -0.2rem 0.5rem rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-medium);
+            opacity: 0.8;
+        }
+
+        .input-group.focused i {
+            color: var(--primary-blue);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .input-group.has-value i {
+            color: var(--primary-blue);
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .toggle-switch .slider {
+            position: relative;
+            width: 5rem;
+            height: 2.4rem;
+            border-radius: 2rem;
+            background: var(--white-soft);
+            margin-right: 1rem;
+            box-shadow: inset 0.2rem 0.2rem 0.5rem var(--shadow-dark), 
+                       inset -0.2rem -0.2rem 0.5rem var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .toggle-switch .slider::after {
+            content: "";
+            position: absolute;
+            left: 0.4rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.6rem;
+            height: 1.6rem;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0.2rem 0.2rem 0.5rem var(--shadow-dark);
+        }
+
+        .toggle-switch input:checked + .slider {
+            background: linear-gradient(330deg, var(--primary-yellow-dark) 0%, var(--primary-yellow) 50%, var(--primary-yellow-light) 100%);
+        }
+
+        .toggle-switch input:checked + .slider::after {
+            left: calc(100% - 2rem);
+            background: var(--white);
+        }
+
+        .toggle-switch label {
+            font-size: 1.4rem;
+            color: var(--text-medium);
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            height: 4.5rem;
+            border: none;
+            border-radius: 1rem;
+            background: var(--primary-blue);
+            color: var(--white);
+            font-size: 1.6rem;
+            font-weight: 500;
+            letter-spacing: 0.2rem;
+            box-shadow: 0.3rem 0.3rem 0.6rem var(--shadow-dark), 
+                       -0.2rem -0.2rem 0.5rem var(--shadow-light);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            animation: button-pulse 2s infinite;
+        }
+
+        .btn:not(.loading):hover {
+            background: var(--primary-blue-light);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.4);
+        }
+
+        .btn:not(.loading):active {
+            transform: translateY(1px);
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn.loading {
+            background: var(--primary-blue-dark);
+            cursor: wait;
+        }
+
+        .btn.loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            border: 2px solid var(--white);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: button-spin 0.8s linear infinite;
+        }
+
+        @keyframes button-spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-size: 1.4rem;
+            opacity: 0;
+            transform: translateY(-1rem);
+            transition: all 0.3s ease;
+        }
+
+        .error-message {
+            background: rgba(255, 82, 82, 0.1);
+            color: #ff5252;
+            box-shadow: inset 0.2rem 0.2rem 0.5rem rgba(255, 82, 82, 0.1), 
+                       inset -0.2rem -0.2rem 0.5rem var(--white);
+        }
+
+        .success-message {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+            box-shadow: inset 0.2rem 0.2rem 0.5rem rgba(76, 175, 80, 0.1), 
+                       inset -0.2rem -0.2rem 0.5rem var(--white);
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes float-icon {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes shake-horizontal {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .login-container.error {
+            animation: shake-horizontal 0.8s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @media screen and (max-width: 768px) {
+            .split-container {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                display: none;
+            }
+
+            .right-panel {
+                padding: 2rem;
+            }
+
+            .login-container {
+                box-shadow: none;
+                padding: 2rem;
+            }
+        }
+
+        /* Dark mode specific styles */
+        .dark-mode .welcome-content {
+            text-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.4);
+        }
+
+        .dark-mode .login-container {
+            background: var(--card-bg);
+            box-shadow: 0.8rem 0.8rem 2rem rgba(0, 0, 0, 0.3),
+                       -0.2rem -0.2rem 2rem rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-mode .input-group input {
+            background: var(--white);
+            color: var(--text-dark);
+            box-shadow: inset 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.2),
+                        inset -0.2rem -0.2rem 0.5rem rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-mode .input-group input:focus {
+            background: #242424;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .dark-mode .toggle-switch .slider {
+            background: var(--white);
+            box-shadow: inset 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-mode .error-message {
+            background: rgba(255, 82, 82, 0.15);
+            box-shadow: inset 0.2rem 0.2rem 0.5rem rgba(255, 82, 82, 0.1);
+        }
+
+        .dark-mode .success-message {
+            background: rgba(76, 175, 80, 0.15);
+            box-shadow: inset 0.2rem 0.2rem 0.5rem rgba(76, 175, 80, 0.1);
+        }
+
+        /* Enhanced Brand Container */
+        .brand-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border-radius: 2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .logo-wrapper {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #1a73e8, #4285f4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .uniform-logo {
+            width: 30px;
+            height: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-wrapper::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            top: -25%;
+            left: -25%;
+            animation: rotate 8s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .brand-text {
+            transform: translateZ(10px);
+        }
+
+        .brand-text h1 {
+            font-size: 3.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary-blue) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text p {
+            font-size: 1.6rem;
+            color: var(--text-medium);
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateZ(10px) translateY(0) rotate(0); }
+            25% { transform: translateZ(10px) translateY(-10px) rotate(-5deg); }
+            75% { transform: translateZ(10px) translateY(5px) rotate(5deg); }
+        }
+
+        /* Particle Background */
+        .particles-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: linear-gradient(135deg, var(--primary-yellow-light), var(--primary-blue-light));
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.3;
+            animation: particleFloat 20s infinite linear;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Enhanced Brand Container Animations */
+        .brand-container:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .logo-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            background: linear-gradient(45deg, var(--primary-yellow), var(--primary-yellow-light));
+            border-radius: inherit;
+            filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .brand-container:hover .logo-wrapper::before {
+            opacity: 0.7;
+        }
+
+        .brand-text h1::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-yellow), transparent);
+            transition: width 0.3s ease;
+        }
+
+        .brand-container:hover .brand-text h1::after {
+            width: 100px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Dark mode enhancements */
+        .dark-mode .brand-container {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode .brand-text h1 {
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dark-mode .logo-wrapper {
+            background: linear-gradient(135deg, #1a73e8, #4285f4);
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode .logo-wrapper .fa-graduation-cap {
+            font-size: 2rem;
+            color: #ffffff;
+        }
+
+        .dark-mode .particle {
+            background: linear-gradient(135deg, var(--primary-yellow-dark), var(--primary-blue-dark));
+            opacity: 0.15;
+        }
+
+        /* Premium Glow Effects */
+        .brand-container::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(45deg, 
+                var(--primary-yellow-light) 0%, 
+                transparent 30%,
+                transparent 70%,
+                var(--primary-blue-light) 100%
+            );
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .brand-container:hover::after {
+            opacity: 0.5;
+        }
+
+        .logo-wrapper i {
+            position: relative;
+        }
+
+        .logo-wrapper i::after {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, 
+                rgba(255, 215, 0, 0.2) 0%, 
+                transparent 70%
+            );
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.2; }
+        }
+
+        /* Enhanced Text Animation */
+        .brand-text h1 {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-text h1::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent 100%
+            );
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        /* Smooth Scroll and Better Performance */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .brand-container, .logo-wrapper, .brand-text {
+            will-change: transform;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Premium Shadow Effects */
+        .brand-container {
+            box-shadow: 
+                0 8px 32px 0 rgba(31, 38, 135, 0.15),
+                0 2px 4px 0 rgba(31, 38, 135, 0.1),
+                inset 0 2px 4px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .brand-container {
+            box-shadow: 
+                0 8px 32px 0 rgba(0, 0, 0, 0.3),
+                0 2px 4px 0 rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .welcome-title {
+            margin-top: 2rem;
+            background: linear-gradient(135deg, var(--primary-yellow), var(--primary-yellow-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+    </div>
+
+    <div class="particles-background">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 12s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 16s;"></div>
+    </div>
+
+    <div class="split-container">
+        <div class="left-panel">
+            <div class="geometric-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+            </div>
+            <div class="welcome-content">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="JILCF Logo">
+                </div>
+                <h1 class="welcome-title">Welcome to JILCF</h1>
+                <p>Uniform Management System</p>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="login-container">
+                <div class="form-header">
+                    <h2>Sign In</h2>
+                    <p>Please login to continue</p>
+                </div>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" required placeholder="Enter your email">
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" required placeholder="Enter your password">
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="slider"></span>
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn btn-ripple">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </button>
+                </form>
+                <div class="error-message message">Invalid email or password!</div>
+                <div class="success-message message">Login successful!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for saved credentials on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Handle transition animation
+            setTimeout(() => {
+                document.body.classList.add('page-loaded');
+            }, 300);
+
+            // Check for saved credentials
+            const savedEmail = localStorage.getItem('jilcf_email');
+            const savedPassword = localStorage.getItem('jilcf_password');
+            const rememberMe = localStorage.getItem('jilcf_remember_me');
+            
+            if (savedEmail && savedPassword && rememberMe === 'true') {
+                document.getElementById('email').value = savedEmail;
+                document.getElementById('password').value = savedPassword;
+                document.getElementById('rememberMe').checked = true;
+            } else {
+                // Pre-fill with default admin credentials for easy access
+                document.getElementById('email').value = 'jilcfadministratoruser@jilcf.com';
+                document.getElementById('password').value = 'JILCF2025';
+            }
+        });
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('.btn-ripple').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (this.classList.contains('loading')) return;
+                
+                const rect = button.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const circle = document.createElement('span');
+                circle.style.cssText = `
+                    position: absolute;
+                    background: rgba(255, 255, 255, 0.4);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    width: ${button.offsetWidth * 2}px;
+                    height: ${button.offsetWidth * 2}px;
+                    top: ${y - button.offsetWidth}px;
+                    left: ${x - button.offsetWidth}px;
+                    transform: scale(0);
+                    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                              opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                `;
+                
+                button.appendChild(circle);
+                
+                requestAnimationFrame(() => {
+                    circle.style.transform = 'scale(1)';
+                    circle.style.opacity = '0';
+                });
+                
+                setTimeout(() => circle.remove(), 600);
+            });
+        });
+
+        // Add focus and value check effects for input fields
+        document.querySelectorAll('.input-group input').forEach(input => {
+            const inputGroup = input.parentElement;
+            
+            // Check initial value
+            if (input.value) {
+                inputGroup.classList.add('has-value');
+            }
+            
+            input.addEventListener('focus', function() {
+                inputGroup.classList.add('focused');
+            });
+
+            input.addEventListener('blur', function() {
+                inputGroup.classList.remove('focused');
+                if (this.value) {
+                    inputGroup.classList.add('has-value');
+                } else {
+                    inputGroup.classList.remove('has-value');
+                }
+            });
+
+            // Handle input changes
+            input.addEventListener('input', function() {
+                if (this.value) {
+                    inputGroup.classList.add('has-value');
+                } else {
+                    inputGroup.classList.remove('has-value');
+                }
+            });
+        });
+
+        // Handle form submission with loading state
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const button = e.target.querySelector('.btn');
+            const buttonText = button.innerHTML;
+            const loginContainer = document.querySelector('.login-container');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorMessage = document.querySelector('.error-message');
+            const successMessage = document.querySelector('.success-message');
+            const loader = document.querySelector('.loader');
+
+            // Show loading state
+            button.classList.add('loading');
+            button.disabled = true;
+
+            // Save credentials if "Remember Me" is checked
+            if (rememberMe) {
+                localStorage.setItem('jilcf_email', email);
+                localStorage.setItem('jilcf_password', password);
+                localStorage.setItem('jilcf_remember_me', 'true');
+            } else {
+                localStorage.removeItem('jilcf_email');
+                localStorage.removeItem('jilcf_password');
+                localStorage.removeItem('jilcf_remember_me');
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('password', password);
+
+                const response = await fetch('/verify', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    successMessage.classList.add('show');
+                    errorMessage.classList.remove('show');
+                    loginContainer.classList.remove('error');
+                    
+                    // Start transition
+                    document.body.classList.add('disable-hover');
+                    loader.classList.add('active');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/home';
+                    }, 1200);
+                } else {
+                    // Reset button state
+                    button.classList.remove('loading');
+                    button.disabled = false;
+                    button.innerHTML = buttonText;
+                    
+                    // Show error with shake animation
+                    errorMessage.classList.add('show');
+                    successMessage.classList.remove('show');
+                    loginContainer.classList.add('error');
+                    
+                    // Remove error class after animation
+                    setTimeout(() => {
+                        loginContainer.classList.remove('error');
+                    }, 1000);
+                    
+                    // Highlight input fields in red
+                    const inputs = [document.getElementById('email'), document.getElementById('password')];
+                    inputs.forEach(input => {
+                        input.style.borderColor = 'rgba(255, 82, 82, 0.5)';
+                        input.style.backgroundColor = 'rgba(255, 82, 82, 0.05)';
+                        
+                        // Reset input styling when user starts typing again
+                        input.addEventListener('input', function() {
+                            this.style.borderColor = '';
+                            this.style.backgroundColor = '';
+                            errorMessage.classList.remove('show');
+                        }, { once: true });
+                    });
+                }
+            } catch (error) {
+                // Reset button state
+                button.classList.remove('loading');
+                button.disabled = false;
+                button.innerHTML = buttonText;
+                
+                console.error('Error:', error);
+                errorMessage.textContent = 'Network error. Please try again.';
+                errorMessage.classList.add('show');
+                successMessage.classList.remove('show');
+                loginContainer.classList.add('error');
+                
+                setTimeout(() => {
+                    loginContainer.classList.remove('error');
+                }, 1000);
+            }
+        });
+
+        // Enhanced toggle switch functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleSwitch = document.querySelector('.toggle-switch');
+            const checkbox = document.getElementById('rememberMe');
+            const slider = toggleSwitch.querySelector('.slider');
+            const label = toggleSwitch.querySelector('label');
+
+            function toggleCheckbox(e) {
+                // Prevent default only if clicking the label or slider
+                if (e.target === label || e.target === slider) {
+                    e.preventDefault();
+                    checkbox.checked = !checkbox.checked;
+                    
+                    // Trigger change event
+                    const event = new Event('change');
+                    checkbox.dispatchEvent(event);
+                }
+            }
+
+            toggleSwitch.addEventListener('click', toggleCheckbox);
+        });
+
+        // Listen for dark mode changes from other tabs/windows
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'darkMode') {
+                if (e.newValue === 'enabled' && !document.body.classList.contains('dark-mode')) {
+                    document.documentElement.classList.add('dark-mode');
+                    document.body.classList.add('dark-mode');
+                } else if (e.newValue === 'disabled' && document.body.classList.contains('dark-mode')) {
+                    document.documentElement.classList.remove('dark-mode');
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+        
+        // Check for dark mode preference on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode') === 'enabled';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        });
+        
+        // Listen for dark mode broadcast messages
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'darkModeChange') {
+                if (e.data.isDarkMode && !document.body.classList.contains('dark-mode')) {
+                    document.documentElement.classList.add('dark-mode');
+                    document.body.classList.add('dark-mode');
+                } else if (!e.data.isDarkMode && document.body.classList.contains('dark-mode')) {
+                    document.documentElement.classList.remove('dark-mode');
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+
+        // Add dynamic particles
+        function createParticles(count) {
+            const background = document.querySelector('.particles-background');
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                particle.style.opacity = Math.random() * 0.5;
+                particle.style.width = `${Math.random() * 5 + 2}px`;
+                particle.style.height = particle.style.width;
+                background.appendChild(particle);
+            }
+        }
+
+        // 3D tilt effect for brand container
+        function initTiltEffect() {
+            const brandContainer = document.querySelector('.brand-container');
+            
+            brandContainer.addEventListener('mousemove', (e) => {
+                const rect = brandContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                brandContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            brandContainer.addEventListener('mouseleave', () => {
+                brandContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        }
+
+        // Enhanced particle system
+        function updateParticles() {
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach(particle => {
+                if (parseFloat(getComputedStyle(particle).top) <= 0) {
+                    particle.style.top = '100vh';
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.opacity = '0';
+                    void particle.offsetWidth; // Trigger reflow
+                    particle.style.opacity = `${Math.random() * 0.5}`;
+                }
+            });
+            requestAnimationFrame(updateParticles);
+        }
+
+        // Initialize enhanced particles
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles(20);
+            initTiltEffect();
+            updateParticles();
+        });
+    </script>
+</body>
+</html> 
