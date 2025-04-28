@@ -612,6 +612,8 @@ def handle_disconnect():
 
 # Update the main function to use socketio.run
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True) 
+    # Get port from environment variable or default to 5000
+    port = int(os.environ.get('PORT', 5000))
+    # Run the app
+    # Use 0.0.0.0 to make it accessible externally (required by Render)
+    socketio.run(app, host='0.0.0.0', port=port, debug=False) 
